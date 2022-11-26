@@ -1,98 +1,159 @@
-
 #include "pieza.hpp"
 
 // ABSTRACT
 
-Pieza::Pieza(int file, int col, bool blancas)
+int fromChessPosition(std::string pos)
 {
-    this->file=file;
-    this->col=col;
-    this->blancas=blancas;
+    // a1
+    if (pos.size() != 2)
+        return -1;
+    int row = pos.at(1) - 49;
+    int col = pos.at(0) - 97;
+
+    return (row+1)*col + row;
+}
+
+
+Pieza::Pieza(std::string pos, bool blancas)
+{
+    this->pos = fromChessPosition(pos);
+    this->blancas = blancas; 
+    m_sprite = sf::Sprite();
 };
 
-char Pieza::getNombre(){ 
+char Pieza::getNombre()
+{
     return nombre;
 }
 
-bool Pieza::getColor(){
+bool Pieza::getColor()
+{
     return blancas;
 }
 
-int Pieza::getFile(){
-    return file;
+int Pieza::getPos()
+{
+    return pos;
 }
 
-int Pieza::getCol(){
-    return col;
+void Pieza::move(int pos)
+{
+    this->pos = pos;
 }
 
-void Pieza::move(int file, int col){
-    this->file = file;
-    this->col = col;
+void Pieza::move(std::string pos)
+{
+    // MIRAR
+    //int posicion = 1;
+    this->pos = fromChessPosition(pos);
+}
+
+void Pieza::loadTexture(std::string filePath)
+{
+    if (!texture.loadFromFile(filePath))
+        std::cout << "Error loading file\n";
+    texture.setSmooth(true);
+}
+
+void Pieza::setTexture(){
+    m_sprite.setTexture(texture);
+    m_sprite.setOrigin(sf::Vector2f(m_sprite.getTexture()->getSize().x/2 , m_sprite.getTexture()->getSize().y/2));
+    m_sprite.setScale(sf::Vector2f(0.375f,0.375f));
+    m_sprite.setPosition(pos/8 * 64.0f + 32.0f, (7-(pos%8)) * 64.0f + 32.0f);
 }
 
 // ALFIL
 
-Alfil::Alfil(int file, int col, bool blancas) : Pieza(file, col, blancas)
+Alfil::Alfil(std::string pos, bool blancas) : Pieza(pos, blancas)
 {
     this->nombre = 'A';
+    std::string name = "bishop";
+    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    loadTexture(this->texture_file);
+    setTexture();
 }
 
-bool Alfil::calcularMovimiento(){
+bool Alfil::calcularMovimiento()
+{
     return true;
 }
 
 // CABALLO
 
-Caballo::Caballo(int file, int col, bool blancas) : Pieza(file, col, blancas)
+Caballo::Caballo(std::string pos, bool blancas) : Pieza(pos, blancas)
 {
     this->nombre = 'C';
+    std::string name = "knight";
+    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    loadTexture(this->texture_file);
+    setTexture();
 }
 
-bool Caballo::calcularMovimiento(){
+bool Caballo::calcularMovimiento()
+{
     return true;
 }
 
 // TORRE
 
-Torre::Torre(int file, int col, bool blancas) : Pieza(file, col, blancas)
+Torre::Torre(std::string pos, bool blancas) : Pieza(pos, blancas)
 {
     this->nombre = 'T';
+    std::string name = "rook";
+    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    loadTexture(this->texture_file);
+    setTexture();
 }
 
-bool Torre::calcularMovimiento(){
+bool Torre::calcularMovimiento()
+{
     return true;
 }
 
 // PEON
 
-Peon::Peon(int file, int col, bool blancas) : Pieza(file, col, blancas)
+Peon::Peon(std::string pos, bool blancas) : Pieza(pos, blancas)
 {
     this->nombre = 'P';
+    std::string name = "pawn";
+    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    loadTexture(this->texture_file);
+    setTexture();
 }
 
-bool Peon::calcularMovimiento(){
+bool Peon::calcularMovimiento()
+{
     return true;
 }
 
 // REY
 
-Rey::Rey(int file, int col, bool blancas) : Pieza(file, col, blancas)
+Rey::Rey(std::string pos, bool blancas) : Pieza(pos, blancas)
 {
     this->nombre = 'R';
+    std::string name = "king";
+    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    loadTexture(this->texture_file);
+    setTexture();
 }
 
-bool Rey::calcularMovimiento(){
+bool Rey::calcularMovimiento()
+{
     return true;
 }
 
 // DAMA
 
-Dama::Dama(int file, int col, bool blancas) : Pieza(file, col, blancas)
+Dama::Dama(std::string pos, bool blancas) : Pieza(pos, blancas)
 {
     this->nombre = 'D';
+    std::string name = "queen";
+    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    loadTexture(this->texture_file);
+    setTexture();
 }
 
-bool Dama::calcularMovimiento(){
+bool Dama::calcularMovimiento()
+{
     return true;
 }

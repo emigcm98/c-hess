@@ -7,18 +7,14 @@ class Jugada {
 
 private:
     Pieza* pieza;
-    int prev_file;
-    int prev_col;
-    int new_file;
-    int new_col;
+    int prev_pos;
+    int new_pos;
     //Partida* p;
 public:
-    Jugada(Pieza* pieza, int new_file, int new_col);
+    Jugada(Pieza* pieza, std::string new_pos);
     // getters
     Pieza* getPieza();
-    int getNewFile();
-    char getNewFile_text();
-    int getNewCol();
+    int getNewPos();
     // setters
     // methods
     bool check_movement(); // true if possible, false if not

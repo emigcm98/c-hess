@@ -1,25 +1,37 @@
+#include <SFML/Graphics.hpp>
+#include <string>
+#include <iostream>
 #pragma once
 
-class Pieza
+int fromChessPosition(std::string cp);
+
+class Pieza : public sf::Drawable
 {
 
 protected:
     char nombre;
     bool blancas;
-    int file;
-    int col;
+    int pos; 
+
+    std::string texture_file;
+    sf::Sprite m_sprite;
+    sf::Texture texture;
+    void loadTexture(std::string filePath);
+    void setTexture();
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
+    {   target.draw(m_sprite);  }
 
 public:
-    Pieza(int file, int col, bool blancas);
+    Pieza(std::string pos, bool blancas); // pos from 0 to 63
     // getters
+    int getPos();
     bool getColor();
-    int getFile();
-    int getCol();
     char getNombre();
     // setters
     // methods
     virtual bool calcularMovimiento() = 0; // calcula los movimientos posibles de la pieza (abstracto)
-    void move(int file, int col);
+    void move(int pos);
+    void move(std::string pos);
 };
 
 // ALFIL
@@ -27,7 +39,7 @@ public:
 class Alfil : public Pieza
 {
 public:
-    Alfil(int file, int column, bool blancas);
+    Alfil(std::string pos, bool blancas);
     virtual bool calcularMovimiento();
 };
 
@@ -36,7 +48,7 @@ public:
 class Caballo : public Pieza
 {
 public:
-    Caballo(int file, int column, bool blancas);
+    Caballo(std::string pos, bool blancas);
     virtual bool calcularMovimiento();
 };
 
@@ -45,7 +57,7 @@ public:
 class Peon : public Pieza
 {
 public:
-    Peon(int file, int column, bool blancas);
+    Peon(std::string pos, bool blancas);
     virtual bool calcularMovimiento();
 };
 
@@ -54,7 +66,7 @@ public:
 class Torre : public Pieza
 {
 public:
-    Torre(int file, int column, bool blancas);
+    Torre(std::string pos, bool blancas);
     virtual bool calcularMovimiento();
 };
 
@@ -63,7 +75,7 @@ public:
 class Rey : public Pieza
 {
 public:
-    Rey(int file, int column, bool blancas);
+    Rey(std::string pos, bool blancas);
     virtual bool calcularMovimiento();
 };
 
@@ -72,6 +84,6 @@ public:
 class Dama : public Pieza
 {
 public:
-    Dama(int file, int column, bool blancas);
+    Dama(std::string pos, bool blancas);
     virtual bool calcularMovimiento();
 };

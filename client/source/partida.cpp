@@ -7,45 +7,106 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras)
     this->fecha = time(0);
 
     // tablero vacio
-    for (int j = 0; j < 8; j++){
-        for (int i = 0; i < 8; i++){
-            tablero[i][j] = nullptr;
-        }
+    for (int i = 0; i < 64; i++)
+    {
+        tablero[i] = nullptr;
     }
 
-    // peones 
-    for (int i = 0; i < 8; i++){
+    // peones
 
-        tablero[i][1] = new Peon(i, 1, true);
-        tablero[i][6] = new Peon(i, 6, false);
-    }
+    piezas_blanco.push_back(tablero[fromChessPosition("a2")] = new Peon("a2", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("b2")] = new Peon("b2", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("c2")] = new Peon("c2", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("d2")] = new Peon("d2", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("e2")] = new Peon("e2", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("f2")] = new Peon("f2", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("g2")] = new Peon("g2", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("h2")] = new Peon("h2", true));
+    piezas_negro.push_back(tablero[fromChessPosition("a7")] = new Peon("a7", false));
+    piezas_negro.push_back(tablero[fromChessPosition("b7")] = new Peon("b7", false));
+    piezas_negro.push_back(tablero[fromChessPosition("c7")] = new Peon("c7", false));
+    piezas_negro.push_back(tablero[fromChessPosition("d7")] = new Peon("d7", false));
+    piezas_negro.push_back(tablero[fromChessPosition("e7")] = new Peon("e7", false));
+    piezas_negro.push_back(tablero[fromChessPosition("f7")] = new Peon("f7", false));
+    piezas_negro.push_back(tablero[fromChessPosition("g7")] = new Peon("g7", false));
+    piezas_negro.push_back(tablero[fromChessPosition("h7")] = new Peon("h7", false));
 
     // alfiles
-    tablero[2][0] = new Alfil(2, 0, true);
-    tablero[5][0] = new Alfil(5, 0, true);
-    tablero[2][7] = new Alfil(2, 7, false);
-    tablero[5][7] = new Alfil(5, 7, false);
+    piezas_blanco.push_back(tablero[fromChessPosition("c1")] = new Alfil("c1", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("f1")] = new Alfil("f1", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("c8")] = new Alfil("c8", false));
+    piezas_blanco.push_back(tablero[fromChessPosition("f8")] = new Alfil("f8", false));
 
     // caballos
-    tablero[1][0] = new Caballo(1, 0, true);
-    tablero[6][0] = new Caballo(6, 0, true);
-    tablero[1][7] = new Caballo(1, 7, false);
-    tablero[6][7] = new Caballo(6, 7, false);
+    piezas_blanco.push_back(tablero[fromChessPosition("b1")] = new Caballo("b1", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("g1")] = new Caballo("g1", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("b8")] = new Caballo("b8", false));
+    piezas_blanco.push_back(tablero[fromChessPosition("g8")] = new Caballo("g8", false));
 
     // torres
-    tablero[0][0] = new Torre(0, 0, true);
-    tablero[7][0] = new Torre(7, 0, true);
-    tablero[0][7] = new Torre(0, 7, false);
-    tablero[7][7] = new Torre(7, 7, false);
+    piezas_blanco.push_back(tablero[fromChessPosition("a1")] = new Torre("a1", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("h1")] = new Torre("h1", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("a8")] = new Torre("a8", false));
+    piezas_blanco.push_back(tablero[fromChessPosition("h8")] = new Torre("h8", false));
 
     // rey
-    tablero[4][0] = new Rey(4, 0, true);
-    tablero[4][7] = new Rey(4, 7, true);
+    piezas_blanco.push_back(tablero[fromChessPosition("e1")] = new Rey("e1", true));
+    piezas_negro.push_back(tablero[fromChessPosition("e8")] = new Rey("e8", false));
 
     // dama
-    tablero[3][0] = new Dama(3, 0, true);
-    tablero[3][7] = new Dama(3, 7, true);
+    piezas_blanco.push_back(tablero[fromChessPosition("d1")] = new Dama("d1", true));
+    piezas_blanco.push_back(tablero[fromChessPosition("d8")] = new Dama("d8", true));
+
+    load();
 }
+
+void Partida::load(sf::Color col1, sf::Color col2)
+{
+    for (int i = 0; i < 8; i++)
+    {
+
+        bool tmpColor = ((i % 2) == 0) ? true : false;
+
+        for (int j = 0; j < 8; j++)
+        {
+
+            m_boardSquares[j + (i * 8)].setPosition(sf::Vector2f(j * 64.f, i * 64.f));
+            m_boardSquares[j + (i * 8)].setSize(sf::Vector2f(64.f, 64.f));
+            m_boardSquares[j + (i * 8)].setFillColor(tmpColor ? col1 : col2);
+
+            tmpColor = !tmpColor;
+        }
+    }
+}
+
+void Partida::draw(sf::RenderTarget &target, sf::RenderStates states) const
+{
+
+    target.clear(sf::Color::Black);
+
+    for (int i = 0; i < 64; i++)
+    {
+        target.draw(m_boardSquares[i]);
+    }
+
+    for (int i = 0; i < 16; i++)
+    {
+        target.draw(*piezas_blanco[i]);
+        target.draw(*piezas_negro[i]);
+    }
+}
+
+// aux
+// int fromChessPosition(std::string cp)
+// {
+//     // a1
+//     if (cp.size() != 2)
+//         return -1;
+//     int row = cp.at(1) - 1;
+//     int col = cp.at(0) - 97;
+
+//     return row*col + row;
+// }
 
 bool Partida::aplicarJugada(Jugada *j)
 {
@@ -60,14 +121,14 @@ bool Partida::aplicarJugada(Jugada *j)
     {
         jugadas.push_front(j);
         Pieza *pieza = j->getPieza();
-        
+
         // quitamos movimiento del antiguo
-        tablero[pieza->getFile()][pieza->getCol()] = nullptr;
+        tablero[pieza->getPos()] = nullptr;
 
         // movemos la pieza
-        pieza->move(j->getNewFile(), j->getNewCol());
+        pieza->move(j->getNewPos());
         // ponemos el nuevo
-        tablero[pieza->getFile()][pieza->getCol()] = pieza;
+        tablero[pieza->getPos()] = pieza;
     }
 
     // si no se puede hacer se devuelve false y no se le pasa el turno al otro jugador
@@ -75,22 +136,27 @@ bool Partida::aplicarJugada(Jugada *j)
     return is_aplicable;
 }
 
-void Partida::mostrarTablero()
-{
-    for (int j = 0; j < 8; j++){
-        for (int i = 0; i < 8; i++){
-            if (tablero[i][j] == nullptr){
-                cout << "X" << " ";
-            }
-            else {
-                // tablero[i][j]->getNombre()
-                cout << tablero[i][j]->getNombre() << " ";
-            }
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
+// void Partida::mostrarTablero()
+// {
+//     for (int j = 0; j < 8; j++)
+//     {
+//         for (int i = 0; i < 8; i++)
+//         {
+//             if (tablero[i][j] == nullptr)
+//             {
+//                 cout << "X"
+//                      << " ";
+//             }
+//             else
+//             {
+//                 // tablero[i][j]->getNombre()
+//                 cout << tablero[i][j]->getNombre() << " ";
+//             }
+//         }
+//         cout << endl;
+//     }
+//     cout << endl;
+// }
 
 void Partida::setResultado(Resultado r)
 {
@@ -108,12 +174,12 @@ bool Partida::isJaqueMate()
     return false;
 }
 
-Pieza* Partida::getPiezaByIndex(int file, int col)
+Pieza *Partida::getPiezaByPos(std::string pos)
 {
-    return tablero[file][col];
+    return tablero[fromChessPosition(pos)];
 }
 
-list<Jugada*> Partida::getJugadas()
+list<Jugada *> Partida::getJugadas()
 {
     return jugadas;
 }

@@ -1,13 +1,11 @@
 #include "jugada.hpp"
 // #include "partida.hpp"
 
-Jugada::Jugada(Pieza* pieza, int new_file, int new_col)
+Jugada::Jugada(Pieza* pieza, std::string new_pos)
 {
     this->pieza = pieza;
-    this->prev_file = pieza->getFile();
-    this->prev_col = pieza->getCol();
-    this->new_file = new_file;
-    this->new_col = new_col;
+    this->prev_pos = pieza->getPos();
+    this->new_pos = fromChessPosition(new_pos);
     //this->p = p;
 }
 
@@ -31,18 +29,7 @@ Pieza* Jugada::getPieza()
     return this->pieza;
 }
 
-int Jugada::getNewFile()
+int Jugada::getNewPos()
 {
-    return new_file;
-}
-
-char Jugada::getNewFile_text()
-{
-    // 97 is 'a'
-    return char(new_file+97);
-}
-
-int Jugada::getNewCol()
-{
-    return new_col;
+    return new_pos;
 }
