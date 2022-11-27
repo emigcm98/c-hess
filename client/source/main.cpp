@@ -5,6 +5,13 @@
 
 int main()
 {
+    sf::Font font;
+    if (!font.loadFromFile("fonts/arial.ttf"))
+    {
+        // error...
+        cerr << "No se ha podido cargar la fuente." << endl;
+        return 1;
+    }
 
     struct tm birthdate;
     birthdate.tm_year = 1998;
@@ -18,38 +25,35 @@ int main()
     std::cout << u.calculate_new_elo(1340.0, 0.5) << endl;
     std::cout << u.getElo() << endl;
 
-
     User u2 = User("fuen", "password", birthdate);
 
-    Partida partida = Partida(&u, &u2);
+    Partida partida = Partida(&u, &u2, &font);
 
-    //partida.mostrarTablero();
+    // partida.mostrarTablero();
 
-    Pieza* pieza = partida.getPiezaByPos("c1");
+    Pieza *pieza = partida.getPiezaByPos("c1");
     Jugada j = Jugada(pieza, "d4");
 
     cout << "OK" << endl;
 
     partida.aplicarJugada(&j);
 
-    std::list<Jugada*>::iterator it;
-    
-    
+    std::vector<Jugada *>::iterator it;
 
-    // for (auto const& i : partida.getJugadas())
-    // {
-    //     std::cout << "A" <<  fromChessPosition(i->getNewPos()) << endl;
-    // }
-
-    //partida.mostrarTablero();
-    
+    for (auto const &i : partida.getJugadas())
+    {
+        std::cout << i->to_string() << endl;
+    }
 
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
-    sf::RenderWindow window(sf::VideoMode(768,512), "Chess", sf::Style::Titlebar | sf::Style::Close);
+    // sf::RenderWindow window(sf::VideoMode(768,512), "Chess", sf::Style::Titlebar | sf::Style::Close);
+    // sf::RenderWindow window(sf::VideoMode(1024,768), "Chess", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(1280, 768), "Chess", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
     // deactivate its OpenGL context
     window.setActive(false);
+
 
     // the event/logic/whatever loop
     while (window.isOpen())
@@ -73,10 +77,8 @@ int main()
         window.display();
     }
 
-    cout << fromChessPosition("a1") << endl;
-    cout << fromChessPosition("a8") << endl;
-    cout << fromChessPosition("d8") << endl;
-    cout << fromChessPosition("h8") << endl;
+    cout << fromChessPosition("e4") << endl;
+    cout << toChessPosition(28) << endl;
 
     return 0;
 }

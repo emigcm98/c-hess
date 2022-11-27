@@ -1,12 +1,13 @@
 #include "jugada.hpp"
 // #include "partida.hpp"
 
-Jugada::Jugada(Pieza* pieza, std::string new_pos)
+Jugada::Jugada(Pieza* pieza, std::string newPos)
 {
     this->pieza = pieza;
-    this->prev_pos = pieza->getPos();
-    this->new_pos = fromChessPosition(new_pos);
-    //this->p = p;
+    this->prevPos = pieza->getPos();
+    this->newPos = fromChessPosition(newPos);
+    this->newPosStr = newPos;
+    check_movement();
 }
 
 
@@ -21,6 +22,8 @@ bool Jugada::check_movement()
     //     p->aplicarJugada(this);
     // }
 
+    this->pieza->move(this->newPos);
+
     return is_possible;   
 }
 
@@ -31,5 +34,17 @@ Pieza* Jugada::getPieza()
 
 int Jugada::getNewPos()
 {
-    return new_pos;
+    return newPos;
+}
+
+bool Jugada::isJaque(){
+    return false;    
+}
+
+bool Jugada::isJaqueMate(){
+    return false;    
+}
+
+std::string Jugada::to_string(){
+    return std::string(1, pieza->getNombre()) + newPosStr; //+ (isJaque ? "+" : "") + (isJaqueMate ? "+" : "");
 }

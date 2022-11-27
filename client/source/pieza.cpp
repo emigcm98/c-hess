@@ -10,9 +10,19 @@ int fromChessPosition(std::string pos)
     int row = pos.at(1) - 49;
     int col = pos.at(0) - 97;
 
-    return (row+1)*col + row;
+    return (row)*8 + col;
 }
 
+std::string toChessPosition(int pos)
+{
+    if (pos < 0 || pos > 63)
+        return nullptr;
+    char row = pos/8 + 49; 
+    char col = pos%8 + 97;
+    
+    return std::string(1, col) + row;
+
+}
 
 Pieza::Pieza(std::string pos, bool blancas)
 {
@@ -39,13 +49,12 @@ int Pieza::getPos()
 void Pieza::move(int pos)
 {
     this->pos = pos;
+    m_sprite.setPosition(pos%8 * 96.0f + 48.0f, (7-(pos/8)) * 96.0f + 48.0f);
 }
 
 void Pieza::move(std::string pos)
 {
-    // MIRAR
-    //int posicion = 1;
-    this->pos = fromChessPosition(pos);
+    move(fromChessPosition(pos));
 }
 
 void Pieza::loadTexture(std::string filePath)
@@ -58,8 +67,9 @@ void Pieza::loadTexture(std::string filePath)
 void Pieza::setTexture(){
     m_sprite.setTexture(texture);
     m_sprite.setOrigin(sf::Vector2f(m_sprite.getTexture()->getSize().x/2 , m_sprite.getTexture()->getSize().y/2));
-    m_sprite.setScale(sf::Vector2f(0.375f,0.375f));
-    m_sprite.setPosition(pos/8 * 64.0f + 32.0f, (7-(pos%8)) * 64.0f + 32.0f);
+    m_sprite.setScale(sf::Vector2f(0.625f,0.625f));
+    m_sprite.setPosition(pos%8 * 96.0f + 48.0f, (7-(pos/8)) * 96.0f + 48.0f); // vista blancas
+    //m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
 }
 
 // ALFIL

@@ -1,9 +1,7 @@
 #include "user.hpp"
 #include <math.h> 
 
-using namespace std;
-
-User::User(string username, string password, struct tm birthdate){
+User::User(std::string username, std::string password, struct tm birthdate){
     this->username = username;
     this->password = password;
     this->birthdate = birthdate;
@@ -68,7 +66,7 @@ bool User::is_birthday() {
 double User::calculate_new_elo(double opponent_elo, float resultado)
 {
     double p_esp = 1/(1+pow(10, (opponent_elo - elo)/400));
-    std::cout << "Puntuación esperada: " << p_esp << " (k=" << k << ")." << endl;
+    std::cout << "Puntuación esperada: " << p_esp << " (k=" << k << ")." << std::endl;
 
     double new_elo = elo + k * (resultado-p_esp);
     double diff = new_elo-elo;
@@ -82,4 +80,9 @@ double User::calculate_new_elo(double opponent_elo, float resultado)
 int User::getElo()
 {
     return round(elo); 
+}
+
+std::string User::getUsername()
+{
+    return username;
 }

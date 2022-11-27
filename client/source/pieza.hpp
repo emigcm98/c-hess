@@ -4,6 +4,7 @@
 #pragma once
 
 int fromChessPosition(std::string cp);
+std::string toChessPosition(int pos);
 
 class Pieza : public sf::Drawable
 {

@@ -1,10 +1,12 @@
 #include "partida.hpp"
 
-Partida::Partida(User *usuario_blancas, User *usuario_negras)
+Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font* font)
 {
     this->usuario_blancas = usuario_blancas;
     this->usuario_negras = usuario_negras;
     this->fecha = time(0);
+
+    this->gameInfo = new GameInfo(usuario_blancas, usuario_negras, &jugadas, font);
 
     // tablero vacio
     for (int i = 0; i < 64; i++)
@@ -34,20 +36,20 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras)
     // alfiles
     piezas_blanco.push_back(tablero[fromChessPosition("c1")] = new Alfil("c1", true));
     piezas_blanco.push_back(tablero[fromChessPosition("f1")] = new Alfil("f1", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("c8")] = new Alfil("c8", false));
-    piezas_blanco.push_back(tablero[fromChessPosition("f8")] = new Alfil("f8", false));
+    piezas_negro.push_back(tablero[fromChessPosition("c8")] = new Alfil("c8", false));
+    piezas_negro.push_back(tablero[fromChessPosition("f8")] = new Alfil("f8", false));
 
     // caballos
     piezas_blanco.push_back(tablero[fromChessPosition("b1")] = new Caballo("b1", true));
     piezas_blanco.push_back(tablero[fromChessPosition("g1")] = new Caballo("g1", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("b8")] = new Caballo("b8", false));
-    piezas_blanco.push_back(tablero[fromChessPosition("g8")] = new Caballo("g8", false));
+    piezas_negro.push_back(tablero[fromChessPosition("b8")] = new Caballo("b8", false));
+    piezas_negro.push_back(tablero[fromChessPosition("g8")] = new Caballo("g8", false));
 
     // torres
     piezas_blanco.push_back(tablero[fromChessPosition("a1")] = new Torre("a1", true));
     piezas_blanco.push_back(tablero[fromChessPosition("h1")] = new Torre("h1", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("a8")] = new Torre("a8", false));
-    piezas_blanco.push_back(tablero[fromChessPosition("h8")] = new Torre("h8", false));
+    piezas_negro.push_back(tablero[fromChessPosition("a8")] = new Torre("a8", false));
+    piezas_negro.push_back(tablero[fromChessPosition("h8")] = new Torre("h8", false));
 
     // rey
     piezas_blanco.push_back(tablero[fromChessPosition("e1")] = new Rey("e1", true));
@@ -55,7 +57,7 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras)
 
     // dama
     piezas_blanco.push_back(tablero[fromChessPosition("d1")] = new Dama("d1", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("d8")] = new Dama("d8", true));
+    piezas_negro.push_back(tablero[fromChessPosition("d8")] = new Dama("d8", false));
 
     load();
 }
@@ -70,8 +72,8 @@ void Partida::load(sf::Color col1, sf::Color col2)
         for (int j = 0; j < 8; j++)
         {
 
-            m_boardSquares[j + (i * 8)].setPosition(sf::Vector2f(j * 64.f, i * 64.f));
-            m_boardSquares[j + (i * 8)].setSize(sf::Vector2f(64.f, 64.f));
+            m_boardSquares[j + (i * 8)].setPosition(sf::Vector2f(j * 96.f, i * 96.f));
+            m_boardSquares[j + (i * 8)].setSize(sf::Vector2f(96.f, 96.f));
             m_boardSquares[j + (i * 8)].setFillColor(tmpColor ? col1 : col2);
 
             tmpColor = !tmpColor;
@@ -94,6 +96,8 @@ void Partida::draw(sf::RenderTarget &target, sf::RenderStates states) const
         target.draw(*piezas_blanco[i]);
         target.draw(*piezas_negro[i]);
     }
+
+    target.draw(*gameInfo);
 }
 
 // aux
@@ -119,7 +123,7 @@ bool Partida::aplicarJugada(Jugada *j)
 
     if (is_aplicable)
     {
-        jugadas.push_front(j);
+        jugadas.push_back(j);
         Pieza *pieza = j->getPieza();
 
         // quitamos movimiento del antiguo
@@ -179,7 +183,7 @@ Pieza *Partida::getPiezaByPos(std::string pos)
     return tablero[fromChessPosition(pos)];
 }
 
-list<Jugada *> Partida::getJugadas()
+vector<Jugada *> Partida::getJugadas()
 {
     return jugadas;
 }

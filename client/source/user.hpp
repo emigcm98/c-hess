@@ -4,14 +4,12 @@
 #include <string>
 #include <ctime>
 
-using namespace std;
-
 class User
 {
     // private data member
 private:
-    string username;
-    string password;
+    std::string username;
+    std::string password;
     struct tm birthdate;
     
     double elo;
@@ -19,9 +17,10 @@ private:
 
     // public member function
 public:
-    User(string username, string password, struct tm birthdate);
+    User(std::string username, std::string password, struct tm birthdate);
     // getters
     int getElo();
+    std::string getUsername();
     // setters
     void setElo(double elo);
     double calculate_new_elo(double opponent_elo, float resultado); // returns the difference
