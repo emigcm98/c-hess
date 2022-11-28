@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <iostream>
+#include <vector>
+
 #pragma once
 
 int fromChessPosition(std::string cp);
@@ -30,7 +32,7 @@ public:
     char getNombre();
     // setters
     // methods
-    virtual bool calcularMovimiento() = 0; // calcula los movimientos posibles de la pieza (abstracto)
+    virtual std::vector<int> calcularMovimiento() = 0; // calcula los movimientos posibles de la pieza (abstracto)
     void move(int pos);
     void move(std::string pos);
 };
@@ -41,7 +43,7 @@ class Alfil : public Pieza
 {
 public:
     Alfil(std::string pos, bool blancas);
-    virtual bool calcularMovimiento();
+    virtual std::vector<int> calcularMovimiento();
 };
 
 // Caballo
@@ -50,7 +52,7 @@ class Caballo : public Pieza
 {
 public:
     Caballo(std::string pos, bool blancas);
-    virtual bool calcularMovimiento();
+    virtual std::vector<int> calcularMovimiento();
 };
 
 // PEON
@@ -59,7 +61,7 @@ class Peon : public Pieza
 {
 public:
     Peon(std::string pos, bool blancas);
-    virtual bool calcularMovimiento();
+    virtual std::vector<int> calcularMovimiento();
 };
 
 // TORRE
@@ -68,7 +70,7 @@ class Torre : public Pieza
 {
 public:
     Torre(std::string pos, bool blancas);
-    virtual bool calcularMovimiento();
+    virtual std::vector<int> calcularMovimiento();
 };
 
 // REY
@@ -77,7 +79,7 @@ class Rey : public Pieza
 {
 public:
     Rey(std::string pos, bool blancas);
-    virtual bool calcularMovimiento();
+    virtual std::vector<int> calcularMovimiento();
 };
 
 // DAMA
@@ -86,5 +88,5 @@ class Dama : public Pieza
 {
 public:
     Dama(std::string pos, bool blancas);
-    virtual bool calcularMovimiento();
+    virtual std::vector<int> calcularMovimiento();
 };

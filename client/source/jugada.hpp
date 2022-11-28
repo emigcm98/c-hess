@@ -13,6 +13,7 @@ private:
     //Partida* p;
 public:
     Jugada(Pieza* pieza, std::string new_pos);
+    Jugada(Pieza* pieza, int new_pos);
     // getters
     Pieza* getPieza();
     int getNewPos();

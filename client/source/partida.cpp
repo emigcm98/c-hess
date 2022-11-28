@@ -1,12 +1,16 @@
 #include "partida.hpp"
 
-Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font* font)
+Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 {
     this->usuario_blancas = usuario_blancas;
     this->usuario_negras = usuario_negras;
     this->fecha = time(0);
 
     this->gameInfo = new GameInfo(usuario_blancas, usuario_negras, &jugadas, font);
+
+    turn = true;
+    selected = false;
+    selectedPiece = nullptr;
 
     // tablero vacio
     for (int i = 0; i < 64; i++)
@@ -84,7 +88,7 @@ void Partida::load(sf::Color col1, sf::Color col2)
 void Partida::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 
-    target.clear(sf::Color::Black);
+    target.clear(sf::Color(128, 128, 128, 0));
 
     for (int i = 0; i < 64; i++)
     {
@@ -95,6 +99,14 @@ void Partida::draw(sf::RenderTarget &target, sf::RenderStates states) const
     {
         target.draw(*piezas_blanco[i]);
         target.draw(*piezas_negro[i]);
+    }
+
+    if (selectedPiece != nullptr && selected)
+    {
+        for (auto const &i : possibleMovesSquares)
+        {
+            target.draw(i);
+        }
     }
 
     target.draw(*gameInfo);
@@ -123,21 +135,144 @@ bool Partida::aplicarJugada(Jugada *j)
 
     if (is_aplicable)
     {
+        std::cout << 1 << std::endl;
         jugadas.push_back(j);
         Pieza *pieza = j->getPieza();
 
+        std::cout << 2 << std::endl;
         // quitamos movimiento del antiguo
+        std::cout << pieza->getPos() << std::endl;
         tablero[pieza->getPos()] = nullptr;
+        
+        // si ya habia una pieza, se come y se elimina
+        int nuevaPos = j->getNewPos();
+        Pieza* pieza_enemiga = tablero[nuevaPos];
+        if (pieza_enemiga != nullptr && pieza_enemiga->getColor() != pieza->getColor())
+        {
+            if (pieza_enemiga->getColor()) // blanca
+            {
+                for (int i = 0; i < 16; i++)
+                {
+                    if (piezas_blanco[i]->getPos() == nuevaPos)
+                    {
+                        piezas_blanco.erase(piezas_blanco.begin() + i);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 16; i++)
+                {
+                    if (piezas_negro[i]->getPos() == nuevaPos)
+                    {
+                        piezas_negro.erase(piezas_negro.begin() + i);
+                    }
+                }
+
+            }
+            delete tablero[nuevaPos];
+        }
+
+        // for (auto const &i : piezas_blanco)
+        // {
+        //     cout<<i->getNombre()<<endl;
+        // }
+        // for (auto const &i : piezas_negro)
+        // {
+        //     cout<<i->getNombre()<<endl;
+        // }
 
         // movemos la pieza
-        pieza->move(j->getNewPos());
+        pieza->move(nuevaPos);
+        
+
         // ponemos el nuevo
-        tablero[pieza->getPos()] = pieza;
+        tablero[nuevaPos] = pieza;
     }
 
     // si no se puede hacer se devuelve false y no se le pasa el turno al otro jugador
 
     return is_aplicable;
+}
+
+bool Partida::selectPiece(int pos)
+{
+
+    // std::cout << "selected piece: " << selectedPiece->getPos() << std::endl;
+    // std::cout << "new selected piece: " << pos << std::endl;
+
+    // if (selectedPiece->getPos() == pos)
+    // {
+    //     std::cout << "es la misma!!" << std::endl;
+    //     selectedPiece = nullptr;
+    //     selected = false;
+    //     return false;
+    // }
+
+    for (int i = 0; i < 16; i++)
+    {
+        if (turn)
+        {
+            if (piezas_blanco[i]->getPos() == pos)
+            {
+                selectedPiece = piezas_blanco[i];
+                selected = true;
+                break;
+            }
+        }
+        else
+        {
+            if (piezas_negro[i]->getPos() == pos)
+            {
+                selectedPiece = piezas_negro[i];
+                selected = true;
+                break;
+            }
+        }
+        selected = false;
+    }
+
+    if (!selected)
+    {
+        selectedPiece = nullptr;
+        possibleMovesSquares.clear();
+        return selected;
+    }
+
+    // movimientos disponibles
+    createMovesSquares();
+
+    return selected;
+}
+
+bool Partida::isSelected()
+{
+    return selected;
+}
+
+void Partida::createMovesSquares()
+{
+
+    if (selectedPiece == nullptr)
+        return;
+
+    possibleMovesSquares.clear();
+
+    for(int i=0; i<selectedPiece->calcularMovimiento().size();i++){
+        sf::RectangleShape tmp;
+        tmp.setPosition(sf::Vector2f((selectedPiece->calcularMovimiento().at(i) % 8) * 96.f , (7-(selectedPiece->calcularMovimiento().at(i) / 8)) * 96.f));
+        tmp.setSize(sf::Vector2f(96.f, 96.f));
+        tmp.setFillColor(sf::Color(0x66b4cc50));
+        possibleMovesSquares.push_back(tmp);
+    }
+
+    sf::RectangleShape tmp;
+    tmp.setPosition(sf::Vector2f((selectedPiece->getPos() % 8) * 96.0f, (7 - (selectedPiece->getPos() / 8)) * 96.0f));
+    tmp.setSize(sf::Vector2f(96.0f, 96.0f));
+    tmp.setFillColor(sf::Color(0x00000000));
+    tmp.setOutlineColor(sf::Color::Red);
+    tmp.setOutlineThickness(-4.f);
+    possibleMovesSquares.push_back(tmp);
 }
 
 // void Partida::mostrarTablero()
@@ -161,6 +296,112 @@ bool Partida::aplicarJugada(Jugada *j)
 //     }
 //     cout << endl;
 // }
+
+void Partida::moveSelected(int pos)
+{
+    bool validMove = false;
+
+    if (validMove)
+    {
+
+    }
+
+    if ((selectedPiece == nullptr) || !selected) // Probably doesnt need both
+        return;
+
+    // Check pos with the Piece's possibleMoves
+    // for(int i=0;i<selectedPiece->getPossibleMoves().size();i++){
+    //     if(pos == selectedPiece->getPossibleMoves().at(i)){
+    //         validMove = true;
+    //         break;
+    //     }
+    // }
+
+    // if(validMove){
+
+    //     // If Castling Move
+    //     if((selectedPiece->getType() == 'K') && (!selectedPiece->getMoved())){
+    //         if(selectedPiece->getPlayer()){ // If white
+    //             // whitePieces[0] Bot Left Rook, whitePieces[7] Bot Right Rook
+    //             if(pos == 62)
+    //                 whitePieces[7].setPosition(61);
+    //             else if(pos == 58)
+    //                 whitePieces[0].setPosition(59);
+    //         }
+    //         else{ // If Black
+    //             // blackPieces[7] Top Left Rook, blackPieces[0] Top Right Rook
+    //             if(pos == 6)
+    //                 blackPieces[0].setPosition(5);
+    //             else if(pos == 2)
+    //                 blackPieces[7].setPosition(3);
+    //         }
+    //     }
+
+    //     // If Pawn double move (set en passant)
+    //     // White pawn -16, Black pawn +16
+    //     if((selectedPiece->getType() == 'P')){
+    //         if(!selectedPiece->getMoved()){
+    //             if(pos == (selectedPiece->getPosition() - 16)){
+    //                 selectedPiece->setEnPassant(selectedPiece->getPosition() - 8);
+    //             }
+    //             else if(pos == (selectedPiece->getPosition() + 16)){
+    //                 selectedPiece->setEnPassant(selectedPiece->getPosition() + 8);
+    //             }
+    //         }
+    //         else{
+    //             for(int i=0; i<16; i++){
+    //                 if(playerTurn){
+    //                     if(pos == blackPieces[i].getEnPassant())
+    //                         blackPieces[i].setPosition(pos);
+    //                 }
+    //                 else{
+    //                     if(pos == whitePieces[i].getEnPassant())
+    //                         whitePieces[i].setPosition(pos);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     if(selectedPiece->getMoved()){
+    //         for(int i=0; i<16; i++){
+    //             whitePieces[i].setEnPassant(-1);
+    //             blackPieces[i].setEnPassant(-1);
+    //         }
+    //     }
+
+    // selectedPiece->move(pos);
+    Jugada *j = new Jugada(selectedPiece, pos);
+    aplicarJugada(j);
+
+    turn = !turn;
+
+    //     lastMove = "Last Turn:\n" + selectedPiece->toString();
+    //     for(int i=0; i<16; i++){
+    //         if(selectedPiece->getPlayer()){ // If White
+    //             if(blackPieces[i].getPosition() == pos){
+    //                 blackPieces[i].setPosition(-1);
+    //                 break;
+    //             }
+    //         }
+    //         else{ // If Black
+    //             if(whitePieces[i].getPosition() == pos){
+    //                 whitePieces[i].setPosition(-1);
+    //                 break;
+    //             }
+    //         }
+    //     }
+
+    //     if(playerTurnCheck){
+    //         playerTurnCheck = false;
+    //     }
+
+    //     playerTurn = !playerTurn; // Here player turn changes
+    //     calcPossibleMoves();
+    // }
+
+    selectedPiece = nullptr;
+    selected = false;
+
+}
 
 void Partida::setResultado(Resultado r)
 {

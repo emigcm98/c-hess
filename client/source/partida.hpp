@@ -39,25 +39,30 @@ private:
     GameInfo* gameInfo;
     time_t fecha;
     std::array<sf::RectangleShape, 64> m_boardSquares;
+    std::vector<sf::RectangleShape> possibleMovesSquares;
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     
+    Pieza* selectedPiece;
+    bool selected; // something selected ?
+    bool turn; //true white false black
     // public member function
 public:
     Partida(User* usuario_blancas, User* usuario_negras, sf::Font* font);
-    // getters
-    //tablero tablero = {NULL}; // posicion actual de las piezas, tras la última jugada, cambiar con aplicarJugada
-    //Pieza*** getTablero();
-    //Pieza* tablero[8][8];
     Pieza* tablero[64];
-    void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
+    // getters
+    bool isJaque();
+    bool isJaqueMate();
     
     Pieza* getPiezaByPos(std::string pos);
     vector<Jugada*> getJugadas();
     // setters
     void setResultado(Resultado r); // aplica los cambios a los jugadores
     // methods
+    void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
     void mostrarTablero();
     bool aplicarJugada(Jugada* j); // aplica los cambios al tablero
-    bool isJaque();
-    bool isJaqueMate();
+    bool selectPiece(int pos);
+    bool isSelected();
+    void moveSelected(int pos);
+    void createMovesSquares();
 };

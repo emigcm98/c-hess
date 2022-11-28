@@ -48,6 +48,7 @@ int Pieza::getPos()
 
 void Pieza::move(int pos)
 {
+
     this->pos = pos;
     m_sprite.setPosition(pos%8 * 96.0f + 48.0f, (7-(pos/8)) * 96.0f + 48.0f);
 }
@@ -83,9 +84,10 @@ Alfil::Alfil(std::string pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-bool Alfil::calcularMovimiento()
+std::vector<int> Alfil::calcularMovimiento()
 {
-    return true;
+    std::vector<int> possibleMovs;
+    return possibleMovs;
 }
 
 // CABALLO
@@ -99,9 +101,24 @@ Caballo::Caballo(std::string pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-bool Caballo::calcularMovimiento()
+std::vector<int> Caballo::calcularMovimiento()
 {
-    return true;
+    std::vector<int> possibleMovs;
+
+    int posRel[4] = {6, 10, 15, 17};
+    for (int i = 0; i < 4; i++){
+        int tmp = pos+posRel[i];
+        int tmp2 = pos-posRel[i];
+        if (tmp <= 63)
+        {
+            possibleMovs.push_back(tmp);
+        }
+        if (tmp2 >= 0)
+        {
+            possibleMovs.push_back(tmp2);
+        }
+    }
+    return possibleMovs;
 }
 
 // TORRE
@@ -115,9 +132,10 @@ Torre::Torre(std::string pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-bool Torre::calcularMovimiento()
+std::vector<int> Torre::calcularMovimiento()
 {
-    return true;
+    std::vector<int> possibleMovs;
+    return possibleMovs;
 }
 
 // PEON
@@ -131,9 +149,10 @@ Peon::Peon(std::string pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-bool Peon::calcularMovimiento()
+std::vector<int> Peon::calcularMovimiento()
 {
-    return true;
+    std::vector<int> possibleMovs;
+    return possibleMovs;
 }
 
 // REY
@@ -147,9 +166,10 @@ Rey::Rey(std::string pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-bool Rey::calcularMovimiento()
+std::vector<int> Rey::calcularMovimiento()
 {
-    return true;
+    std::vector<int> possibleMovs;
+    return possibleMovs;
 }
 
 // DAMA
@@ -163,7 +183,8 @@ Dama::Dama(std::string pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-bool Dama::calcularMovimiento()
+std::vector<int> Dama::calcularMovimiento()
 {
-    return true;
+    std::vector<int> possibleMovs;
+    return possibleMovs;
 }

@@ -3,6 +3,7 @@
 
 Jugada::Jugada(Pieza* pieza, std::string newPos)
 {
+    //Jugada(pieza, fromChessPosition(newPos));
     this->pieza = pieza;
     this->prevPos = pieza->getPos();
     this->newPos = fromChessPosition(newPos);
@@ -10,6 +11,14 @@ Jugada::Jugada(Pieza* pieza, std::string newPos)
     check_movement();
 }
 
+Jugada::Jugada(Pieza* pieza, int newPos)
+{
+    this->pieza = pieza;
+    this->prevPos = pieza->getPos();
+    this->newPos = newPos;
+    this->newPosStr = newPos;
+    check_movement();
+}
 
 bool Jugada::check_movement()
 {
@@ -22,7 +31,7 @@ bool Jugada::check_movement()
     //     p->aplicarJugada(this);
     // }
 
-    this->pieza->move(this->newPos);
+    //this->pieza->move(this->newPos);
 
     return is_possible;   
 }

@@ -10,6 +10,7 @@ private:
     //User* negras;
     std::vector<Jugada*> *jugadas;
     //sf::Font* font;
+    sf::RectangleShape container;
     sf::Text nombreBlancas;
     sf::Text nombreNegras;
     sf::Text eloBlancas;

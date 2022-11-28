@@ -31,29 +31,28 @@ int main()
 
     // partida.mostrarTablero();
 
-    Pieza *pieza = partida.getPiezaByPos("c1");
-    Jugada j = Jugada(pieza, "d4");
+    // Pieza *pieza = partida.getPiezaByPos("e2");
+    // Jugada j = Jugada(pieza, "e4");
 
-    cout << "OK" << endl;
+    // cout << "OK" << endl;
 
-    partida.aplicarJugada(&j);
+    // partida.aplicarJugada(&j);
 
-    std::vector<Jugada *>::iterator it;
+    // std::vector<Jugada *>::iterator it;
 
-    for (auto const &i : partida.getJugadas())
-    {
-        std::cout << i->to_string() << endl;
-    }
+    // for (auto const &i : partida.getJugadas())
+    // {
+    //     std::cout << i->to_string() << endl;
+    // }
 
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
     // sf::RenderWindow window(sf::VideoMode(768,512), "Chess", sf::Style::Titlebar | sf::Style::Close);
     // sf::RenderWindow window(sf::VideoMode(1024,768), "Chess", sf::Style::Titlebar | sf::Style::Close);
-    sf::RenderWindow window(sf::VideoMode(1280, 768), "Chess", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(96 * 14, 96 * 8), "Chess", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
     // deactivate its OpenGL context
     window.setActive(false);
-
 
     // the event/logic/whatever loop
     while (window.isOpen())
@@ -65,6 +64,34 @@ int main()
             // "close requested" event: we close the window
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
+                    if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (96*8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (96*8)))
+                    {
+                        unsigned int buttonPos{(event.mouseButton.x / 96) + ( (7-(event.mouseButton.y / 96)) * (8 * ((96*8) / window.getSize().y)))};
+                        cout << buttonPos << endl;
+
+                        if (!partida.isSelected())
+                        {
+                            cout << "nothing selected" << endl;
+                            partida.selectPiece(buttonPos);
+                        }
+                        else
+                        {
+                            cout << "piece was selected" << endl;
+                            partida.moveSelected(buttonPos);
+                        }
+                            
+                    }
+                    // else if ((517 <= event.mouseButton.x) && (event.mouseButton.x <= 763) && (5 <= event.mouseButton.y) && (event.mouseButton.y <= 45))
+                    // {
+                    //     //partida.restart();
+                    // }
+                }
+            }
         }
 
         // clear the window with black color
