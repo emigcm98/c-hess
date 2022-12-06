@@ -65,4 +65,5 @@ public:
     bool isSelected();
     void moveSelected(int pos);
     void createMovesSquares();
+    std::vector<int> filterValidMovements(Pieza *p);
 };

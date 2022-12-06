@@ -1,5 +1,11 @@
 #include "partida.hpp"
 
+template <typename Base, typename T>
+inline bool instanceof (const T *ptr)
+{
+    return dynamic_cast<const Base *>(ptr) != nullptr;
+}
+
 Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 {
     this->usuario_blancas = usuario_blancas;
@@ -124,6 +130,128 @@ void Partida::draw(sf::RenderTarget &target, sf::RenderStates states) const
 //     return row*col + row;
 // }
 
+std::vector<int> Partida::filterValidMovements(Pieza *p)
+{
+
+    int pos = p->getPos();
+    std::vector<int> movements = p->calcularMovimiento();
+
+    std::cout << "movements: ";
+    for (auto m : movements)
+    {
+        std::cout << m << " ";
+    }
+    std::cout << std::endl;
+
+    int size = (int)movements.size();
+
+    for (auto it = begin(movements); it != end(movements);)
+    {
+
+        // check if same color pieces
+
+        if (tablero[*it] != nullptr && (tablero[*it]->getColor() == p->getColor()))
+        {
+            int div;
+            if (abs(*it / 8 - pos / 8) == 0)
+            {
+                div = 1;
+            }
+            else
+            {
+                div = abs(*it / 8 - pos / 8);
+            }
+            int diff = abs(*it - pos) / div;
+
+            int firstSquare = *it;
+            std::cout << "hay una pieza en la pos " << firstSquare << std::endl;
+
+            // if (tablero[*it]->getColor() == p->getColor()){
+            //     movements.erase(it);
+            // }
+            movements.erase(it);
+
+            size--;
+            std::cout << "diff: " << diff << std::endl;
+
+            int deleted = 0;
+
+            // for (int i = 0; i < (size-1); i++) {
+
+            if (! instanceof <Rey>(p))
+            {
+                int i = 1;
+                while (it != end(movements) && i < 7)
+                {
+                    // if ((*(it) % diff) == (pos))
+                    std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
+                    if (firstSquare == (*it - i * diff))
+                    {
+                        std::cout << "borrando! " << *(it) << std::endl;
+                        movements.erase(it);
+                        // size--;
+                        deleted++;
+                        // i--;
+                    }
+                    else
+                    {
+                        // std::cout << *(it) << " y consecutivos es valido" << std::endl;
+                        break;
+                    }
+                    i++;
+                }
+            }
+            else // i'm the king
+            {
+                // enroque
+                // check if check ?
+
+                // if (!p->getMoved()) // no ha movido el rey
+                // {
+                //     // enroque corto
+                //     if ((*it - pos) == 2)
+                //     {
+                //         if (tablero[pos + 1] == nullptr && tablero[pos + 2] == nullptr && instanceof<Torre>(tablero[pos + 3]) && !tablero[pos + 3]->getMoved())
+                //         {
+                        
+                //         }
+                //         else{
+                //             movements.erase(it);                            
+                //         }
+                //     }
+
+                //     // enroque largo
+                //     if ((*it - pos) == -2)
+                //     {
+                //         if (tablero[pos - 1] == nullptr && tablero[pos - 2] == nullptr && tablero[pos - 3] == nullptr && instanceof<Torre>(tablero[pos - 4]) && !tablero[pos - 4]->getMoved())
+                //         {
+                        
+                //         }
+                //         else{
+                //             movements.erase(it);
+                //         }
+                //     }
+                // }
+            }
+
+            // it+=deleted;
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    std::cout << "new movements: ";
+    for (auto m : movements)
+    {
+        std::cout << m << " ";
+    }
+    std::cout << std::endl;
+
+    return movements;
+}
+
 bool Partida::aplicarJugada(Jugada *j)
 {
 
@@ -131,22 +259,58 @@ bool Partida::aplicarJugada(Jugada *j)
 
     // si se puede hacer, se mueve, se actualiza el tablero y se devuelve true (y se mete a la lista de jugadas)
 
-    bool is_aplicable = true;
+    bool is_aplicable;
+
+    Pieza *pieza = j->getPieza();
+    int newpos = j->getNewPos();
+
+    std::vector<int> movements = filterValidMovements(pieza);
+    // std::vector<int> movements = pieza->calcularMovimiento();
+
+    bool longCastling = false;
+    bool shortCastling = false;
+
+    // newpos avalaible
+    if (std::count(movements.begin(), movements.end(), newpos))
+    {
+        selectedPiece = nullptr;
+        selected = false;
+        is_aplicable = true;
+        if (instanceof<Rey>(pieza))
+        {
+            if (newpos - pieza->getPos() == 2) // enroque corto
+            {
+                shortCastling = true;
+            }
+            else if (newpos - pieza->getPos() == -2) // enroque largo
+            {
+                longCastling = true;
+            }
+        } 
+    }
+    else if (pieza->getPos() == j->getNewPos()) // same square
+    {
+        selectedPiece = nullptr;
+        selected = false;
+    }
+    else
+    {
+        is_aplicable = false;
+    }
 
     if (is_aplicable)
     {
         std::cout << 1 << std::endl;
         jugadas.push_back(j);
-        Pieza *pieza = j->getPieza();
 
         std::cout << 2 << std::endl;
         // quitamos movimiento del antiguo
         std::cout << pieza->getPos() << std::endl;
         tablero[pieza->getPos()] = nullptr;
-        
+
         // si ya habia una pieza, se come y se elimina
         int nuevaPos = j->getNewPos();
-        Pieza* pieza_enemiga = tablero[nuevaPos];
+        Pieza *pieza_enemiga = tablero[nuevaPos];
         if (pieza_enemiga != nullptr && pieza_enemiga->getColor() != pieza->getColor())
         {
             if (pieza_enemiga->getColor()) // blanca
@@ -168,7 +332,6 @@ bool Partida::aplicarJugada(Jugada *j)
                         piezas_negro.erase(piezas_negro.begin() + i);
                     }
                 }
-
             }
             delete tablero[nuevaPos];
         }
@@ -182,10 +345,29 @@ bool Partida::aplicarJugada(Jugada *j)
         //     cout<<i->getNombre()<<endl;
         // }
 
+
+
+        if (shortCastling) {
+            Pieza *rook = tablero[pieza->getPos() + 3];
+            rook->move(pieza->getPos() + 1);
+            tablero[pieza->getPos() + 3] = nullptr;
+            tablero[pieza->getPos() + 1] = rook;
+            j->shortCastling = true;
+            // 0-0
+
+        }
+        if (longCastling) {
+
+            Pieza *rook = tablero[pieza->getPos() - 4];
+            rook->move(pieza->getPos() - 1);
+            tablero[pieza->getPos() - 4] = nullptr;
+            tablero[pieza->getPos() - 1] = rook;
+            j->longCastling = true;
+            // 0-0-0
+        }
+
         // movemos la pieza
         pieza->move(nuevaPos);
-        
-
         // ponemos el nuevo
         tablero[nuevaPos] = pieza;
     }
@@ -258,9 +440,12 @@ void Partida::createMovesSquares()
 
     possibleMovesSquares.clear();
 
-    for(int i=0; i<selectedPiece->calcularMovimiento().size();i++){
+    std::vector<int> validMovements = filterValidMovements(selectedPiece);
+
+    for (int i = 0; i < (int)validMovements.size(); i++)
+    {
         sf::RectangleShape tmp;
-        tmp.setPosition(sf::Vector2f((selectedPiece->calcularMovimiento().at(i) % 8) * 96.f , (7-(selectedPiece->calcularMovimiento().at(i) / 8)) * 96.f));
+        tmp.setPosition(sf::Vector2f((validMovements.at(i) % 8) * 96.f, (7 - (validMovements.at(i) / 8)) * 96.f));
         tmp.setSize(sf::Vector2f(96.f, 96.f));
         tmp.setFillColor(sf::Color(0x66b4cc50));
         possibleMovesSquares.push_back(tmp);
@@ -303,7 +488,6 @@ void Partida::moveSelected(int pos)
 
     if (validMove)
     {
-
     }
 
     if ((selectedPiece == nullptr) || !selected) // Probably doesnt need both
@@ -370,9 +554,14 @@ void Partida::moveSelected(int pos)
 
     // selectedPiece->move(pos);
     Jugada *j = new Jugada(selectedPiece, pos);
-    aplicarJugada(j);
 
-    turn = !turn;
+    bool valid = aplicarJugada(j);
+
+    if (valid)
+    {
+        turn = !turn;
+        gameInfo->updateJugada();
+    }
 
     //     lastMove = "Last Turn:\n" + selectedPiece->toString();
     //     for(int i=0; i<16; i++){
@@ -397,10 +586,6 @@ void Partida::moveSelected(int pos)
     //     playerTurn = !playerTurn; // Here player turn changes
     //     calcPossibleMoves();
     // }
-
-    selectedPiece = nullptr;
-    selected = false;
-
 }
 
 void Partida::setResultado(Resultado r)

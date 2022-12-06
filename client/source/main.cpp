@@ -19,11 +19,11 @@ int main()
     birthdate.tm_mday = 14;
 
     User u = User("emigcm98", "password", birthdate);
-    std::cout << u.calcular_edad() << endl;
-    std::cout << u.is_birthday() << endl;
-    std::cout << u.getElo() << endl;
-    std::cout << u.calculate_new_elo(1340.0, 0.5) << endl;
-    std::cout << u.getElo() << endl;
+    // std::cout << u.calcular_edad() << endl;
+    // std::cout << u.is_birthday() << endl;
+    // std::cout << u.getElo() << endl;
+    // std::cout << u.calculate_new_elo(1340.0, 0.5) << endl;
+    // std::cout << u.getElo() << endl;
 
     User u2 = User("fuen", "password", birthdate);
 
@@ -76,12 +76,10 @@ int main()
 
                         if (!partida.isSelected())
                         {
-                            cout << "nothing selected" << endl;
                             partida.selectPiece(buttonPos);
                         }
                         else
                         {
-                            cout << "piece was selected" << endl;
                             partida.moveSelected(buttonPos);
                         }
                             
@@ -103,9 +101,6 @@ int main()
         // end the current frame
         window.display();
     }
-
-    cout << fromChessPosition("e4") << endl;
-    cout << toChessPosition(28) << endl;
 
     return 0;
 }

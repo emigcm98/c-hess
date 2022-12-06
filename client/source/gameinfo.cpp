@@ -1,6 +1,6 @@
 #include "gameinfo.hpp"
 
-GameInfo::GameInfo(User* blancas, User* negras, std::vector<Jugada*>* jugadas, sf::Font* font)
+GameInfo::GameInfo(User *blancas, User *negras, std::vector<Jugada *> *jugadas, sf::Font *font)
 {
     this->jugadas = jugadas;
 
@@ -15,7 +15,7 @@ GameInfo::GameInfo(User* blancas, User* negras, std::vector<Jugada*>* jugadas, s
     nombreBlancas.setPosition(96.0f * 10, 96.0f * 6 + 32.0f);
     nombreBlancas.setFillColor(sf::Color::Black);
 
-    std::cout << "blancas: " << blancas->getUsername() << ", negras: " << negras->getUsername() << ". " << blancas->getElo() << " " << negras->getElo() << std::endl;
+    // std::cout << "blancas: " << blancas->getUsername() << ", negras: " << negras->getUsername() << ". " << blancas->getElo() << " " << negras->getElo() << std::endl;
 
     nombreNegras.setFont(*font);
     nombreNegras.setString(negras->getUsername());
@@ -34,6 +34,19 @@ GameInfo::GameInfo(User* blancas, User* negras, std::vector<Jugada*>* jugadas, s
     eloNegras.setCharacterSize(18);
     eloNegras.setPosition(96.0f * 12, 96.0f * 1 + 32.0f);
     eloNegras.setFillColor(sf::Color::Green);
+
+    lastPlay.setFont(*font);
+    lastPlay.setString("NONE");
+    lastPlay.setCharacterSize(18);
+    lastPlay.setPosition(96.0f * 11, 96.0f * 4);
+    lastPlay.setFillColor(sf::Color::Black);
+}
+
+void GameInfo::updateJugada()
+{
+    // if (!jugadas->empty()){
+    //     lastPlay.setString(jugadas->back()->to_string());
+    // }
 }
 
 void GameInfo::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -43,5 +56,7 @@ void GameInfo::draw(sf::RenderTarget &target, sf::RenderStates states) const
     target.draw(nombreNegras);
     target.draw(eloBlancas);
     target.draw(eloNegras);
-}
 
+    target.draw(lastPlay);
+    
+}

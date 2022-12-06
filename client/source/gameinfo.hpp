@@ -15,6 +15,7 @@ private:
     sf::Text nombreNegras;
     sf::Text eloBlancas;
     sf::Text eloNegras;
+    sf::Text lastPlay;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 public:

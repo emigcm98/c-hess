@@ -14,7 +14,8 @@ class Pieza : public sf::Drawable
 protected:
     char nombre;
     bool blancas;
-    int pos; 
+    int pos;
+    bool moved; 
 
     std::string texture_file;
     sf::Sprite m_sprite;
@@ -30,6 +31,7 @@ public:
     int getPos();
     bool getColor();
     char getNombre();
+    bool getMoved();
     // setters
     // methods
     virtual std::vector<int> calcularMovimiento() = 0; // calcula los movimientos posibles de la pieza (abstracto)
