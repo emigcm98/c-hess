@@ -1,5 +1,7 @@
-#include "pieza.hpp"
 #include <math.h>
+
+#include "pieza.hpp"
+#include "configuration.cpp"
 
 // ABSTRACT
 
@@ -56,7 +58,7 @@ void Pieza::move(int pos)
 {
 
     this->pos = pos;
-    m_sprite.setPosition(pos % 8 * 96.0f + 48.0f, (7 - (pos / 8)) * 96.0f + 48.0f);
+    m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2);
     moved = true;
 }
 
@@ -75,19 +77,23 @@ void Pieza::loadTexture(std::string filePath)
 void Pieza::setTexture()
 {
     m_sprite.setTexture(texture);
-    m_sprite.setOrigin(sf::Vector2f(m_sprite.getTexture()->getSize().x / 2, m_sprite.getTexture()->getSize().y / 2));
-    m_sprite.setScale(sf::Vector2f(0.625f, 0.625f));
-    m_sprite.setPosition(pos % 8 * 96.0f + 48.0f, (7 - (pos / 8)) * 96.0f + 48.0f); // vista blancas
+
+    int spriteSizeX = m_sprite.getTexture()->getSize().x;
+    int spriteSizeY = m_sprite.getTexture()->getSize().y;
+
+    m_sprite.setOrigin(sf::Vector2f(spriteSizeX / 2, spriteSizeY / 2));
+    m_sprite.setScale(sf::Vector2f(0.75f*OBJECT_SIZE/spriteSizeX, 0.75f*OBJECT_SIZE/spriteSizeY));
+    m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista blancas
     // m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
 }
 
 void Pieza::rotate(bool orientation){
     if (orientation)
     {
-        m_sprite.setPosition(pos % 8 * 96.0f + 48.0f, (7 - (pos / 8)) * 96.0f + 48.0f); // vista blancas
+        m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista blancas
     }
     else {
-        m_sprite.setPosition((7-(pos%8)) * 96.0f + 48.0f, pos/8 * 96.0f + 48.0f);
+        m_sprite.setPosition((7-(pos%8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2, pos/8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2);
     }
 }
 

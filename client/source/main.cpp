@@ -2,6 +2,7 @@
 #include "user.hpp"
 #include "partida.hpp"
 #include "pieza.hpp"
+#include "configuration.cpp"
 
 // by default white
 bool orientation = true;
@@ -51,7 +52,7 @@ int main()
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
     // sf::RenderWindow window(sf::VideoMode(768,512), "Chess", sf::Style::Titlebar | sf::Style::Close);
     // sf::RenderWindow window(sf::VideoMode(1024,768), "Chess", sf::Style::Titlebar | sf::Style::Close);
-    sf::RenderWindow window(sf::VideoMode(96 * 14, 96 * 8), "Chess", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(OBJECT_SIZE * 14, OBJECT_SIZE * 8), "Chess", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
     // deactivate its OpenGL context
@@ -73,7 +74,7 @@ int main()
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     // only select in board
-                    if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (96 * 8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (96 * 8)))
+                    if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (OBJECT_SIZE * 8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (OBJECT_SIZE * 8)))
                     {
                         int buttonPos;
                         //unsigned int buttonPos{(event.mouseButton.x / 96) + ((7 - (event.mouseButton.y / 96)) * (8 * ((96 * 8) / window.getSize().y)))};
@@ -81,12 +82,12 @@ int main()
                         if (orientation)
                         {
                             cout << "okkk" << endl;
-                            buttonPos = (event.mouseButton.x / 96) + ((7 - (event.mouseButton.y / 96)) * (8 * ((96 * 8) / window.getSize().y)));
+                            buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                             //m_sprite.setPosition(pos % 8 * 96.0f + 48.0f, (7 - (pos / 8)) * 96.0f + 48.0f);
                         }
                         else 
                         {
-                            buttonPos = (7-(event.mouseButton.x / 96)) + ((event.mouseButton.y / 96) * (8 * ((96 * 8) / window.getSize().y)));
+                            buttonPos = (7-(event.mouseButton.x / OBJECT_SIZE)) + ((event.mouseButton.y / OBJECT_SIZE) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                             //m_sprite.setPosition((7-(pos%8)) * 96.0f + 48.0f, pos/8 * 96.0f + 48.0f);
                         }
                         cout << "buttonPos " << buttonPos << endl;

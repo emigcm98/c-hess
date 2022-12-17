@@ -1,4 +1,5 @@
 #include "partida.hpp"
+#include "configuration.cpp"
 
 template <typename Base, typename T>
 inline bool instanceof (const T *ptr)
@@ -85,8 +86,8 @@ void Partida::load(sf::Color col1, sf::Color col2)
         for (int j = 0; j < 8; j++)
         {
 
-            m_boardSquares[j + (i * 8)].setPosition(sf::Vector2f(j * 96.f, i * 96.f));
-            m_boardSquares[j + (i * 8)].setSize(sf::Vector2f(96.f, 96.f));
+            m_boardSquares[j + (i * 8)].setPosition(sf::Vector2f(j * OBJECT_SIZE_F, i * OBJECT_SIZE_F));
+            m_boardSquares[j + (i * 8)].setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
             m_boardSquares[j + (i * 8)].setFillColor(tmpColor ? col1 : col2);
 
             tmpColor = !tmpColor;
@@ -526,8 +527,8 @@ void Partida::createMovesSquares()
     for (int i = 0; i < (int)validMovements.size(); i++)
     {
         sf::RectangleShape tmp;
-        tmp.setPosition(sf::Vector2f((validMovements.at(i) % 8) * 96.f, (7 - (validMovements.at(i) / 8)) * 96.f));
-        tmp.setSize(sf::Vector2f(96.f, 96.f));
+        tmp.setPosition(sf::Vector2f((validMovements.at(i) % 8) * OBJECT_SIZE_F, (7 - (validMovements.at(i) / 8)) * OBJECT_SIZE_F));
+        tmp.setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
         if (tablero[validMovements.at(i)] != nullptr)
         {
             tmp.setFillColor(sf::Color(0xff000050));
@@ -541,8 +542,8 @@ void Partida::createMovesSquares()
     }
 
     sf::RectangleShape tmp;
-    tmp.setPosition(sf::Vector2f((selectedPiece->getPos() % 8) * 96.0f, (7 - (selectedPiece->getPos() / 8)) * 96.0f));
-    tmp.setSize(sf::Vector2f(96.0f, 96.0f));
+    tmp.setPosition(sf::Vector2f((selectedPiece->getPos() % 8) * OBJECT_SIZE_F, (7 - (selectedPiece->getPos() / 8)) * OBJECT_SIZE_F));
+    tmp.setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
     tmp.setFillColor(sf::Color(0x00000000));
     tmp.setOutlineColor(sf::Color::Red);
     tmp.setOutlineThickness(-4.f);

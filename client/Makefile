@@ -8,7 +8,7 @@ NAME=chess-client
 $(NAME): $(OBJ)
 	$(CC) $^ -o $@  $(CFLAGS) $(LDPATH)
 
-main.o: source/main.cpp
+main.o: source/main.cpp source/gameinfo.cpp
 	$(CC) -c source/main.cpp $(CFLAGS)
 
 gameinfo.o: source/gameinfo.cpp source/gameinfo.cpp source/jugada.hpp source/user.hpp
