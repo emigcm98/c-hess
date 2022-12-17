@@ -37,6 +37,7 @@ public:
     virtual std::vector<int> calcularMovimiento() = 0; // calcula los movimientos posibles de la pieza (abstracto)
     void move(int pos);
     void move(std::string pos);
+    void rotate(bool orientation);
 };
 
 // ALFIL

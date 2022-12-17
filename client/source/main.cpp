@@ -3,6 +3,9 @@
 #include "partida.hpp"
 #include "pieza.hpp"
 
+// by default white
+bool orientation = true;
+
 int main()
 {
     sf::Font font;
@@ -69,10 +72,24 @@ int main()
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
-                    if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (96*8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (96*8)))
+                    // only select in board
+                    if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (96 * 8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (96 * 8)))
                     {
-                        unsigned int buttonPos{(event.mouseButton.x / 96) + ( (7-(event.mouseButton.y / 96)) * (8 * ((96*8) / window.getSize().y)))};
-                        cout << buttonPos << endl;
+                        int buttonPos;
+                        //unsigned int buttonPos{(event.mouseButton.x / 96) + ((7 - (event.mouseButton.y / 96)) * (8 * ((96 * 8) / window.getSize().y)))};
+
+                        if (orientation)
+                        {
+                            cout << "okkk" << endl;
+                            buttonPos = (event.mouseButton.x / 96) + ((7 - (event.mouseButton.y / 96)) * (8 * ((96 * 8) / window.getSize().y)));
+                            //m_sprite.setPosition(pos % 8 * 96.0f + 48.0f, (7 - (pos / 8)) * 96.0f + 48.0f);
+                        }
+                        else 
+                        {
+                            buttonPos = (7-(event.mouseButton.x / 96)) + ((event.mouseButton.y / 96) * (8 * ((96 * 8) / window.getSize().y)));
+                            //m_sprite.setPosition((7-(pos%8)) * 96.0f + 48.0f, pos/8 * 96.0f + 48.0f);
+                        }
+                        cout << "buttonPos " << buttonPos << endl;
 
                         if (!partida.isSelected())
                         {
@@ -82,7 +99,6 @@ int main()
                         {
                             partida.moveSelected(buttonPos);
                         }
-                            
                     }
                     // else if ((517 <= event.mouseButton.x) && (event.mouseButton.x <= 763) && (5 <= event.mouseButton.y) && (event.mouseButton.y <= 45))
                     // {
@@ -90,16 +106,24 @@ int main()
                     // }
                 }
             }
+            if (event.type == sf::Event::EventType::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::R)
+                {
+                    partida.rotateBoard();
+                    orientation = !orientation;
+                }
+            }
+
+            // clear the window with black color
+            window.clear(sf::Color::Black);
+
+            // draw everything here...
+            window.draw(partida);
+
+            // end the current frame
+            window.display();
         }
-
-        // clear the window with black color
-        window.clear(sf::Color::Black);
-
-        // draw everything here...
-        window.draw(partida);
-
-        // end the current frame
-        window.display();
     }
 
     return 0;

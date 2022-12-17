@@ -81,6 +81,16 @@ void Pieza::setTexture()
     // m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
 }
 
+void Pieza::rotate(bool orientation){
+    if (orientation)
+    {
+        m_sprite.setPosition(pos % 8 * 96.0f + 48.0f, (7 - (pos / 8)) * 96.0f + 48.0f); // vista blancas
+    }
+    else {
+        m_sprite.setPosition((7-(pos%8)) * 96.0f + 48.0f, pos/8 * 96.0f + 48.0f);
+    }
+}
+
 // ALFIL
 
 Alfil::Alfil(std::string pos, bool blancas) : Pieza(pos, blancas)

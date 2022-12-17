@@ -16,6 +16,8 @@ public:
     Jugada(Pieza* pieza, int new_pos);
     bool shortCastling;
     bool longCastling;
+    bool firstPieceMove;
+    bool enPassant;
     // getters
     Pieza* getPieza();
     int getNewPos();

@@ -45,18 +45,22 @@ private:
     Pieza* selectedPiece;
     bool selected; // something selected ?
     bool turn; //true white false black
+    bool orientation; // true white false black
     // public member function
 public:
     Partida(User* usuario_blancas, User* usuario_negras, sf::Font* font);
     Pieza* tablero[64];
+    bool potentiallyEnPassant;
     // getters
     bool isJaque();
     bool isJaqueMate();
+    bool getOrientation();
     
     Pieza* getPiezaByPos(std::string pos);
     vector<Jugada*> getJugadas();
     // setters
     void setResultado(Resultado r); // aplica los cambios a los jugadores
+    void setOrientation(bool orientation);
     // methods
     void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
     void mostrarTablero();
@@ -65,5 +69,6 @@ public:
     bool isSelected();
     void moveSelected(int pos);
     void createMovesSquares();
+    void rotateBoard();
     std::vector<int> filterValidMovements(Pieza *p);
 };

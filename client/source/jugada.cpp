@@ -10,6 +10,8 @@ Jugada::Jugada(Pieza *pieza, std::string newPos)
     this->newPosStr = newPos;
     this->shortCastling = false;
     this->longCastling = false;
+    this->firstPieceMove = false;
+    this->enPassant = false;
     check_movement();
 }
 
