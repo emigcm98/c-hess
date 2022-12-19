@@ -58,7 +58,9 @@ int main()
 
     // deactivate its OpenGL context
     window.setActive(false);
-    
+
+    // current piece and valid movements
+    Pieza *p;
     std::vector<int> validMovements;
 
     // the event/logic/whatever loop
@@ -69,32 +71,33 @@ int main()
         while (window.pollEvent(event))
         {
             // "close requested" event: we close the window
-            if (event.type == sf::Event::Closed)
-                window.close();
-            
-            if (event.type == sf::Event::MouseButtonPressed)
+            switch (event.type)
             {
+            case sf::Event::Closed:
+                window.close();
+                break;
+
+            case sf::Event::MouseButtonPressed:
                 if (event.mouseButton.button == sf::Mouse::Left)
                 {
                     // only select in board
                     if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (OBJECT_SIZE * 8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (OBJECT_SIZE * 8)))
                     {
                         int buttonPos;
-                        //unsigned int buttonPos{(event.mouseButton.x / 96) + ((7 - (event.mouseButton.y / 96)) * (8 * ((96 * 8) / window.getSize().y)))};
+                        // unsigned int buttonPos{(event.mouseButton.x / 96) + ((7 - (event.mouseButton.y / 96)) * (8 * ((96 * 8) / window.getSize().y)))};
 
                         if (orientation)
                         {
-                            //cout << "okkk" << endl;
+                            // cout << "okkk" << endl;
                             buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
-                            //m_sprite.setPosition(pos % 8 * 96.0f + 48.0f, (7 - (pos / 8)) * 96.0f + 48.0f);
                         }
-                        else 
+                        else
                         {
-                            buttonPos = (7-(event.mouseButton.x / OBJECT_SIZE)) + ((event.mouseButton.y / OBJECT_SIZE) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
-                            //m_sprite.setPosition((7-(pos%8)) * 96.0f + 48.0f, pos/8 * 96.0f + 48.0f);
+                            buttonPos = (7 - (event.mouseButton.x / OBJECT_SIZE)) + ((event.mouseButton.y / OBJECT_SIZE) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                         }
-                        //cout << "buttonPos " << buttonPos << endl;
-                        if (!partida.isSelected())
+                        // cout << "buttonPos " << buttonPos << endl;
+                        p = partida.getSelectedPiece();
+                        if (p == nullptr)
                         {
                             validMovements = partida.selectPiece(buttonPos);
                         }
@@ -103,19 +106,18 @@ int main()
                             partida.moveSelected(buttonPos, validMovements);
                         }
                     }
-                    // else if ((517 <= event.mouseButton.x) && (event.mouseButton.x <= 763) && (5 <= event.mouseButton.y) && (event.mouseButton.y <= 45))
-                    // {
-                    //     //partida.restart();
-                    // }
                 }
-            }
-            if (event.type == sf::Event::EventType::KeyPressed)
-            {
+                break;
+            case sf::Event::EventType::KeyPressed:
+
                 if (event.key.code == sf::Keyboard::R)
                 {
                     partida.rotateBoard();
                     orientation = !orientation;
                 }
+                break;
+            default:
+                break;
             }
 
             // clear the window with black color

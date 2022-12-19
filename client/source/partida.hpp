@@ -46,7 +46,6 @@ private:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     
     Pieza* selectedPiece;
-    bool selected; // something selected ?
     bool turn; //true white false black
     bool orientation; // true white false black
     bool shortCastling;
@@ -64,6 +63,7 @@ public:
     //Pieza* getPotentiallyPieceEnPassant();
     bool getShortCastling();
     bool getLongCastling();
+    Pieza* getSelectedPiece();
 
     // setters
     void setResultado(Resultado r); // aplica los cambios a los jugadores
@@ -75,7 +75,6 @@ public:
     void mostrarTablero();
     bool aplicarJugada(Jugada* j, std::vector<int> movements); // aplica los cambios al tablero
     std::vector<int> selectPiece(int pos);
-    bool isSelected();
     void moveSelected(int pos, std::vector<int> validMovements);
     void rotateBoard();
     void shortCastle();

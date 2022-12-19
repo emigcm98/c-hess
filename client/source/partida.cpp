@@ -16,7 +16,7 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
     this->gameInfo = new GameInfo(usuario_blancas, usuario_negras, &jugadas, font);
 
     turn = true;
-    selected = false;
+    //selected = false;
     selectedPiece = nullptr;
     potentiallyPieceEnPassant = nullptr;
 
@@ -111,7 +111,7 @@ void Partida::draw(sf::RenderTarget &target, sf::RenderStates states) const
         target.draw(*piezas_negro[i]);
     }
 
-    if (selectedPiece != nullptr && selected)
+    if (selectedPiece != nullptr)
     {
         for (auto const &i : possibleMovesSquares)
         {
@@ -328,12 +328,10 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
     if (pieza->getPos() == j->getNewPos()) // same square, no movement
     {
         selectedPiece = nullptr;
-        selected = false;
     }
     else if (std::count(movements.begin(), movements.end(), newpos))
     {
         selectedPiece = nullptr;
-        selected = false;
         is_aplicable = true;
 
         if (instanceof <Rey>(pieza))
@@ -461,7 +459,6 @@ std::vector<int> Partida::selectPiece(int pos)
             if (piezas_blanco[i]->getPos() == pos)
             {
                 selectedPiece = piezas_blanco[i];
-                selected = true;
                 break;
             }
         }
@@ -470,21 +467,18 @@ std::vector<int> Partida::selectPiece(int pos)
             if (piezas_negro[i]->getPos() == pos)
             {
                 selectedPiece = piezas_negro[i];
-                selected = true;
                 break;
             }
         }
-        selected = false;
+        selectedPiece = nullptr;
     }
 
-    if (!selected)
+    if (selectedPiece == nullptr)
     {
-        selectedPiece = nullptr;
         possibleMovesSquares.clear();
         return validMovements;
     }
-
-    if (selectedPiece != nullptr)
+    else // piece !
     {
 
         potentiallyPieceEnPassant = nullptr;
@@ -497,11 +491,7 @@ std::vector<int> Partida::selectPiece(int pos)
 
             if (instanceof <Peon>(previousPiece) && previousPiece->getColor() != selectedPiece->getColor() && previousPlay->isFirstPieceMove())
             {
-                if ((previousPiece->getPos() - selectedPiece->getPos()) == 1)
-                {
-                    potentiallyPieceEnPassant = previousPiece;
-                }
-                else if ((previousPiece->getPos() - selectedPiece->getPos()) == -1)
+                if (abs(previousPiece->getPos() - selectedPiece->getPos()) == 1) // -1 or 1
                 {
                     potentiallyPieceEnPassant = previousPiece;
                 }
@@ -513,11 +503,6 @@ std::vector<int> Partida::selectPiece(int pos)
     validMovements = createMovesSquares();
 
     return validMovements;
-}
-
-bool Partida::isSelected()
-{
-    return selected;
 }
 
 std::vector<int> Partida::createMovesSquares()
@@ -585,15 +570,10 @@ std::vector<int> Partida::createMovesSquares()
 void Partida::moveSelected(int pos, std::vector<int> validMovements)
 {
 
-    // no piece or not selected
-    if ((selectedPiece == nullptr) || !selected)
-        return;
-
-    // same piece or no movements
-    if ((selectedPiece != nullptr && selectedPiece->getPos() == pos))
+    // no piece or not selected or piece but same square as before
+    if (selectedPiece == nullptr || (selectedPiece != nullptr && selectedPiece->getPos() == pos))
     {
         selectedPiece = nullptr;
-        selected = false;
         return;
     }
     // another piece
@@ -602,6 +582,7 @@ void Partida::moveSelected(int pos, std::vector<int> validMovements)
         selectPiece(pos);
         return;
     }
+    // no possible movements
     else if (validMovements.empty())
     {
         return;
@@ -624,6 +605,8 @@ void Partida::moveSelected(int pos, std::vector<int> validMovements)
         }
         gameInfo->updateJugada();
     }
+
+    selectedPiece = nullptr;
 
     //     lastMove = "Last Turn:\n" + selectedPiece->toString();
     //     for(int i=0; i<16; i++){
@@ -660,6 +643,11 @@ void Partida::rotateBoard()
     for (auto const &i : piezas_negro)
     {
         i->rotate(orientation);
+    }
+
+    if (selectedPiece) {
+        std::cout << "selecting" << 64-selectedPiece->getPos() << std::endl;
+        selectPiece(63-selectedPiece->getPos());
     }
 }
 
@@ -713,4 +701,8 @@ bool Partida::getShortCastling() {
 
 bool Partida::getLongCastling() {
     return longCastling;
+}
+
+Pieza* Partida::getSelectedPiece(){
+    return selectedPiece;
 }
