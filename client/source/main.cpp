@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <chrono>
 #include "user.hpp"
 #include "partida.hpp"
 #include "pieza.hpp"
@@ -57,6 +58,8 @@ int main()
 
     // deactivate its OpenGL context
     window.setActive(false);
+    
+    std::vector<int> validMovements;
 
     // the event/logic/whatever loop
     while (window.isOpen())
@@ -68,7 +71,7 @@ int main()
             // "close requested" event: we close the window
             if (event.type == sf::Event::Closed)
                 window.close();
-
+            
             if (event.type == sf::Event::MouseButtonPressed)
             {
                 if (event.mouseButton.button == sf::Mouse::Left)
@@ -81,7 +84,7 @@ int main()
 
                         if (orientation)
                         {
-                            cout << "okkk" << endl;
+                            //cout << "okkk" << endl;
                             buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                             //m_sprite.setPosition(pos % 8 * 96.0f + 48.0f, (7 - (pos / 8)) * 96.0f + 48.0f);
                         }
@@ -90,15 +93,14 @@ int main()
                             buttonPos = (7-(event.mouseButton.x / OBJECT_SIZE)) + ((event.mouseButton.y / OBJECT_SIZE) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                             //m_sprite.setPosition((7-(pos%8)) * 96.0f + 48.0f, pos/8 * 96.0f + 48.0f);
                         }
-                        cout << "buttonPos " << buttonPos << endl;
-
+                        //cout << "buttonPos " << buttonPos << endl;
                         if (!partida.isSelected())
                         {
-                            partida.selectPiece(buttonPos);
+                            validMovements = partida.selectPiece(buttonPos);
                         }
                         else
                         {
-                            partida.moveSelected(buttonPos);
+                            partida.moveSelected(buttonPos, validMovements);
                         }
                     }
                     // else if ((517 <= event.mouseButton.x) && (event.mouseButton.x <= 763) && (5 <= event.mouseButton.y) && (event.mouseButton.y <= 45))

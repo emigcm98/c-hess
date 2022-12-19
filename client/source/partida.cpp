@@ -18,7 +18,7 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
     turn = true;
     selected = false;
     selectedPiece = nullptr;
-    potentiallyEnPassant = false;
+    potentiallyPieceEnPassant = nullptr;
 
     orientation = true;
 
@@ -140,6 +140,8 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
     int pos = p->getPos();
     std::vector<int> movements = p->calcularMovimiento();
 
+    //return movements; // PRUEBA
+
     // std::cout << "movements: ";
     // for (auto m : movements)
     // {
@@ -260,7 +262,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             {
                 if (abs(*it - pos) == 7)
                 {
-                    if (potentiallyEnPassant && tablero[pos - 1] != nullptr)
+                    if (potentiallyPieceEnPassant != nullptr && tablero[pos - 1] == potentiallyPieceEnPassant)
                     {
                     }
                     else
@@ -271,7 +273,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 }
                 else if (abs(*it - pos) == 9)
                 {
-                    if (potentiallyEnPassant && tablero[pos + 1] != nullptr)
+                    if (potentiallyPieceEnPassant && tablero[pos + 1] == potentiallyPieceEnPassant)
                     {
                     }
                     else
@@ -295,7 +297,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
     return movements;
 }
 
-bool Partida::aplicarJugada(Jugada *j)
+bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
 {
 
     // se mira si se puede hacer (la Piezq tiene movimeinto, no hay jaque)
@@ -309,7 +311,7 @@ bool Partida::aplicarJugada(Jugada *j)
 
     bool enPassant = false;
 
-    if (potentiallyEnPassant)
+    if (potentiallyPieceEnPassant != nullptr)
     {
         if (abs(pieza->getPos() - newpos) == 7 || abs(pieza->getPos() - newpos) == 9)
         {
@@ -317,10 +319,10 @@ bool Partida::aplicarJugada(Jugada *j)
         }
     }
 
-    std::vector<int> movements = filterValidMovements(pieza);
+    //std::vector<int> movements = filterValidMovements(pieza);
 
-    bool longCastling = false;
-    bool shortCastling = false;
+    bool possibleShortCastling = false;
+    bool possibleLongCastling = false;
 
     // newpos avalaible, movements bigger than 1
     if (pieza->getPos() == j->getNewPos()) // same square, no movement
@@ -338,11 +340,11 @@ bool Partida::aplicarJugada(Jugada *j)
         {
             if (newpos - pieza->getPos() == 2) // enroque corto
             {
-                shortCastling = true;
+                possibleShortCastling = true;
             }
             else if (newpos - pieza->getPos() == -2) // enroque largo
             {
-                longCastling = true;
+                possibleLongCastling = true;
             }
         }
     }
@@ -401,23 +403,25 @@ bool Partida::aplicarJugada(Jugada *j)
         //     cout<<i->getNombre()<<endl;
         // }
 
-        if (shortCastling)
+        if (possibleShortCastling)
         {
             Pieza *rook = tablero[pieza->getPos() + 3];
             rook->move(pieza->getPos() + 1);
             tablero[pieza->getPos() + 3] = nullptr;
             tablero[pieza->getPos() + 1] = rook;
-            j->shortCastling = true;
+            j->shortCastle(); // in the play
+            shortCastle(); // in the game itself
             // 0-0
         }
-        if (longCastling)
+        if (possibleLongCastling)
         {
 
             Pieza *rook = tablero[pieza->getPos() - 4];
             rook->move(pieza->getPos() - 1);
             tablero[pieza->getPos() - 4] = nullptr;
             tablero[pieza->getPos() - 1] = rook;
-            j->longCastling = true;
+            j->longCastle(); // in the play
+            longCastle(); // in the game itself
             // 0-0-0
         }
 
@@ -429,12 +433,12 @@ bool Partida::aplicarJugada(Jugada *j)
 
     // si no se puede hacer se devuelve false y no se le pasa el turno al otro jugador
 
-    potentiallyEnPassant = false;
+    potentiallyPieceEnPassant = nullptr;
 
     return is_aplicable;
 }
 
-bool Partida::selectPiece(int pos)
+std::vector<int> Partida::selectPiece(int pos)
 {
 
     // std::cout << "selected piece: " << selectedPiece->getPos() << std::endl;
@@ -447,6 +451,8 @@ bool Partida::selectPiece(int pos)
     //     selected = false;
     //     return false;
     // }
+
+    std::vector<int> validMovements;
 
     for (int i = 0; i < 16; i++)
     {
@@ -475,13 +481,13 @@ bool Partida::selectPiece(int pos)
     {
         selectedPiece = nullptr;
         possibleMovesSquares.clear();
-        return selected;
+        return validMovements;
     }
 
     if (selectedPiece != nullptr)
     {
 
-        potentiallyEnPassant = false;
+        potentiallyPieceEnPassant = nullptr;
 
         if (instanceof <Peon>(selectedPiece) && jugadas.size() > 0)
         {
@@ -489,24 +495,24 @@ bool Partida::selectPiece(int pos)
             Jugada *previousPlay = jugadas.back();
             Pieza *previousPiece = previousPlay->getPieza();
 
-            if (instanceof <Peon>(previousPiece) && previousPiece->getColor() != selectedPiece->getColor() && previousPlay->firstPieceMove)
+            if (instanceof <Peon>(previousPiece) && previousPiece->getColor() != selectedPiece->getColor() && previousPlay->isFirstPieceMove())
             {
                 if ((previousPiece->getPos() - selectedPiece->getPos()) == 1)
                 {
-                    potentiallyEnPassant = true;
+                    potentiallyPieceEnPassant = previousPiece;
                 }
                 else if ((previousPiece->getPos() - selectedPiece->getPos()) == -1)
                 {
-                    potentiallyEnPassant = true;
+                    potentiallyPieceEnPassant = previousPiece;
                 }
             }
         }
     }
 
     // movimientos disponibles
-    createMovesSquares();
+    validMovements = createMovesSquares();
 
-    return selected;
+    return validMovements;
 }
 
 bool Partida::isSelected()
@@ -514,27 +520,29 @@ bool Partida::isSelected()
     return selected;
 }
 
-void Partida::createMovesSquares()
+std::vector<int> Partida::createMovesSquares()
 {
 
+    std::vector<int> validMovements = filterValidMovements(selectedPiece);
+    
     if (selectedPiece == nullptr)
-        return;
+        return validMovements;
 
     possibleMovesSquares.clear();
-
-    std::vector<int> validMovements = filterValidMovements(selectedPiece);
 
     for (int i = 0; i < (int)validMovements.size(); i++)
     {
         sf::RectangleShape tmp;
         tmp.setPosition(sf::Vector2f((validMovements.at(i) % 8) * OBJECT_SIZE_F, (7 - (validMovements.at(i) / 8)) * OBJECT_SIZE_F));
         tmp.setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
-        if (tablero[validMovements.at(i)] != nullptr)
+        if (tablero[validMovements.at(i)] != nullptr && tablero[validMovements.at(i)]->getColor() != selectedPiece->getColor()) // another piece, put in red
         {
+            // red
             tmp.setFillColor(sf::Color(0xff000050));
         }
         else
         {
+            //blue
             tmp.setFillColor(sf::Color(0x66b4cc50));
         }
 
@@ -548,6 +556,8 @@ void Partida::createMovesSquares()
     tmp.setOutlineColor(sf::Color::Red);
     tmp.setOutlineThickness(-4.f);
     possibleMovesSquares.push_back(tmp);
+
+    return validMovements;
 }
 
 // void Partida::mostrarTablero()
@@ -572,26 +582,28 @@ void Partida::createMovesSquares()
 //     cout << endl;
 // }
 
-void Partida::moveSelected(int pos)
+void Partida::moveSelected(int pos, std::vector<int> validMovements)
 {
-    bool validMove = false;
 
-    if (validMove)
-    {
-    }
-
-    if ((selectedPiece == nullptr) || !selected) // Probably doesnt need both
+    // no piece or not selected
+    if ((selectedPiece == nullptr) || !selected)
         return;
 
-    if (selectedPiece != nullptr && selectedPiece->getPos() == pos)
+    // same piece or no movements
+    if ((selectedPiece != nullptr && selectedPiece->getPos() == pos))
     {
         selectedPiece = nullptr;
         selected = false;
         return;
     }
+    // another piece
     else if (selectedPiece != nullptr && tablero[pos] != nullptr && tablero[pos]->getColor() == selectedPiece->getColor())
     {
         selectPiece(pos);
+        return;
+    }
+    else if (validMovements.empty())
+    {
         return;
     }
 
@@ -600,7 +612,7 @@ void Partida::moveSelected(int pos)
 
     bool pieceHasMoved = selectedPiece->getMoved();
 
-    bool valid = aplicarJugada(j);
+    bool valid = aplicarJugada(j, validMovements);
 
     if (valid)
     {
@@ -608,7 +620,7 @@ void Partida::moveSelected(int pos)
         // si no ha movido antes ponemos qeue esta jugada es la primera en la que mueve
         if (!pieceHasMoved)
         {
-            j->firstPieceMove = true;
+            j->firstPieceMoved(); // ponemos que ha sido el primer movimiento de la pieza
         }
         gameInfo->updateJugada();
     }
@@ -685,4 +697,20 @@ bool Partida::getOrientation()
 void Partida::setOrientation(bool orientation)
 {
     this->orientation = orientation;
+}
+
+void Partida::shortCastle() {
+    shortCastling = true;
+}
+
+void Partida::longCastle() {
+    longCastling = true;
+}
+
+bool Partida::getShortCastling() {
+    return shortCastling;
+}
+
+bool Partida::getLongCastling() {
+    return longCastling;
 }

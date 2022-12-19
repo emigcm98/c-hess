@@ -75,3 +75,27 @@ std::string Jugada::to_string()
         return std::string(1, pieza->getNombre()) + newPosStr; //+ (isJaque ? "+" : "") + (isJaqueMate ? "+" : "");
     }
 }
+
+void Jugada::shortCastle() {
+    shortCastling = true;
+}
+
+void Jugada::longCastle() {
+    longCastling = true;
+}
+
+bool Jugada::isShortCastling() {
+    return shortCastling;
+}
+
+bool Jugada::isLongCastling() {
+    return longCastling;
+}
+
+bool Jugada::isFirstPieceMove() {
+    return firstPieceMove;
+}
+
+void Jugada::firstPieceMoved() {
+    firstPieceMove = true;
+}

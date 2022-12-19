@@ -40,35 +40,46 @@ private:
     time_t fecha;
     std::array<sf::RectangleShape, 64> m_boardSquares;
     std::vector<sf::RectangleShape> possibleMovesSquares;
+    
+    Pieza* potentiallyPieceEnPassant;
+    
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     
     Pieza* selectedPiece;
     bool selected; // something selected ?
     bool turn; //true white false black
     bool orientation; // true white false black
+    bool shortCastling;
+    bool longCastling;
     // public member function
 public:
     Partida(User* usuario_blancas, User* usuario_negras, sf::Font* font);
     Pieza* tablero[64];
-    bool potentiallyEnPassant;
     // getters
     bool isJaque();
     bool isJaqueMate();
     bool getOrientation();
-    
     Pieza* getPiezaByPos(std::string pos);
     vector<Jugada*> getJugadas();
+    //Pieza* getPotentiallyPieceEnPassant();
+    bool getShortCastling();
+    bool getLongCastling();
+
     // setters
     void setResultado(Resultado r); // aplica los cambios a los jugadores
     void setOrientation(bool orientation);
+    //void setPotentiallyPieceEnPassant(Pieza *p);
+
     // methods
     void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
     void mostrarTablero();
-    bool aplicarJugada(Jugada* j); // aplica los cambios al tablero
-    bool selectPiece(int pos);
+    bool aplicarJugada(Jugada* j, std::vector<int> movements); // aplica los cambios al tablero
+    std::vector<int> selectPiece(int pos);
     bool isSelected();
-    void moveSelected(int pos);
-    void createMovesSquares();
+    void moveSelected(int pos, std::vector<int> validMovements);
     void rotateBoard();
+    void shortCastle();
+    void longCastle();
+    std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Pieza *p);
 };
