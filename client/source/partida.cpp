@@ -7,6 +7,21 @@ inline bool instanceof (const T *ptr)
     return dynamic_cast<const Base *>(ptr) != nullptr;
 }
 
+void Partida::loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
+{
+    /* 56 - 63 / 48 - 55 / 40 - 47 / 32 - 39 / 24 - 31 / 16 - 23 / 8 - 15 / 0 - 7 */
+    int i = 0;
+    for (int pos = 56; pos == 7; pos++){
+        
+        switch (fen.at(i)){
+            case 'R':
+                piezas_blanco.push_back((tablero[pos] = new Peon(pos, true)));
+                break;
+        }
+
+    }
+}
+
 Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 {
     this->usuario_blancas = usuario_blancas;

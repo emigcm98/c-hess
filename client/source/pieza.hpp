@@ -26,7 +26,9 @@ protected:
     {   target.draw(m_sprite);  }
 
 public:
-    Pieza(std::string pos, bool blancas); // pos from 0 to 63
+    Pieza(int pos, char nombre);
+    Pieza(int pos, bool blancas); // pos from 0 to 63
+    Pieza(std::string pos, bool blancas) : Pieza(fromChessPosition(pos), blancas){}; // pos from 0 to 63
     // getters
     int getPos();
     bool getColor();
@@ -45,7 +47,8 @@ public:
 class Alfil : public Pieza
 {
 public:
-    Alfil(std::string pos, bool blancas);
+    Alfil(int pos, bool blancas);
+    Alfil(std::string pos, bool blancas) : Alfil(fromChessPosition(pos), blancas){};
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -54,7 +57,8 @@ public:
 class Caballo : public Pieza
 {
 public:
-    Caballo(std::string pos, bool blancas);
+    Caballo(int pos, bool blancas);
+    Caballo(std::string pos, bool blancas) : Caballo(fromChessPosition(pos), blancas){};
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -63,7 +67,8 @@ public:
 class Peon : public Pieza
 {
 public:
-    Peon(std::string pos, bool blancas);
+    Peon(int pos, bool blancas);
+    Peon(std::string pos, bool blancas) : Peon(fromChessPosition(pos), blancas){};
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -72,7 +77,8 @@ public:
 class Torre : public Pieza
 {
 public:
-    Torre(std::string pos, bool blancas);
+    Torre(int pos, bool blancas);
+    Torre(std::string pos, bool blancas) : Torre(fromChessPosition(pos), blancas){};
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -81,7 +87,8 @@ public:
 class Rey : public Pieza
 {
 public:
-    Rey(std::string pos, bool blancas);
+    Rey(int pos, bool blancas);
+    Rey(std::string pos, bool blancas) : Rey(fromChessPosition(pos), blancas){};
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -90,6 +97,7 @@ public:
 class Dama : public Pieza
 {
 public:
-    Dama(std::string pos, bool blancas);
+    Dama(int pos, bool blancas);
+    Dama(std::string pos, bool blancas) : Dama(fromChessPosition(pos), blancas){};
     virtual std::vector<int> calcularMovimiento();
 };
