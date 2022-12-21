@@ -14,7 +14,7 @@ int main()
     if (!font.loadFromFile("fonts/arial.ttf"))
     {
         // error...
-        cerr << "No se ha podido cargar la fuente." << endl;
+        std::cerr << "No se ha podido cargar la fuente." << std::endl;
         return 1;
     }
 

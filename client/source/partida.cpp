@@ -78,7 +78,7 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
     piezas_blanco.push_back(tablero[fromChessPosition("d1")] = new Dama("d1", true));
     piezas_negro.push_back(tablero[fromChessPosition("d8")] = new Dama("d8", false));
     */
-    loadFen();
+    loadFen("1nbqkbnr/1p1p2pp/p1P1p3/r2Bp3/2p1P3/8/PPPP2PP/RNBQK1NR");
 
     load();
 }
@@ -91,7 +91,6 @@ void Partida::loadFen(std::string fen)
     for (int pos = 56; i<int(fen.length()); pos++){
 
         char aux = fen.at(i);
-        std::cout << pos << " " << aux << " " << i << std::endl;
         if (aux >= 'A' && aux <= 'Z'){
             piezas_blanco.push_back((tablero[pos] = Pieza::create(pos, aux)));
         }
@@ -99,7 +98,7 @@ void Partida::loadFen(std::string fen)
             piezas_negro.push_back((tablero[pos] = Pieza::create(pos, aux)));
         }
         else if (aux >= '1' && aux <= '8'){
-            pos+= (aux - '0')-1;
+            pos+= (aux - '1');
         }
         else if (aux == '/'){
             pos-=17;
@@ -200,7 +199,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 div = abs(*it / 8 - pos / 8);
             }
             // abs o no abs???
-            int diff = abs(*it - pos) / div; // cantidad que se desplaza hacia esa dirección concreta OK
+            int diff = (*it - pos) / div; // cantidad que se desplaza hacia esa dirección concreta OK
 
             int firstSquare = *it;
             std::cout << "hay una pieza en la pos " << firstSquare << std::endl;
@@ -213,6 +212,15 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 movements.erase(it);
             }
             else { // avanzamos, se puede comer, por lo que no se elimina el movimiento
+                if (instanceof <Peon>(p))
+                {
+                    // in front of or double movement, cannot eat
+                    if (abs(*it - pos) == 8 || abs(*it - pos) == 16)
+                    {
+                        movements.erase(it);
+                        continue;
+                    }
+                }
                 *it++;
             }
 
@@ -247,22 +255,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                     i++;
                 }
             }
-            //else // i'm the king???
-            //{
-            //}
-            if (!isSameColor) // different color
-            {
-                if (instanceof <Peon>(p))
-                {
-                    // in front of, cannot eat
-                    if (abs(*it - pos) == 8)
-                    {
-                        movements.erase(it);
-                        continue;
-                    }
-                }
-                ++it;
-            }
+            
         }
         else // no piece!
         {
