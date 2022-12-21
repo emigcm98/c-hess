@@ -7,20 +7,6 @@ inline bool instanceof (const T *ptr)
     return dynamic_cast<const Base *>(ptr) != nullptr;
 }
 
-void Partida::loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")
-{
-    /* 56 - 63 / 48 - 55 / 40 - 47 / 32 - 39 / 24 - 31 / 16 - 23 / 8 - 15 / 0 - 7 */
-    int i = 0;
-    for (int pos = 56; pos == 7; pos++){
-        
-        switch (fen.at(i)){
-            case 'R':
-                piezas_blanco.push_back((tablero[pos] = new Peon(pos, true)));
-                break;
-        }
-
-    }
-}
 
 Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 {
@@ -43,8 +29,8 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
         tablero[i] = nullptr;
     }
 
+    /*
     // peones
-
     piezas_blanco.push_back(tablero[fromChessPosition("a2")] = new Peon("a2", true));
     piezas_blanco.push_back(tablero[fromChessPosition("b2")] = new Peon("b2", true));
     piezas_blanco.push_back(tablero[fromChessPosition("c2")] = new Peon("c2", true));
@@ -91,8 +77,35 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
     // dama
     piezas_blanco.push_back(tablero[fromChessPosition("d1")] = new Dama("d1", true));
     piezas_negro.push_back(tablero[fromChessPosition("d8")] = new Dama("d8", false));
+    */
+    loadFen();
 
     load();
+}
+
+void Partida::loadFen(std::string fen)
+{
+    //"rnbqkbnr/ pppppppp/     8     /    8    /     8    /     8    /PPPPPPPP/RNBQKBNR"
+    /* 56 - 63 / 48 - 55 / *40 - 47 / *32 - 39 / *24 - 31 / *16 - 23 / 8 - 15 / 0 - 7 */
+    int i = 0;
+    for (int pos = 56; i<int(fen.length()); pos++){
+
+        char aux = fen.at(i);
+        std::cout << pos << " " << aux << " " << i << std::endl;
+        if (aux >= 'A' && aux <= 'Z'){
+            piezas_blanco.push_back((tablero[pos] = Pieza::create(pos, aux)));
+        }
+        else if (aux >= 'a' && aux <= 'z'){
+            piezas_negro.push_back((tablero[pos] = Pieza::create(pos, aux)));
+        }
+        else if (aux >= '1' && aux <= '8'){
+            pos+= (aux - '0')-1;
+        }
+        else if (aux == '/'){
+            pos-=17;
+        }
+        i++;
+    }
 }
 
 void Partida::load(sf::Color col1, sf::Color col2)
@@ -670,7 +683,7 @@ Pieza *Partida::getPiezaByPos(std::string pos)
     return tablero[fromChessPosition(pos)];
 }
 
-vector<Jugada *> Partida::getJugadas()
+std::vector<Jugada *> Partida::getJugadas()
 {
     return jugadas;
 }

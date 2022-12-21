@@ -26,7 +26,7 @@ protected:
     {   target.draw(m_sprite);  }
 
 public:
-    Pieza(int pos, char nombre);
+    static Pieza* create(int pos, char nombre);
     Pieza(int pos, bool blancas); // pos from 0 to 63
     Pieza(std::string pos, bool blancas) : Pieza(fromChessPosition(pos), blancas){}; // pos from 0 to 63
     // getters

@@ -26,14 +26,47 @@ std::string toChessPosition(int pos)
     return std::string(1, col) + row;
 }
 
-Pieza::Pieza(int pos, char nombre)
+Pieza* Pieza::create(int pos, char nombre)
 {
     switch (nombre){
         case 'B':
-            Alfil(pos, true);
+            return new Alfil(pos, true);
             break;
         case 'b':
-            Alfil(pos, false);
+            return new Alfil(pos, false);
+            break;
+        case 'N':
+            return new Caballo(pos, true);
+            break;
+        case 'n':
+            return new Caballo(pos, false);
+            break;
+        case 'R':
+            return new Torre(pos, true);
+            break;
+        case 'r':
+            return new Torre(pos, false);
+            break;
+        case 'P':
+            return new Peon(pos, true);
+            break;
+        case 'p':
+            return new Peon(pos, false);
+            break;
+        case 'K':
+            return new Rey(pos, true);
+            break;
+        case 'k':
+            return new Rey(pos, false);
+            break;
+        case 'Q':
+            return new Dama(pos, true);
+            break;
+        case 'q':
+            return new Dama(pos, false);
+            break;
+        default:
+            return nullptr;
             break;
     }
 }

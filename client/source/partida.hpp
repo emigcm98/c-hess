@@ -12,7 +12,6 @@
 
 //typedef Pieza* (&tablero)[8][8];
 
-using namespace std;
 
 enum Resultado { //dividir entre 2 en la fórmula
     BLANCAS = 2,
@@ -33,9 +32,9 @@ class Partida : public sf::Drawable
 private:
     User* usuario_blancas;
     User* usuario_negras;
-    vector<Pieza*> piezas_blanco;
-    vector<Pieza*> piezas_negro;
-    vector<Jugada*> jugadas;
+    std::vector<Pieza*> piezas_blanco;
+    std::vector<Pieza*> piezas_negro;
+    std::vector<Jugada*> jugadas;
     GameInfo* gameInfo;
     time_t fecha;
     std::array<sf::RectangleShape, 64> m_boardSquares;
@@ -59,7 +58,7 @@ public:
     bool isJaqueMate();
     bool getOrientation();
     Pieza* getPiezaByPos(std::string pos);
-    vector<Jugada*> getJugadas();
+    std::vector<Jugada*> getJugadas();
     //Pieza* getPotentiallyPieceEnPassant();
     bool getShortCastling();
     bool getLongCastling();
@@ -72,7 +71,7 @@ public:
 
     // methods
     void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
-    void loadFen(std::string fen);
+    void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     void mostrarTablero();
     bool aplicarJugada(Jugada* j, std::vector<int> movements); // aplica los cambios al tablero
     std::vector<int> selectPiece(int pos);
