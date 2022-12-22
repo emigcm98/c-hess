@@ -71,6 +71,7 @@ int main()
         while (window.pollEvent(event))
         {
             // "close requested" event: we close the window
+
             switch (event.type)
             {
             case sf::Event::Closed:
@@ -107,6 +108,7 @@ int main()
                         }
                     }
                 }
+                
                 break;
             case sf::Event::EventType::KeyPressed:
 
@@ -121,13 +123,15 @@ int main()
             }
 
             // clear the window with black color
-            window.clear(sf::Color::Black);
+            //window.clear(sf::Color::Black);
 
             // draw everything here...
             window.draw(partida);
 
             // end the current frame
             window.display();
+
+
         }
     }
 

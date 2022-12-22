@@ -7,7 +7,6 @@ inline bool instanceof (const T *ptr)
     return dynamic_cast<const Base *>(ptr) != nullptr;
 }
 
-
 Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 {
     this->usuario_blancas = usuario_blancas;
@@ -16,10 +15,10 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 
     this->gameInfo = new GameInfo(usuario_blancas, usuario_negras, &jugadas, font);
 
-    turn = true;
     // selected = false;
     selectedPiece = nullptr;
     potentiallyPieceEnPassant = nullptr;
+    turn = true;
 
     orientation = true;
 
@@ -78,9 +77,12 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
     piezas_blanco.push_back(tablero[fromChessPosition("d1")] = new Dama("d1", true));
     piezas_negro.push_back(tablero[fromChessPosition("d8")] = new Dama("d8", false));
     */
-    loadFen("1nbqkbnr/1p1p2pp/p1P1p3/r2Bp3/2p1P3/8/PPPP2PP/RNBQK1NR");
+    //loadFen("1nbqkbnr/1p1p2pp/p1P1p3/r2Bp3/2p1P3/8/PPPP2PP/RNBQK1NR b");
+    loadFen("1nbqkbnr/8/8/8/8/8/8/8 b");
 
     load();
+
+    std::cout << "FEN: " << saveFen() << std::endl;
 }
 
 void Partida::loadFen(std::string fen)
@@ -88,23 +90,84 @@ void Partida::loadFen(std::string fen)
     //"rnbqkbnr/ pppppppp/     8     /    8    /     8    /     8    /PPPPPPPP/RNBQKBNR"
     /* 56 - 63 / 48 - 55 / *40 - 47 / *32 - 39 / *24 - 31 / *16 - 23 / 8 - 15 / 0 - 7 */
     int i = 0;
-    for (int pos = 56; i<int(fen.length()); pos++){
+    for (int pos = 56; i < int(fen.length()); pos++)
+    {
 
         char aux = fen.at(i);
-        if (aux >= 'A' && aux <= 'Z'){
+        if (aux >= 'A' && aux <= 'Z')
+        {
             piezas_blanco.push_back((tablero[pos] = Pieza::create(pos, aux)));
         }
-        else if (aux >= 'a' && aux <= 'z'){
+        else if (aux >= 'a' && aux <= 'z')
+        {
             piezas_negro.push_back((tablero[pos] = Pieza::create(pos, aux)));
         }
-        else if (aux >= '1' && aux <= '8'){
-            pos+= (aux - '1');
+        else if (aux >= '1' && aux <= '8')
+        {
+            pos += (aux - '1');
         }
-        else if (aux == '/'){
-            pos-=17;
+        else if (aux == '/')
+        {
+            pos -= 17;
+        }
+        else if (aux == ' '){
+            char next = fen.at(i+1); 
+            if (next == 'w'){
+                turn = true;
+            }
+            else if (next == 'b'){
+                turn = false;
+            }
+            i++;
         }
         i++;
     }
+}
+
+std::string Partida::saveFen()
+{
+    //"rnbqkbnr/ pppppppp/     8     /    8    /     8    /     8    /PPPPPPPP/RNBQKBNR"
+    /* 56 - 63 / 48 - 55 / *40 - 47 / *32 - 39 / *24 - 31 / *16 - 23 / 8 - 15 / 0 - 7 */
+    std::string fen;
+    int blank = 0;
+    int iter = 0;
+    for (int pos = 56;; pos++)
+    {
+        if (iter == 8)
+        {
+            if (blank > 0)
+            {
+                fen += ('0' + blank);
+                blank = 0;
+            }
+            iter = 0;
+            pos -= 16;
+            if (pos < 0)
+            {
+                break;
+            }
+            fen += '/';
+        }
+        if (tablero[pos] != nullptr)
+        {
+            if (blank > 0)
+            {
+                fen += ('0' + blank);
+            }
+            fen += tablero[pos]->getNombre();
+
+            blank = 0;
+        }
+        else
+        {
+            blank++;
+        }
+        iter++;
+    }
+    fen += ' ';
+    fen += (turn ? 'w' : 'b');
+
+    return fen;
 }
 
 void Partida::load(sf::Color col1, sf::Color col2)
@@ -136,10 +199,13 @@ void Partida::draw(sf::RenderTarget &target, sf::RenderStates states) const
         target.draw(m_boardSquares[i]);
     }
 
-    for (int i = 0; i < 16; i++)
+    for (auto const &i : piezas_blanco)
     {
-        target.draw(*piezas_blanco[i]);
-        target.draw(*piezas_negro[i]);
+        target.draw(*i);
+    }
+    for (auto const &i : piezas_negro)
+    {
+        target.draw(*i);
     }
 
     if (selectedPiece != nullptr)
@@ -192,7 +258,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             int div;
             if (abs(*it / 8 - pos / 8) == 0)
             {
-                div = 1;
+                div = abs(*it % 8 - pos % 8);
             }
             else
             {
@@ -211,7 +277,8 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             {
                 movements.erase(it);
             }
-            else { // avanzamos, se puede comer, por lo que no se elimina el movimiento
+            else
+            { // avanzamos, se puede comer, por lo que no se elimina el movimiento
                 if (instanceof <Peon>(p))
                 {
                     // in front of or double movement, cannot eat
@@ -223,7 +290,6 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 }
                 *it++;
             }
-
 
             // size--;
             std::cout << "diff: " << diff << std::endl;
@@ -239,7 +305,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 {
                     // if ((*(it) % diff) == (pos))
                     std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
-                    if (firstSquare == (*it - i * diff))
+                    if (firstSquare == (*it - i * diff) && abs(*it - pos) <= abs(diff*7) )
                     {
                         std::cout << "borrando! " << *(it) << std::endl;
                         movements.erase(it);
@@ -249,13 +315,12 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                     }
                     else
                     {
-                        std::cout << *(it) << " y consecutivos es valido" << std::endl;
+                        std::cout << *(it) << " sale de la secuencia actual" << std::endl;
                         break;
                     }
                     i++;
                 }
             }
-            
         }
         else // no piece!
         {
@@ -548,28 +613,6 @@ std::vector<int> Partida::createMovesSquares()
     return validMovements;
 }
 
-// void Partida::mostrarTablero()
-// {
-//     for (int j = 0; j < 8; j++)
-//     {
-//         for (int i = 0; i < 8; i++)
-//         {
-//             if (tablero[i][j] == nullptr)
-//             {
-//                 cout << "X"
-//                      << " ";
-//             }
-//             else
-//             {
-//                 // tablero[i][j]->getNombre()
-//                 cout << tablero[i][j]->getNombre() << " ";
-//             }
-//         }
-//         cout << endl;
-//     }
-//     cout << endl;
-// }
-
 void Partida::moveSelected(int pos, std::vector<int> validMovements)
 {
 
@@ -610,30 +653,6 @@ void Partida::moveSelected(int pos, std::vector<int> validMovements)
     }
 
     selectedPiece = nullptr;
-
-    //     lastMove = "Last Turn:\n" + selectedPiece->toString();
-    //     for(int i=0; i<16; i++){
-    //         if(selectedPiece->getPlayer()){ // If White
-    //             if(blackPieces[i].getPosition() == pos){
-    //                 blackPieces[i].setPosition(-1);
-    //                 break;
-    //             }
-    //         }
-    //         else{ // If Black
-    //             if(whitePieces[i].getPosition() == pos){
-    //                 whitePieces[i].setPosition(-1);
-    //                 break;
-    //             }
-    //         }
-    //     }
-
-    //     if(playerTurnCheck){
-    //         playerTurnCheck = false;
-    //     }
-
-    //     playerTurn = !playerTurn; // Here player turn changes
-    //     calcPossibleMoves();
-    // }
 }
 
 void Partida::rotateBoard()
@@ -650,7 +669,7 @@ void Partida::rotateBoard()
 
     if (selectedPiece)
     {
-        std::cout << "selecting" << 64 - selectedPiece->getPos() << std::endl;
+        std::cout << "selecting" << 63 - selectedPiece->getPos() << std::endl;
         selectPiece(63 - selectedPiece->getPos());
     }
 }

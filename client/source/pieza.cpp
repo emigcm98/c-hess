@@ -222,10 +222,10 @@ std::vector<int> Caballo::calcularMovimiento()
 Torre::Torre(int pos, bool blancas) : Pieza(pos, blancas)
 {
     if (blancas){
-        this->nombre = 'T';
+        this->nombre = 'R';
     }
     else {
-        this->nombre = 't';
+        this->nombre = 'r';
     }
     std::string name = "rook";
     this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
