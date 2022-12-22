@@ -1,12 +1,6 @@
 #include "partida.hpp"
 #include "configuration.cpp"
 
-template <typename Base, typename T>
-inline bool instanceof (const T *ptr)
-{
-    return dynamic_cast<const Base *>(ptr) != nullptr;
-}
-
 Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 {
     this->usuario_blancas = usuario_blancas;
@@ -21,65 +15,20 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
     turn = true;
 
     orientation = true;
+    whiteCanShortCastling = true;
+    whiteCanLongCastling = true;
+    blackCanShortCastling = true;
+    blackCanLongCastling = true;
 
     // tablero vacio
     for (int i = 0; i < 64; i++)
     {
         tablero[i] = nullptr;
     }
-
-    /*
-    // peones
-    piezas_blanco.push_back(tablero[fromChessPosition("a2")] = new Peon("a2", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("b2")] = new Peon("b2", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("c2")] = new Peon("c2", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("d2")] = new Peon("d2", true));
-    // piezas_blanco.push_back(tablero[fromChessPosition("e2")] = new Peon("e2", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("e4")] = new Peon("e4", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("f2")] = new Peon("f2", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("g2")] = new Peon("g2", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("h2")] = new Peon("h2", true));
-    piezas_negro.push_back(tablero[fromChessPosition("a7")] = new Peon("a7", false));
-    piezas_negro.push_back(tablero[fromChessPosition("b7")] = new Peon("b7", false));
-    piezas_negro.push_back(tablero[fromChessPosition("c7")] = new Peon("c7", false));
-    piezas_negro.push_back(tablero[fromChessPosition("d7")] = new Peon("d7", false));
-    // piezas_negro.push_back(tablero[fromChessPosition("e7")] = new Peon("e7", false));
-    piezas_negro.push_back(tablero[fromChessPosition("e5")] = new Peon("e5", false));
-    piezas_negro.push_back(tablero[fromChessPosition("f7")] = new Peon("f7", false));
-    piezas_negro.push_back(tablero[fromChessPosition("g7")] = new Peon("g7", false));
-    piezas_negro.push_back(tablero[fromChessPosition("h7")] = new Peon("h7", false));
-
-    // alfiles
-    piezas_blanco.push_back(tablero[fromChessPosition("c1")] = new Alfil("c1", true));
-    // piezas_blanco.push_back(tablero[fromChessPosition("f1")] = new Alfil("f1", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("c4")] = new Alfil("c4", true));
-    piezas_negro.push_back(tablero[fromChessPosition("c8")] = new Alfil("c8", false));
-    // piezas_negro.push_back(tablero[fromChessPosition("f8")] = new Alfil("f8", false));
-    piezas_negro.push_back(tablero[fromChessPosition("c5")] = new Alfil("c5", false));
-
-    // caballos
-    piezas_blanco.push_back(tablero[fromChessPosition("b1")] = new Caballo("b1", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("g1")] = new Caballo("g1", true));
-    piezas_negro.push_back(tablero[fromChessPosition("b8")] = new Caballo("b8", false));
-    piezas_negro.push_back(tablero[fromChessPosition("g8")] = new Caballo("g8", false));
-
-    // torres
-    piezas_blanco.push_back(tablero[fromChessPosition("a1")] = new Torre("a1", true));
-    piezas_blanco.push_back(tablero[fromChessPosition("h1")] = new Torre("h1", true));
-    piezas_negro.push_back(tablero[fromChessPosition("a8")] = new Torre("a8", false));
-    piezas_negro.push_back(tablero[fromChessPosition("h8")] = new Torre("h8", false));
-
-    // rey
-    piezas_blanco.push_back(tablero[fromChessPosition("e1")] = new Rey("e1", true));
-    piezas_negro.push_back(tablero[fromChessPosition("e8")] = new Rey("e8", false));
-
-    // dama
-    piezas_blanco.push_back(tablero[fromChessPosition("d1")] = new Dama("d1", true));
-    piezas_negro.push_back(tablero[fromChessPosition("d8")] = new Dama("d8", false));
-    */
-    //loadFen("1nbqkbnr/1p1p2pp/p1P1p3/r2Bp3/2p1P3/8/PPPP2PP/RNBQK1NR b");
-    loadFen("1nbqkbnr/8/8/8/8/8/8/8 b");
-
+    
+    // loadFen("1nbqkbnr/1p1p2pp/p1P1p3/r2Bp3/2p1P3/8/PPPP2PP/RNBQK1NR b");
+    // loadFen("1nbqkbnr/8/8/8/8/8/8/8 b");
+    loadFen();
     load();
 
     std::cout << "FEN: " << saveFen() << std::endl;
@@ -110,12 +59,15 @@ void Partida::loadFen(std::string fen)
         {
             pos -= 17;
         }
-        else if (aux == ' '){
-            char next = fen.at(i+1); 
-            if (next == 'w'){
+        else if (aux == ' ')
+        {
+            char next = fen.at(i + 1);
+            if (next == 'w')
+            {
                 turn = true;
             }
-            else if (next == 'b'){
+            else if (next == 'b')
+            {
                 turn = false;
             }
             i++;
@@ -154,7 +106,7 @@ std::string Partida::saveFen()
             {
                 fen += ('0' + blank);
             }
-            fen += tablero[pos]->getNombre();
+            fen += tablero[pos]->getNameFEN();
 
             blank = 0;
         }
@@ -250,7 +202,6 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
 
     for (auto it = begin(movements); it != end(movements);)
     {
-
         // piece !
         if (tablero[*it] != nullptr)
         {
@@ -275,6 +226,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             // }
             if (isSameColor) // borramos, (no se vale ese movimiento porque no puedes comer una pieza de tu color)
             {
+                std::cout << "borrando movimeinto a " << *it << " (mismo color)" << std::endl;
                 movements.erase(it);
             }
             else
@@ -298,40 +250,40 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
 
             // for (int i = 0; i < (size-1); i++) {
 
-            if (! instanceof <Rey>(p)) // no se si sirve
+            // if (! instanceof <Rey>(p) && ! instanceof<Caballo>(p)) // no se si sirve
+            //{
+            int i = 1;
+            while (it != end(movements) && i < 7)
             {
-                int i = 1;
-                while (it != end(movements) && i < 7)
+                // if ((*(it) % diff) == (pos))
+                std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
+                if (firstSquare == (*it - i * diff) && abs(*it - pos) <= abs(diff * 7))
                 {
-                    // if ((*(it) % diff) == (pos))
-                    std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
-                    if (firstSquare == (*it - i * diff) && abs(*it - pos) <= abs(diff*7) )
-                    {
-                        std::cout << "borrando! " << *(it) << std::endl;
-                        movements.erase(it);
-                        // size--;
-                        deleted++;
-                        // i--;
-                    }
-                    else
-                    {
-                        std::cout << *(it) << " sale de la secuencia actual" << std::endl;
-                        break;
-                    }
-                    i++;
+                    std::cout << "borrando! " << *(it) << std::endl;
+                    movements.erase(it);
+                    // size--;
+                    deleted++;
+                    // i--;
                 }
+                else
+                {
+                    std::cout << *(it) << " sale de la secuencia actual" << std::endl;
+                    break;
+                }
+                i++;
             }
+            //}
         }
-        else // no piece!
+        else // no piece!!!!!!
         {
-            // check en passant (must be pawn)!
-            if (instanceof <Peon>(p))
+            if (instanceof <Peon>(p)) // check en passant (must be pawn)!
             {
                 // en passant
                 if (abs(*it - pos) == 7)
                 {
                     if (potentiallyPieceEnPassant != nullptr && tablero[pos - 1] == potentiallyPieceEnPassant)
                     {
+                        it++;
                     }
                     else
                     {
@@ -343,15 +295,69 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 {
                     if (potentiallyPieceEnPassant && tablero[pos + 1] == potentiallyPieceEnPassant)
                     {
+                        it++;
                     }
                     else
                     {
                         movements.erase(it);
-                        continue;
                     }
                 }
+                else
+                {
+                    *it++;
+                }
             }
-            ++it;
+            else if (instanceof <Rey>(p))
+            {
+                if ((*it - p->getPos()) == 2) // enroque corto
+                {
+                    Pieza *rook = tablero[p->getPos() + 3];
+                    if (rook != nullptr && instanceof <Torre>(rook) && !p->getMoved() && !rook->getMoved() && rook->getColor() == p->getColor())
+                    {
+                        it++;
+                    }
+                    else
+                    {
+                        if (p->getColor())
+                        {
+                            whiteCanShortCastling = false;
+                        }
+                        else
+                        {
+                            blackCanShortCastling = false;
+                        }
+                        movements.erase(it);
+                    }
+                }
+                else if ((*it - p->getPos()) == -2) // enroque largo
+                {
+                    Pieza *rook = tablero[p->getPos() - 4];
+                    if (rook != nullptr && instanceof <Torre>(rook) && !p->getMoved() && !rook->getMoved() && rook->getColor() == p->getColor())
+                    {
+                        it++;
+                    }
+                    else
+                    {
+                        if (p->getColor())
+                        {
+                            whiteCanLongCastling = false;
+                        }
+                        else
+                        {
+                            blackCanLongCastling = false;
+                        }
+                        movements.erase(it);
+                    }
+                }
+                else
+                {
+                    *it++;
+                }
+            }
+            else
+            {
+                *it++;
+            }
         }
     }
 
@@ -363,6 +369,23 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
     std::cout << std::endl;
 
     return movements;
+}
+
+bool Partida::isChecking(Pieza *p)
+{
+    bool check = false;
+    std::cout << "checking new check with piece " << p->getNameFEN() << " in pos: " << toChessPosition(p->getPos()) << std::endl;
+    // once moved, we check new movements
+    std::vector<int> movements = filterValidMovements(p);
+    for (auto it = begin(movements); it != end(movements); *it++)
+    {
+        Pieza *enemyPiece = tablero[*it];
+        if (enemyPiece != nullptr && enemyPiece->getColor() != p->getColor() && instanceof <Rey>(enemyPiece))
+        {
+            check = true;
+        }
+    }
+    return check;
 }
 
 bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
@@ -406,11 +429,25 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
         {
             if (newpos - pieza->getPos() == 2) // enroque corto
             {
-                possibleShortCastling = true;
+                if (pieza->getColor() && whiteCanShortCastling)
+                {
+                    possibleShortCastling = true;
+                }
+                else if (!pieza->getColor() && blackCanShortCastling)
+                {
+                    possibleShortCastling = true;
+                }
             }
             else if (newpos - pieza->getPos() == -2) // enroque largo
             {
-                possibleLongCastling = true;
+                if (pieza->getColor() && whiteCanLongCastling)
+                {
+                    possibleLongCastling = true;
+                }
+                else if (!pieza->getColor() && blackCanLongCastling)
+                {
+                    possibleLongCastling = true;
+                }
             }
         }
     }
@@ -458,6 +495,7 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
                 }
             }
             delete tablero[enemyPos];
+            j->eat();
         }
 
         // for (auto const &i : piezas_blanco)
@@ -476,8 +514,8 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
             tablero[pieza->getPos() + 3] = nullptr;
             tablero[pieza->getPos() + 1] = rook;
             j->shortCastle(); // in the play
-            shortCastle();    // in the game itself
-            // 0-0
+            // shortCastle();    // in the game itself
+            //  0-0
         }
         if (possibleLongCastling)
         {
@@ -487,14 +525,45 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
             tablero[pieza->getPos() - 4] = nullptr;
             tablero[pieza->getPos() - 1] = rook;
             j->longCastle(); // in the play
-            longCastle();    // in the game itself
-            // 0-0-0
+            // longCastle();    // in the game itself
+            //  0-0-0
         }
 
         // movemos la pieza
         pieza->move(newpos);
         // ponemos el nuevo
         tablero[newpos] = pieza;
+
+        // check if it is check after move
+
+        if (turn)
+        {
+            for (auto const &i : piezas_blanco)
+            {
+                if (! instanceof <Rey>(i) && isChecking(i))
+                {
+                    j->setJaque(true);
+                    j->checkingPieces.push_back(i);
+                }
+            }
+        }
+        else
+        {
+            for (auto const &i : piezas_blanco)
+            {
+                if (! instanceof <Rey>(i) && isChecking(i))
+                {
+                    j->setJaque(true);
+                    j->checkingPieces.push_back(i);
+                }
+            }
+        }
+
+        std::cout << "total checks: " << j->checkingPieces.size() << std::endl;
+
+        // if (isChecking(pieza)){
+        //     j->setJaque(true);
+        // }
     }
 
     // si no se puede hacer se devuelve false y no se le pasa el turno al otro jugador
@@ -649,7 +718,25 @@ void Partida::moveSelected(int pos, std::vector<int> validMovements)
         {
             j->firstPieceMoved(); // ponemos que ha sido el primer movimiento de la pieza
         }
+        else
+        { // ha movido
+            if (instanceof <Rey>(selectedPiece))
+            { // if king, then cannot castle anymore
+                if (selectedPiece->getColor())
+                { // white
+                    whiteCanLongCastling = false;
+                    whiteCanShortCastling = false;
+                }
+                else
+                {
+                    blackCanShortCastling = false;
+                    blackCanLongCastling = false;
+                }
+            }
+        }
         gameInfo->updateJugada();
+        j->generateString();
+        std::cout << j->to_string() << std::endl;
     }
 
     selectedPiece = nullptr;
@@ -672,6 +759,29 @@ void Partida::rotateBoard()
         std::cout << "selecting" << 63 - selectedPiece->getPos() << std::endl;
         selectPiece(63 - selectedPiece->getPos());
     }
+}
+
+std::string Partida::savePgn()
+{
+    std::string pgn;
+
+    // write metadata
+
+    // write plays
+    int cont = 1;
+    for (auto const &i : jugadas)
+    {
+        if (cont % 2 == 1)
+        {
+            pgn += std::to_string(cont / 2 + 1);
+            pgn += ". ";
+        }
+        pgn += (i->to_string() + ' ');
+        cont++;
+    }
+    // write result
+
+    return pgn;
 }
 
 void Partida::setResultado(Resultado r)
@@ -710,25 +820,25 @@ void Partida::setOrientation(bool orientation)
     this->orientation = orientation;
 }
 
-void Partida::shortCastle()
-{
-    shortCastling = true;
-}
+// void Partida::shortCastle()
+// {
+//     shortCastling = true;
+// }
 
-void Partida::longCastle()
-{
-    longCastling = true;
-}
+// void Partida::longCastle()
+// {
+//     longCastling = true;
+// }
 
-bool Partida::getShortCastling()
-{
-    return shortCastling;
-}
+// bool Partida::getShortCastling()
+// {
+//     return shortCastling;
+// }
 
-bool Partida::getLongCastling()
-{
-    return longCastling;
-}
+// bool Partida::getLongCastling()
+// {
+//     return longCastling;
+// }
 
 Pieza *Partida::getSelectedPiece()
 {

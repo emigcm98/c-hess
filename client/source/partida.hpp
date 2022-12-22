@@ -1,30 +1,20 @@
 #include <iostream>
-#include "user.hpp"
+#include <SFML/Graphics.hpp>
 #include <string>
 #include <ctime>
+#include <iostream>
+#include <vector>
+#include <array>
 
 #include "jugada.hpp"
-
-
-// Rey = R, Dama = D, Caballo = C, Alfil = A, Torre = T Peon = P 
-// Blanco b, Negro n
-// Nada = NULL
-
-//typedef Pieza* (&tablero)[8][8];
-
+#include "user.hpp"
+#include "gameinfo.hpp"
 
 enum Resultado { //dividir entre 2 en la fórmula
     BLANCAS = 2,
     TABLAS = 1,
     NEGRAS = 0
 };
-
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <vector>
-#include <array>
-
-#include "gameinfo.hpp"
 
 class Partida : public sf::Drawable
 {
@@ -47,8 +37,12 @@ private:
     Pieza* selectedPiece;
     bool turn; //true white false black
     bool orientation; // true white false black
-    bool shortCastling;
-    bool longCastling;
+    bool whiteCanShortCastling;
+    bool blackCanShortCastling;
+    bool whiteCanLongCastling;
+    bool blackCanLongCastling;
+    //bool shortCastling;
+    //bool longCastling;
     // public member function
 public:
     Partida(User* usuario_blancas, User* usuario_negras, sf::Font* font);
@@ -73,13 +67,14 @@ public:
     void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
     void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     std::string saveFen();
-    void mostrarTablero();
+    std::string savePgn();
     bool aplicarJugada(Jugada* j, std::vector<int> movements); // aplica los cambios al tablero
     std::vector<int> selectPiece(int pos);
     void moveSelected(int pos, std::vector<int> validMovements);
     void rotateBoard();
     void shortCastle();
     void longCastle();
+    bool isChecking(Pieza *p);
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Pieza *p);
 };

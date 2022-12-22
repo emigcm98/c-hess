@@ -1,44 +1,38 @@
 #include "jugada.hpp"
 // #include "partida.hpp"
 
-Jugada::Jugada(Pieza *pieza, std::string newPos)
-{
-    // Jugada(pieza, fromChessPosition(newPos));
-    this->pieza = pieza;
-    this->prevPos = pieza->getPos();
-    this->newPos = fromChessPosition(newPos);
-    this->newPosStr = newPos;
-    this->shortCastling = false;
-    this->longCastling = false;
-    this->firstPieceMove = false;
-    this->enPassant = false;
-    check_movement();
-}
+Jugada::Jugada(Pieza *pieza, std::string newPos) : Jugada(pieza, fromChessPosition(newPos)){}
 
 Jugada::Jugada(Pieza *pieza, int newPos)
 {
     this->pieza = pieza;
     this->prevPos = pieza->getPos();
     this->newPos = newPos;
-    this->newPosStr = newPos;
-    check_movement();
+    this->newPosStr = toChessPosition(newPos);
+    this->shortCastling = false;
+    this->longCastling = false;
+    this->firstPieceMove = false;
+    this->enPassant = false;
+    this->check = false;
+    this->checkmate = false;
+    this->eaten = false;
 }
 
-bool Jugada::check_movement()
-{
-    bool is_possible = true;
+// bool Jugada::check_movement()
+// {
+//     bool is_possible = true;
 
-    // if (is_possible == false){
-    //     delete this;
-    // }
-    // else {
-    //     p->aplicarJugada(this);
-    // }
+//     // if (is_possible == false){
+//     //     delete this;
+//     // }
+//     // else {
+//     //     p->aplicarJugada(this);
+//     // }
 
-    // this->pieza->move(this->newPos);
+//     // this->pieza->move(this->newPos);
 
-    return is_possible;
-}
+//     return is_possible;
+// }
 
 Pieza *Jugada::getPieza()
 {
@@ -52,28 +46,46 @@ int Jugada::getNewPos()
 
 bool Jugada::isJaque()
 {
-    return false;
+    return check;
 }
 
 bool Jugada::isJaqueMate()
 {
-    return false;
+    return checkmate;
 }
 
-std::string Jugada::to_string()
+void Jugada::generateString()
 {
     if (shortCastling)
     {
-        return "0-0";
+        str = "0-0";
     }
     else if (longCastling)
     {
-        return "0-0-0";
+        str = "0-0-0";
     }
     else
     {
-        return std::string(1, pieza->getNombre()) + newPosStr; //+ (isJaque ? "+" : "") + (isJaqueMate ? "+" : "");
+        if (!instanceof<Peon>(pieza))
+        {
+            str += pieza->getNameNotation();
+        }
+        if (eaten){
+            str += 'x';
+        }
+        str += newPosStr;
+        if (isJaque()){
+            str += '+';
+            if (isJaqueMate()){
+                str += '+';
+            }
+        }
+        //return std::string(1, pieza->getNombre()) + newPosStr; //+ (isJaque ? "+" : "") + (isJaqueMate ? "+" : "");
     }
+}
+
+std::string Jugada::to_string() {
+    return str;
 }
 
 void Jugada::shortCastle() {
@@ -98,4 +110,16 @@ bool Jugada::isFirstPieceMove() {
 
 void Jugada::firstPieceMoved() {
     firstPieceMove = true;
+}
+
+void Jugada::setJaque(bool check) {
+    this->check = check;
+}
+
+void Jugada::setJaqueMate(bool checkmate) {
+    this->checkmate = checkmate;
+}
+
+void Jugada::eat() {
+    this->eaten = true;
 }

@@ -117,6 +117,14 @@ int main()
                     partida.rotateBoard();
                     orientation = !orientation;
                 }
+                else if (event.key.code == sf::Keyboard::P)
+                {
+                    std::cout << partida.savePgn() << std::endl;
+                }
+                else if (event.key.code == sf::Keyboard::F)
+                {
+                    std::cout << partida.saveFen() << std::endl;
+                }
                 break;
             default:
                 break;

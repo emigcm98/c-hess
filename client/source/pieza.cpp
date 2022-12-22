@@ -3,8 +3,8 @@
 #include "pieza.hpp"
 #include "configuration.cpp"
 
-// ABSTRACT
 
+// ABSTRACT
 int fromChessPosition(std::string pos)
 {
     // a1
@@ -79,9 +79,14 @@ Pieza::Pieza(int pos, bool blancas)
     m_sprite = sf::Sprite();
 };
 
-char Pieza::getNombre()
+char Pieza::getNameFEN()
 {
-    return nombre;
+    return nameFEN;
+}
+
+char Pieza::getNameNotation()
+{
+    return nameNotation;
 }
 
 bool Pieza::getColor()
@@ -147,11 +152,12 @@ void Pieza::rotate(bool orientation){
 Alfil::Alfil(int pos, bool blancas) : Pieza(pos, blancas)
 {
     if (blancas){
-        this->nombre = 'B';
+        this->nameFEN = 'B';
     }
     else {
-        this->nombre = 'b';
+        this->nameFEN = 'b';
     }
+    this->nameNotation = 'B';
     std::string name = "bishop";
     this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
     loadTexture(this->texture_file);
@@ -184,11 +190,12 @@ std::vector<int> Alfil::calcularMovimiento()
 Caballo::Caballo(int pos, bool blancas) : Pieza(pos, blancas)
 {
     if (blancas){
-        this->nombre = 'N';
+        this->nameFEN = 'N';
     }
     else {
-        this->nombre = 'n';
+        this->nameFEN = 'n';
     }
+    this->nameNotation = 'N';
     std::string name = "knight";
     this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
     loadTexture(this->texture_file);
@@ -222,11 +229,12 @@ std::vector<int> Caballo::calcularMovimiento()
 Torre::Torre(int pos, bool blancas) : Pieza(pos, blancas)
 {
     if (blancas){
-        this->nombre = 'R';
+        this->nameFEN = 'R';
     }
     else {
-        this->nombre = 'r';
+        this->nameFEN = 'r';
     }
+    this->nameNotation = 'B';
     std::string name = "rook";
     this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
     loadTexture(this->texture_file);
@@ -262,11 +270,12 @@ std::vector<int> Torre::calcularMovimiento()
 Peon::Peon(int pos, bool blancas) : Pieza(pos, blancas)
 {
     if (blancas){
-        this->nombre = 'P';
+        this->nameFEN = 'P';
     }
     else {
-        this->nombre = 'p';
+        this->nameFEN = 'p';
     }
+    this->nameNotation = 'B';
     std::string name = "pawn";
     this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
     loadTexture(this->texture_file);
@@ -306,11 +315,12 @@ std::vector<int> Peon::calcularMovimiento()
 Rey::Rey(int pos, bool blancas) : Pieza(pos, blancas)
 {
     if (blancas){
-        this->nombre = 'K';
+        this->nameFEN = 'K';
     }
     else {
-        this->nombre = 'k';
+        this->nameFEN = 'k';
     }
+    this->nameNotation = 'K';
     std::string name = "king";
     this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
     loadTexture(this->texture_file);
@@ -353,11 +363,12 @@ std::vector<int> Rey::calcularMovimiento()
 Dama::Dama(int pos, bool blancas) : Pieza(pos, blancas)
 {
     if (blancas){
-        this->nombre = 'Q';
+        this->nameFEN = 'Q';
     }
     else {
-        this->nombre = 'q';
+        this->nameFEN = 'q';
     }
+    this->nameNotation = 'Q';
     std::string name = "queen";
     this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
     loadTexture(this->texture_file);

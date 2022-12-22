@@ -5,6 +5,12 @@
 
 #pragma once
 
+template <typename Base, typename T>
+inline bool instanceof (const T *ptr)
+{
+    return dynamic_cast<const Base *>(ptr) != nullptr;
+}
+
 int fromChessPosition(std::string cp);
 std::string toChessPosition(int pos);
 
@@ -12,7 +18,8 @@ class Pieza : public sf::Drawable
 {
 
 protected:
-    char nombre;
+    char nameFEN;
+    char nameNotation;
     bool blancas;
     int pos;
     bool moved; 
@@ -32,7 +39,8 @@ public:
     // getters
     int getPos();
     bool getColor();
-    char getNombre();
+    char getNameFEN();
+    char getNameNotation();
     bool getMoved();
     // setters
     // methods
