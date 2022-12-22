@@ -62,6 +62,7 @@ int main()
     // current piece and valid movements
     Pieza *p;
     std::vector<int> validMovements;
+    int actualPlay = 0;
 
     // the event/logic/whatever loop
     while (window.isOpen())
@@ -79,7 +80,8 @@ int main()
                 break;
 
             case sf::Event::MouseButtonPressed:
-                if (event.mouseButton.button == sf::Mouse::Left)
+                // must be in the actualPlay to select and move!
+                if (actualPlay == int(partida.getJugadas().size()) && event.mouseButton.button == sf::Mouse::Left)
                 {
                     // only select in board
                     if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (OBJECT_SIZE * 8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (OBJECT_SIZE * 8)))
@@ -104,7 +106,11 @@ int main()
                         }
                         else
                         {
-                            partida.moveSelected(buttonPos, validMovements);
+                            bool moved = partida.moveSelected(buttonPos, validMovements);
+                            if (moved)
+                            {
+                                actualPlay++;
+                            }
                         }
                     }
                 }
@@ -124,6 +130,22 @@ int main()
                 else if (event.key.code == sf::Keyboard::F)
                 {
                     std::cout << partida.saveFen() << std::endl;
+                }
+                else if (event.key.code == sf::Keyboard::Left)
+                {
+                    if (actualPlay > 0){
+                        actualPlay--;
+                        partida.undoPlay(actualPlay);
+                    }
+                    std::cout << actualPlay << std::endl;
+                }
+                else if (event.key.code == sf::Keyboard::Right)
+                {
+                    if (actualPlay < int(partida.getJugadas().size())){
+                        partida.applyPlay(actualPlay);
+                        actualPlay++;
+                    }
+                    std::cout << actualPlay << std::endl;
                 }
                 break;
             default:

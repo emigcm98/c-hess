@@ -13,7 +13,7 @@ GameInfo::GameInfo(User *blancas, User *negras, std::vector<Jugada *> *jugadas, 
     nombreBlancas.setFont(*font);
     nombreBlancas.setString(blancas->getUsername());
     nombreBlancas.setCharacterSize(18);
-    nombreBlancas.setPosition(OBJECT_SIZE_F * 10, OBJECT_SIZE_F * 6 + OBJECT_SIZE_F/3);
+    nombreBlancas.setPosition(OBJECT_SIZE_F * 10, OBJECT_SIZE_F * 6 + OBJECT_SIZE_F / 3);
     nombreBlancas.setFillColor(sf::Color::Black);
 
     // std::cout << "blancas: " << blancas->getUsername() << ", negras: " << negras->getUsername() << ". " << blancas->getElo() << " " << negras->getElo() << std::endl;
@@ -21,19 +21,19 @@ GameInfo::GameInfo(User *blancas, User *negras, std::vector<Jugada *> *jugadas, 
     nombreNegras.setFont(*font);
     nombreNegras.setString(negras->getUsername());
     nombreNegras.setCharacterSize(18);
-    nombreNegras.setPosition(OBJECT_SIZE_F * 10, OBJECT_SIZE_F * 1 + OBJECT_SIZE_F/3);
+    nombreNegras.setPosition(OBJECT_SIZE_F * 10, OBJECT_SIZE_F * 1 + OBJECT_SIZE_F / 3);
     nombreNegras.setFillColor(sf::Color::Black);
 
     eloBlancas.setFont(*font);
     eloBlancas.setString(std::to_string(blancas->getElo()));
     eloBlancas.setCharacterSize(18);
-    eloBlancas.setPosition(OBJECT_SIZE_F * 12, OBJECT_SIZE_F * 6 + OBJECT_SIZE_F/3);
+    eloBlancas.setPosition(OBJECT_SIZE_F * 12, OBJECT_SIZE_F * 6 + OBJECT_SIZE_F / 3);
     eloBlancas.setFillColor(sf::Color::Green);
 
     eloNegras.setFont(*font);
     eloNegras.setString(std::to_string(negras->getElo()));
     eloNegras.setCharacterSize(18);
-    eloNegras.setPosition(OBJECT_SIZE_F * 12, OBJECT_SIZE_F * 1 + OBJECT_SIZE_F/3);
+    eloNegras.setPosition(OBJECT_SIZE_F * 12, OBJECT_SIZE_F * 1 + OBJECT_SIZE_F / 3);
     eloNegras.setFillColor(sf::Color::Green);
 
     lastPlay.setFont(*font);
@@ -45,9 +45,9 @@ GameInfo::GameInfo(User *blancas, User *negras, std::vector<Jugada *> *jugadas, 
 
 void GameInfo::updateJugada()
 {
-    // if (!jugadas->empty()){
-    //     lastPlay.setString(jugadas->back()->to_string());
-    // }
+    if (!jugadas->empty()){
+        lastPlay.setString(jugadas->back()->to_string());
+    }
 }
 
 void GameInfo::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -59,5 +59,4 @@ void GameInfo::draw(sf::RenderTarget &target, sf::RenderStates states) const
     target.draw(eloNegras);
 
     target.draw(lastPlay);
-    
 }

@@ -22,7 +22,8 @@ protected:
     char nameNotation;
     bool blancas;
     int pos;
-    bool moved; 
+    //bool moved;
+    int timesMoved; 
 
     std::string texture_file;
     sf::Sprite m_sprite;
@@ -41,11 +42,12 @@ public:
     bool getColor();
     char getNameFEN();
     char getNameNotation();
-    bool getMoved();
+    int getTimesMoved();
     // setters
+    //void setMoved(bool moved);
     // methods
     virtual std::vector<int> calcularMovimiento() = 0; // calcula los movimientos posibles de la pieza (abstracto)
-    void move(int pos);
+    void move(int pos, bool moved = true);
     void move(std::string pos);
     void rotate(bool orientation);
 };

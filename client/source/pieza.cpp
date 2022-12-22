@@ -75,7 +75,7 @@ Pieza::Pieza(int pos, bool blancas)
 {
     this->pos = pos;
     this->blancas = blancas;
-    this->moved = false;
+    this->timesMoved = 0;
     m_sprite = sf::Sprite();
 };
 
@@ -99,17 +99,24 @@ int Pieza::getPos()
     return pos;
 }
 
-bool Pieza::getMoved()
+int Pieza::getTimesMoved()
 {
-    return moved;
+    return timesMoved;
 }
 
-void Pieza::move(int pos)
+void Pieza::move(int pos, bool moved)
 {
 
     this->pos = pos;
     m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2);
-    moved = true;
+    if (moved) // really move
+    {
+        timesMoved++;
+    }
+    else // undo
+    {
+        timesMoved--;
+    }
 }
 
 void Pieza::move(std::string pos)
@@ -146,6 +153,10 @@ void Pieza::rotate(bool orientation){
         m_sprite.setPosition((7-(pos%8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2, pos/8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2);
     }
 }
+
+// void Pieza::setMoved(bool moved){
+//     this->moved = moved;
+// }
 
 // ALFIL
 
@@ -295,7 +306,7 @@ std::vector<int> Peon::calcularMovimiento()
 
     int tmp = pos + posRel;
 
-    if (!moved)
+    if (timesMoved == 0)
     {
         possibleMovs.push_back(tmp + posRel); // extra move
     }
@@ -349,7 +360,7 @@ std::vector<int> Rey::calcularMovimiento()
     }
 
     // enroque
-    if (!moved)
+    if (timesMoved == 0)
     {
         possibleMovs.push_back(pos + 2);
         possibleMovs.push_back(pos - 2);

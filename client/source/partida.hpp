@@ -24,6 +24,8 @@ private:
     User* usuario_negras;
     std::vector<Pieza*> piezas_blanco;
     std::vector<Pieza*> piezas_negro;
+    std::vector<Pieza*> whitePiecesKilled;
+    std::vector<Pieza*> blackPiecesKilled;
     std::vector<Jugada*> jugadas;
     GameInfo* gameInfo;
     time_t fecha;
@@ -41,8 +43,6 @@ private:
     bool blackCanShortCastling;
     bool whiteCanLongCastling;
     bool blackCanLongCastling;
-    //bool shortCastling;
-    //bool longCastling;
     // public member function
 public:
     Partida(User* usuario_blancas, User* usuario_negras, sf::Font* font);
@@ -69,8 +69,10 @@ public:
     std::string saveFen();
     std::string savePgn();
     bool aplicarJugada(Jugada* j, std::vector<int> movements); // aplica los cambios al tablero
+    void undoPlay(int nPlay);
+    bool applyPlay(int nPlay);
     std::vector<int> selectPiece(int pos);
-    void moveSelected(int pos, std::vector<int> validMovements);
+    bool moveSelected(int pos, std::vector<int> validMovements);
     void rotateBoard();
     void shortCastle();
     void longCastle();

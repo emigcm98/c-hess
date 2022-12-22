@@ -15,7 +15,7 @@ Jugada::Jugada(Pieza *pieza, int newPos)
     this->enPassant = false;
     this->check = false;
     this->checkmate = false;
-    this->eaten = false;
+    this->eatenPiece = nullptr;
 }
 
 // bool Jugada::check_movement()
@@ -37,6 +37,11 @@ Jugada::Jugada(Pieza *pieza, int newPos)
 Pieza *Jugada::getPieza()
 {
     return this->pieza;
+}
+
+int Jugada::getPrevPos()
+{
+    return prevPos;
 }
 
 int Jugada::getNewPos()
@@ -70,7 +75,7 @@ void Jugada::generateString()
         {
             str += pieza->getNameNotation();
         }
-        if (eaten){
+        if (eatenPiece != nullptr){
             str += 'x';
         }
         str += newPosStr;
@@ -108,8 +113,9 @@ bool Jugada::isFirstPieceMove() {
     return firstPieceMove;
 }
 
-void Jugada::firstPieceMoved() {
-    firstPieceMove = true;
+void Jugada::setFirstPieceMoved(bool moved) {
+    firstPieceMove = moved;
+    //pieza->setMoved(moved);
 }
 
 void Jugada::setJaque(bool check) {
@@ -120,6 +126,10 @@ void Jugada::setJaqueMate(bool checkmate) {
     this->checkmate = checkmate;
 }
 
-void Jugada::eat() {
-    this->eaten = true;
+void Jugada::eat(Pieza* p) {
+    this->eatenPiece = p;
+}
+
+Pieza* Jugada::getEatenPiece() {
+    return eatenPiece;
 }

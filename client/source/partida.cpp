@@ -191,12 +191,12 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
 
     // return movements; // PRUEBA
 
-    std::cout << "movements: ";
-    for (auto m : movements)
-    {
-        std::cout << m << " ";
-    }
-    std::cout << std::endl;
+    // std::cout << "movements: ";
+    // for (auto m : movements)
+    // {
+    //     std::cout << m << " ";
+    // }
+    // std::cout << std::endl;
 
     // int size = (int)movements.size();
 
@@ -219,14 +219,14 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             int diff = (*it - pos) / div; // cantidad que se desplaza hacia esa dirección concreta OK
 
             int firstSquare = *it;
-            std::cout << "hay una pieza en la pos " << firstSquare << std::endl;
+            // std::cout << "hay una pieza en la pos " << firstSquare << std::endl;
 
             // if (tablero[*it]->getColor() == p->getColor()){
             //     movements.erase(it);
             // }
             if (isSameColor) // borramos, (no se vale ese movimiento porque no puedes comer una pieza de tu color)
             {
-                std::cout << "borrando movimeinto a " << *it << " (mismo color)" << std::endl;
+                // std::cout << "borrando movimeinto a " << *it << " (mismo color)" << std::endl;
                 movements.erase(it);
             }
             else
@@ -244,7 +244,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             }
 
             // size--;
-            std::cout << "diff: " << diff << std::endl;
+            // std::cout << "diff: " << diff << std::endl;
 
             int deleted = 0;
 
@@ -256,10 +256,10 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             while (it != end(movements) && i < 7)
             {
                 // if ((*(it) % diff) == (pos))
-                std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
+                // std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
                 if (firstSquare == (*it - i * diff) && abs(*it - pos) <= abs(diff * 7))
                 {
-                    std::cout << "borrando! " << *(it) << std::endl;
+                    // std::cout << "borrando! " << *(it) << std::endl;
                     movements.erase(it);
                     // size--;
                     deleted++;
@@ -267,7 +267,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 }
                 else
                 {
-                    std::cout << *(it) << " sale de la secuencia actual" << std::endl;
+                    // std::cout << *(it) << " sale de la secuencia actual" << std::endl;
                     break;
                 }
                 i++;
@@ -312,7 +312,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 if ((*it - p->getPos()) == 2) // enroque corto
                 {
                     Pieza *rook = tablero[p->getPos() + 3];
-                    if (rook != nullptr && instanceof <Torre>(rook) && !p->getMoved() && !rook->getMoved() && rook->getColor() == p->getColor())
+                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor())
                     {
                         it++;
                     }
@@ -332,7 +332,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 else if ((*it - p->getPos()) == -2) // enroque largo
                 {
                     Pieza *rook = tablero[p->getPos() - 4];
-                    if (rook != nullptr && instanceof <Torre>(rook) && !p->getMoved() && !rook->getMoved() && rook->getColor() == p->getColor())
+                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor())
                     {
                         it++;
                     }
@@ -361,12 +361,12 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
         }
     }
 
-    std::cout << "new movements: ";
-    for (auto m : movements)
-    {
-        std::cout << m << " ";
-    }
-    std::cout << std::endl;
+    // std::cout << "new movements: ";
+    // for (auto m : movements)
+    // {
+    //     std::cout << m << " ";
+    // }
+    // std::cout << std::endl;
 
     return movements;
 }
@@ -374,7 +374,6 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
 bool Partida::isChecking(Pieza *p)
 {
     bool check = false;
-    std::cout << "checking new check with piece " << p->getNameFEN() << " in pos: " << toChessPosition(p->getPos()) << std::endl;
     // once moved, we check new movements
     std::vector<int> movements = filterValidMovements(p);
     for (auto it = begin(movements); it != end(movements); *it++)
@@ -386,6 +385,75 @@ bool Partida::isChecking(Pieza *p)
         }
     }
     return check;
+}
+
+void Partida::undoPlay(int nPlay)
+{
+    std::cout << "nPlay: " << nPlay << std::endl;
+    Jugada *j = jugadas.at(nPlay);
+    Pieza *piece = j->getPieza();
+    Pieza *eatenPiece = j->getEatenPiece();
+
+    std::cout << "pieza: " << piece->getNameFEN() << " -> (" << toChessPosition(j->getPrevPos()) << ", " << toChessPosition(j->getNewPos()) << ") [" << piece->getTimesMoved() << "]" << std::endl;
+
+    // se ha comido una pieza
+    if (eatenPiece != nullptr)
+    {
+        if (eatenPiece->getColor()){
+            for (auto it = begin(whitePiecesKilled); it != end(whitePiecesKilled); it++)
+            {
+                if (*it == eatenPiece){
+                    whitePiecesKilled.erase(it);
+                    break;
+                } 
+            }
+            piezas_blanco.push_back(eatenPiece);
+        }
+        else {
+            for (auto it = begin(blackPiecesKilled); it != end(blackPiecesKilled); it++)
+            {
+                if (*it == eatenPiece){
+                    blackPiecesKilled.erase(it);
+                    break;
+                } 
+            }
+            piezas_negro.push_back(eatenPiece);
+        }
+        eatenPiece->move(j->getNewPos(), false); // not really move, is undo
+        tablero[j->getNewPos()] = eatenPiece;
+
+        piece->move(j->getPrevPos(), false); // not really move, is undo
+        // if (j->isFirstPieceMove()){
+        //     j->setFirstPieceMoved(false);
+        // }
+        tablero[j->getPrevPos()] = piece;
+    }
+    else { // no se come pieza, solo se mueve
+        tablero[j->getNewPos()] = nullptr;
+        piece->move(j->getPrevPos(), false);
+        tablero[j->getPrevPos()] = piece;
+    }
+
+    // NO HACEMOS AL PASO (MUCHO FOLLON CREO)
+}
+
+bool Partida::applyPlay(int nPlay)
+{
+    Jugada *j = jugadas.at(nPlay);
+    Pieza *piece = j->getPieza();
+    
+    std::cout << "pieza: " << piece->getNameFEN() << " -> (" << toChessPosition(j->getPrevPos()) << ", " << toChessPosition(j->getNewPos()) << ") [" << piece->getTimesMoved() << "]" << std::endl;
+
+    std::vector<int> validMovements = filterValidMovements(piece);
+
+    std::cout << "movements: ";
+    for (auto m : validMovements)
+    {
+        std::cout << m << " ";
+    }
+    std::cout << std::endl;
+    
+    return aplicarJugada(j, validMovements);
 }
 
 bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
@@ -454,7 +522,6 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
 
     if (is_aplicable)
     {
-        jugadas.push_back(j);
 
         // quitamos movimiento del antiguo
         tablero[pieza->getPos()] = nullptr;
@@ -464,14 +531,13 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
         if (enPassant)
         {
             enemyPos = newpos - 8;
-            std::cout << "enemyPos: " << enemyPos << std::endl;
         }
         else
         {
             enemyPos = newpos;
         }
         Pieza *pieza_enemiga = tablero[enemyPos];
-
+        // comer
         if (pieza_enemiga != nullptr && pieza_enemiga->getColor() != pieza->getColor())
         {
             if (pieza_enemiga->getColor()) // blanca
@@ -494,18 +560,15 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
                     }
                 }
             }
-            delete tablero[enemyPos];
-            j->eat();
+            // delete tablero[enemyPos];
+            if (pieza_enemiga->getColor()){
+                whitePiecesKilled.push_back(pieza_enemiga);
+            }
+            else {
+                blackPiecesKilled.push_back(pieza_enemiga);
+            }
+            j->eat(pieza_enemiga);
         }
-
-        // for (auto const &i : piezas_blanco)
-        // {
-        //     cout<<i->getNombre()<<endl;
-        // }
-        // for (auto const &i : piezas_negro)
-        // {
-        //     cout<<i->getNombre()<<endl;
-        // }
 
         if (possibleShortCastling)
         {
@@ -561,9 +624,6 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
 
         std::cout << "total checks: " << j->checkingPieces.size() << std::endl;
 
-        // if (isChecking(pieza)){
-        //     j->setJaque(true);
-        // }
     }
 
     // si no se puede hacer se devuelve false y no se le pasa el turno al otro jugador
@@ -575,17 +635,6 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
 
 std::vector<int> Partida::selectPiece(int pos)
 {
-
-    // std::cout << "selected piece: " << selectedPiece->getPos() << std::endl;
-    // std::cout << "new selected piece: " << pos << std::endl;
-
-    // if (selectedPiece->getPos() == pos)
-    // {
-    //     std::cout << "es la misma!!" << std::endl;
-    //     selectedPiece = nullptr;
-    //     selected = false;
-    //     return false;
-    // }
 
     std::vector<int> validMovements;
 
@@ -682,64 +731,66 @@ std::vector<int> Partida::createMovesSquares()
     return validMovements;
 }
 
-void Partida::moveSelected(int pos, std::vector<int> validMovements)
+bool Partida::moveSelected(int pos, std::vector<int> validMovements)
 {
 
     // no piece or not selected or piece but same square as before
     if (selectedPiece == nullptr || (selectedPiece != nullptr && selectedPiece->getPos() == pos))
     {
         selectedPiece = nullptr;
-        return;
+        return false;
     }
     // another piece
     else if (selectedPiece != nullptr && tablero[pos] != nullptr && tablero[pos]->getColor() == selectedPiece->getColor())
     {
         selectPiece(pos);
-        return;
+        return false;
     }
     // no possible movements
     else if (validMovements.empty())
     {
-        return;
+        return false;
     }
 
     // if everything ok, new play is created
     Jugada *j = new Jugada(selectedPiece, pos);
 
-    bool pieceHasMoved = selectedPiece->getMoved();
+    bool pieceHasMoved = (selectedPiece->getTimesMoved() > 0);
 
     bool valid = aplicarJugada(j, validMovements);
 
     if (valid)
     {
+        jugadas.push_back(j);
+
         turn = !turn;
         // si no ha movido antes ponemos qeue esta jugada es la primera en la que mueve
         if (!pieceHasMoved)
         {
-            j->firstPieceMoved(); // ponemos que ha sido el primer movimiento de la pieza
+            j->setFirstPieceMoved(true); // ponemos que ha sido el primer movimiento de la pieza
         }
         else
         { // ha movido
-            if (instanceof <Rey>(selectedPiece))
-            { // if king, then cannot castle anymore
-                if (selectedPiece->getColor())
-                { // white
-                    whiteCanLongCastling = false;
-                    whiteCanShortCastling = false;
-                }
-                else
-                {
-                    blackCanShortCastling = false;
-                    blackCanLongCastling = false;
-                }
-            }
+            // if (instanceof <Rey>(selectedPiece))
+            // { // if king, then cannot castle anymore
+            //     if (selectedPiece->getColor())
+            //     { // white
+            //         whiteCanLongCastling = false;
+            //         whiteCanShortCastling = false;
+            //     }
+            //     else
+            //     {
+            //         blackCanShortCastling = false;
+            //         blackCanLongCastling = false;
+            //     }
+            // }
         }
-        gameInfo->updateJugada();
         j->generateString();
-        std::cout << j->to_string() << std::endl;
+        gameInfo->updateJugada();
     }
 
     selectedPiece = nullptr;
+    return true;
 }
 
 void Partida::rotateBoard()
@@ -756,7 +807,7 @@ void Partida::rotateBoard()
 
     if (selectedPiece)
     {
-        std::cout << "selecting" << 63 - selectedPiece->getPos() << std::endl;
+        // std::cout << "selecting" << 63 - selectedPiece->getPos() << std::endl;
         selectPiece(63 - selectedPiece->getPos());
     }
 }
@@ -765,7 +816,22 @@ std::string Partida::savePgn()
 {
     std::string pgn;
 
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+
+    std::string date = std::to_string(1900 + ltm->tm_year) + '.' + std::to_string(1 + ltm->tm_mon) + '.' + std::to_string(ltm->tm_mday);
+
     // write metadata
+    pgn += "[Event \"C-hess Game\"]\n";
+    pgn += "[Site \"C-hess Platform\"]\n";
+    pgn += "[Date \"" + date + "\"]\n";
+    pgn += "[Round \"1\"]\n";
+    pgn += "[White \"" + usuario_blancas->getUsername() + "\"]\n";
+    pgn += "[Black \"" + usuario_negras->getUsername() + "\"]\n";
+    pgn += "[WhiteElo \"" + std::to_string(usuario_blancas->getElo()) + "\"]\n";
+    pgn += "[BlackElo \"" + std::to_string(usuario_negras->getElo()) + "\"]\n";
+    pgn += "[Result \"1-0\"]\n";
+    pgn += '\n';
 
     // write plays
     int cont = 1;
@@ -780,6 +846,7 @@ std::string Partida::savePgn()
         cont++;
     }
     // write result
+    pgn += "1-0";
 
     return pgn;
 }
@@ -819,26 +886,6 @@ void Partida::setOrientation(bool orientation)
 {
     this->orientation = orientation;
 }
-
-// void Partida::shortCastle()
-// {
-//     shortCastling = true;
-// }
-
-// void Partida::longCastle()
-// {
-//     longCastling = true;
-// }
-
-// bool Partida::getShortCastling()
-// {
-//     return shortCastling;
-// }
-
-// bool Partida::getLongCastling()
-// {
-//     return longCastling;
-// }
 
 Pieza *Partida::getSelectedPiece()
 {

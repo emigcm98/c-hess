@@ -17,7 +17,7 @@ private:
     bool enPassant;
     bool check;
     bool checkmate;
-    bool eaten;
+    Pieza* eatenPiece;
 
     std::string str;
 public:
@@ -29,19 +29,21 @@ public:
     // getters
     Pieza* getPieza();
     int getNewPos();
+    int getPrevPos();
     bool isShortCastling();
     bool isLongCastling();
     bool isFirstPieceMove();
+    Pieza *getEatenPiece();
     // setters
     void setJaque(bool check);
     void setJaqueMate(bool checkmate);
+    void setFirstPieceMoved(bool moved);
     // methods
-    void eat();
+    void eat(Pieza *p);
     bool isJaque();
     bool isJaqueMate();
     void shortCastle();
     void longCastle();
-    void firstPieceMoved();
 
     void generateString();
     std::string to_string();
