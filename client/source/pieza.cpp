@@ -76,7 +76,6 @@ Pieza::Pieza(int pos, bool blancas)
     this->pos = pos;
     this->blancas = blancas;
     this->timesMoved = 0;
-    m_sprite = sf::Sprite();
 };
 
 char Pieza::getNameFEN()
@@ -124,24 +123,61 @@ void Pieza::move(std::string pos)
     move(fromChessPosition(pos));
 }
 
-void Pieza::loadTexture(std::string filePath)
-{
-    if (!texture.loadFromFile(filePath))
-        std::cout << "Error loading file\n";
-    texture.setSmooth(true);
-}
+// void Pieza::loadTexture(std::string filePath)
+// {
+//     if (!texture.loadFromFile(filePath))
+//         std::cout << "Error loading file\n";
+//     texture.setSmooth(true);
+// }
+
+// void Pieza::setTexture()
+// {
+//     m_sprite.setTexture(texture);
+
+//     int spriteSizeX = m_sprite.getTexture()->getSize().x;
+//     int spriteSizeY = m_sprite.getTexture()->getSize().y;
+
+//     m_sprite.setOrigin(sf::Vector2f(spriteSizeX / 2, spriteSizeY / 2));
+//     m_sprite.setScale(sf::Vector2f(0.75f*OBJECT_SIZE/spriteSizeX, 0.75f*OBJECT_SIZE/spriteSizeY));
+//     m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista blancas
+//     // m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
+// }
 
 void Pieza::setTexture()
 {
-    m_sprite.setTexture(texture);
+    m_sprite = sf::Sprite();
+    switch (nameNotation)
+    {
+        case 'K':
+            m_sprite.setTexture(blancas ? PieceTextures::whiteKing : PieceTextures::blackKing);
+            break;
+        case 'Q':
+            m_sprite.setTexture(blancas ? PieceTextures::whiteQueen : PieceTextures::blackQueen);
+            break;
+        case 'R':
+            m_sprite.setTexture(blancas ? PieceTextures::whiteRook : PieceTextures::blackRook);
+            break;
+        case 'B':
+            m_sprite.setTexture(blancas ? PieceTextures::whiteBishop : PieceTextures::blackBishop);
+            break;
+        case 'N':
+            m_sprite.setTexture(blancas ? PieceTextures::whiteKnight : PieceTextures::blackKnight);
+            break;
+        case 'P':
+            m_sprite.setTexture(blancas ? PieceTextures::whitePawn : PieceTextures::blackPawn);
+            break;
+        default:
+            std::cerr << "Error piece type does not exist.\n";
+            break;
+    }
 
     int spriteSizeX = m_sprite.getTexture()->getSize().x;
     int spriteSizeY = m_sprite.getTexture()->getSize().y;
 
-    m_sprite.setOrigin(sf::Vector2f(spriteSizeX / 2, spriteSizeY / 2));
+    m_sprite.setOrigin(sf::Vector2f(spriteSizeX/2 , spriteSizeY/2));
     m_sprite.setScale(sf::Vector2f(0.75f*OBJECT_SIZE/spriteSizeX, 0.75f*OBJECT_SIZE/spriteSizeY));
     m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista blancas
-    // m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
+    //m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
 }
 
 void Pieza::rotate(bool orientation){
@@ -154,9 +190,9 @@ void Pieza::rotate(bool orientation){
     }
 }
 
-// void Pieza::setMoved(bool moved){
-//     this->moved = moved;
-// }
+void Pieza::setPos(int pos){
+    this->pos = pos;
+}
 
 // ALFIL
 
@@ -169,10 +205,11 @@ Alfil::Alfil(int pos, bool blancas) : Pieza(pos, blancas)
         this->nameFEN = 'b';
     }
     this->nameNotation = 'B';
-    std::string name = "bishop";
-    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    loadTexture(this->texture_file);
     setTexture();
+    //std::string name = "bishop";
+    //this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    //loadTexture(this->texture_file);
+    //setTexture();
 }
 
 std::vector<int> Alfil::calcularMovimiento()
@@ -207,10 +244,11 @@ Caballo::Caballo(int pos, bool blancas) : Pieza(pos, blancas)
         this->nameFEN = 'n';
     }
     this->nameNotation = 'N';
-    std::string name = "knight";
-    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    loadTexture(this->texture_file);
     setTexture();
+    // std::string name = "knight";
+    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    // loadTexture(this->texture_file);
+    // setTexture();
 }
 
 std::vector<int> Caballo::calcularMovimiento()
@@ -245,11 +283,12 @@ Torre::Torre(int pos, bool blancas) : Pieza(pos, blancas)
     else {
         this->nameFEN = 'r';
     }
-    this->nameNotation = 'B';
-    std::string name = "rook";
-    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    loadTexture(this->texture_file);
+    this->nameNotation = 'R';
     setTexture();
+    // std::string name = "rook";
+    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    // loadTexture(this->texture_file);
+    // setTexture();
 }
 
 std::vector<int> Torre::calcularMovimiento()
@@ -286,11 +325,12 @@ Peon::Peon(int pos, bool blancas) : Pieza(pos, blancas)
     else {
         this->nameFEN = 'p';
     }
-    this->nameNotation = 'B';
-    std::string name = "pawn";
-    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    loadTexture(this->texture_file);
+    this->nameNotation = 'P';
     setTexture();
+    // std::string name = "pawn";
+    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    // loadTexture(this->texture_file);
+    // setTexture();
 }
 
 std::vector<int> Peon::calcularMovimiento()
@@ -332,10 +372,11 @@ Rey::Rey(int pos, bool blancas) : Pieza(pos, blancas)
         this->nameFEN = 'k';
     }
     this->nameNotation = 'K';
-    std::string name = "king";
-    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    loadTexture(this->texture_file);
     setTexture();
+    // std::string name = "king";
+    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    // loadTexture(this->texture_file);
+    // setTexture();
 }
 
 std::vector<int> Rey::calcularMovimiento()
@@ -380,10 +421,11 @@ Dama::Dama(int pos, bool blancas) : Pieza(pos, blancas)
         this->nameFEN = 'q';
     }
     this->nameNotation = 'Q';
-    std::string name = "queen";
-    this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    loadTexture(this->texture_file);
     setTexture();
+    // std::string name = "queen";
+    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    // loadTexture(this->texture_file);
+    // setTexture();
 }
 
 std::vector<int> Dama::calcularMovimiento()

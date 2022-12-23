@@ -22,8 +22,8 @@ class Partida : public sf::Drawable
 private:
     User* usuario_blancas;
     User* usuario_negras;
-    std::vector<Pieza*> piezas_blanco;
-    std::vector<Pieza*> piezas_negro;
+    std::vector<Pieza*> whitePieces;
+    std::vector<Pieza*> blackPieces;
     std::vector<Pieza*> whitePiecesKilled;
     std::vector<Pieza*> blackPiecesKilled;
     std::vector<Jugada*> jugadas;
@@ -73,10 +73,13 @@ public:
     bool applyPlay(int nPlay);
     std::vector<int> selectPiece(int pos);
     bool moveSelected(int pos, std::vector<int> validMovements);
+    void mostrarTablero();
     void rotateBoard();
     void shortCastle();
     void longCastle();
     bool isChecking(Pieza *p);
+    bool checkIfChecks();
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Pieza *p);
+    std::vector<int> filterIllegalMoves(Pieza *p, std::vector<int> filteredMovements);
 };

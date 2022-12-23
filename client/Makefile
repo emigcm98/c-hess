@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-Wall -g
 LDPATH=-lsfml-graphics -lsfml-window -lsfml-system
 DEPS=
-OBJ=pieza.o jugada.o partida.o user.o gameinfo.o main.o
+OBJ=pieceTextures.o pieza.o jugada.o partida.o user.o gameinfo.o main.o
 NAME=chess-client
 
 $(NAME): $(OBJ)
@@ -25,6 +25,9 @@ jugada.o: source/jugada.cpp source/jugada.hpp
 
 pieza.o: source/pieza.cpp source/pieza.hpp
 	$(CC) -c source/pieza.cpp $(CFLAGS)
+
+pieceTextures.o: source/pieceTextures.cpp source/pieceTextures.hpp
+	$(CC) -c source/pieceTextures.cpp $(CFLAGS)
 
 .PHONY: clean
 clean:

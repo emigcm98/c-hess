@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+#include "pieceTextures.hpp"
+
 #pragma once
 
 template <typename Base, typename T>
@@ -25,10 +27,10 @@ protected:
     //bool moved;
     int timesMoved; 
 
-    std::string texture_file;
+    //std::string texture_file;
     sf::Sprite m_sprite;
-    sf::Texture texture;
-    void loadTexture(std::string filePath);
+    //sf::Texture texture;
+    //void loadTexture(std::string filePath);
     void setTexture();
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const
     {   target.draw(m_sprite);  }
@@ -45,6 +47,7 @@ public:
     int getTimesMoved();
     // setters
     //void setMoved(bool moved);
+    void setPos(int pos);
     // methods
     virtual std::vector<int> calcularMovimiento() = 0; // calcula los movimientos posibles de la pieza (abstracto)
     void move(int pos, bool moved = true);

@@ -34,25 +34,7 @@ int main()
 
     Partida partida = Partida(&u, &u2, &font);
 
-    // partida.mostrarTablero();
-
-    // Pieza *pieza = partida.getPiezaByPos("e2");
-    // Jugada j = Jugada(pieza, "e4");
-
-    // cout << "OK" << endl;
-
-    // partida.aplicarJugada(&j);
-
-    // std::vector<Jugada *>::iterator it;
-
-    // for (auto const &i : partida.getJugadas())
-    // {
-    //     std::cout << i->to_string() << endl;
-    // }
-
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
-    // sf::RenderWindow window(sf::VideoMode(768,512), "Chess", sf::Style::Titlebar | sf::Style::Close);
-    // sf::RenderWindow window(sf::VideoMode(1024,768), "Chess", sf::Style::Titlebar | sf::Style::Close);
     sf::RenderWindow window(sf::VideoMode(OBJECT_SIZE * 14, OBJECT_SIZE * 8), "Chess", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
@@ -64,6 +46,11 @@ int main()
     std::vector<int> validMovements;
     int actualPlay = 0;
 
+
+    // Alfil *aux = Pieza::create(10, 'A');
+    // std::cout << "creando pieza. Es de tipo alfil?" << std::endl;
+    // std::cout << instanceof<Alfil>(aux) << std::endl;
+
     // the event/logic/whatever loop
     while (window.isOpen())
     {
@@ -72,33 +59,29 @@ int main()
         while (window.pollEvent(event))
         {
             // "close requested" event: we close the window
-
-            switch (event.type)
+            if (event.type == sf::Event::Closed)
             {
-            case sf::Event::Closed:
                 window.close();
-                break;
-
-            case sf::Event::MouseButtonPressed:
+            }
+            if(event.type == sf::Event::MouseButtonPressed){ 
+                
                 // must be in the actualPlay to select and move!
-                if (actualPlay == int(partida.getJugadas().size()) && event.mouseButton.button == sf::Mouse::Left)
-                {
+                if(event.mouseButton.button == sf::Mouse::Left && actualPlay == int(partida.getJugadas().size())){
+                  
                     // only select in board
                     if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (OBJECT_SIZE * 8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (OBJECT_SIZE * 8)))
                     {
                         int buttonPos;
-                        // unsigned int buttonPos{(event.mouseButton.x / 96) + ((7 - (event.mouseButton.y / 96)) * (8 * ((96 * 8) / window.getSize().y)))};
-
+                        
                         if (orientation)
                         {
-                            // cout << "okkk" << endl;
                             buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                         }
                         else
                         {
                             buttonPos = (7 - (event.mouseButton.x / OBJECT_SIZE)) + ((event.mouseButton.y / OBJECT_SIZE) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                         }
-                        // cout << "buttonPos " << buttonPos << endl;
+
                         p = partida.getSelectedPiece();
                         if (p == nullptr)
                         {
@@ -114,9 +97,9 @@ int main()
                         }
                     }
                 }
-                
-                break;
-            case sf::Event::EventType::KeyPressed:
+            }  
+            if (event.type == sf::Event::EventType::KeyPressed)
+            {
 
                 if (event.key.code == sf::Keyboard::R)
                 {
@@ -137,7 +120,6 @@ int main()
                         actualPlay--;
                         partida.undoPlay(actualPlay);
                     }
-                    std::cout << actualPlay << std::endl;
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
@@ -145,24 +127,14 @@ int main()
                         partida.applyPlay(actualPlay);
                         actualPlay++;
                     }
-                    std::cout << actualPlay << std::endl;
                 }
-                break;
-            default:
-                break;
             }
-
-            // clear the window with black color
-            //window.clear(sf::Color::Black);
-
-            // draw everything here...
-            window.draw(partida);
-
-            // end the current frame
-            window.display();
-
-
         }
+            // clear the window with black color
+            window.clear(sf::Color::Black);
+            
+            window.draw(partida);
+            window.display();
     }
 
     return 0;
