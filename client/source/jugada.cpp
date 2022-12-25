@@ -49,12 +49,12 @@ int Jugada::getNewPos()
     return newPos;
 }
 
-bool Jugada::isJaque()
+bool Jugada::isCheck()
 {
     return check;
 }
 
-bool Jugada::isJaqueMate()
+bool Jugada::isCheckmate()
 {
     return checkmate;
 }
@@ -79,9 +79,9 @@ void Jugada::generateString()
             str += 'x';
         }
         str += newPosStr;
-        if (isJaque()){
+        if (isCheck()){
             str += '+';
-            if (isJaqueMate()){
+            if (isCheckmate()){
                 str += '+';
             }
         }
@@ -118,11 +118,11 @@ void Jugada::setFirstPieceMoved(bool moved) {
     //pieza->setMoved(moved);
 }
 
-void Jugada::setJaque(bool check) {
+void Jugada::setCheck(bool check) {
     this->check = check;
 }
 
-void Jugada::setJaqueMate(bool checkmate) {
+void Jugada::setCheckmate(bool checkmate) {
     this->checkmate = checkmate;
 }
 

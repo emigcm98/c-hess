@@ -54,8 +54,6 @@ public:
     Pieza* getPiezaByPos(std::string pos);
     std::vector<Jugada*> getJugadas();
     //Pieza* getPotentiallyPieceEnPassant();
-    bool getShortCastling();
-    bool getLongCastling();
     Pieza* getSelectedPiece();
 
     // setters
@@ -73,12 +71,11 @@ public:
     bool applyPlay(int nPlay);
     std::vector<int> selectPiece(int pos);
     bool moveSelected(int pos, std::vector<int> validMovements);
-    void mostrarTablero();
-    void rotateBoard();
-    void shortCastle();
-    void longCastle();
+    bool rotateBoard();
     bool isChecking(Pieza *p);
     bool checkIfChecks();
+    bool checkIfCheckmate();
+    bool canPieceMove(Pieza *p);
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Pieza *p);
     std::vector<int> filterIllegalMoves(Pieza *p, std::vector<int> filteredMovements);

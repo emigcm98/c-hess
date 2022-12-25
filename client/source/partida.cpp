@@ -410,6 +410,43 @@ bool Partida::checkIfChecks()
     return false;
 }
 
+bool Partida::canPieceMove(Pieza *p)
+{
+    std::cout << "fuen" << std::endl;
+    std::vector<int> movements = filterValidMovements(p);
+    //movements = filterIllegalMoves(p, movements);
+    std::cout << "fuen2" << std::endl;
+    return movements.size() > 0;
+}
+
+bool Partida::checkIfCheckmate()
+{
+
+    if (turn)
+    {
+        for (auto const &i : blackPieces)
+        {
+            bool canMove = canPieceMove(i);
+            if (canMove)
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        for (auto const &i : whitePieces)
+        {
+            bool canMove = canPieceMove(i);
+            if (canMove)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 /*
 Return true if a given Piece p is checking the opossite King, false if not.
 */
@@ -423,7 +460,7 @@ bool Partida::isChecking(Pieza *p)
         Pieza *checkedPiece = tablero[*it];
         if (checkedPiece != nullptr && instanceof <Rey>(checkedPiece))
         {
-            std::cout << p->getNameFEN() << "("  << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
+            std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
         }
         if (checkedPiece != nullptr && checkedPiece->getColor() != p->getColor() && instanceof <Rey>(checkedPiece))
         {
@@ -749,15 +786,17 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
 {
     // check if after all, there is a check
     // aux piece for checking!
-    //std::cout << "FEN ANTES: " << saveFen() << std::endl;
-    for (auto it = begin(filteredMovements); it != end(filteredMovements);)
+    // std::cout << "FEN ANTES: " << saveFen() << std::endl;
+    for (auto mov = begin(filteredMovements); mov != end(filteredMovements);)
     {
-        Pieza *enemyPiece = tablero[*it];
-
+        Pieza *enemyPiece = tablero[*mov];
         Pieza *aux = Pieza::create(p->getPos(), p->getNameFEN());
-        // pos of the piece in list
+
+        // pos of the piece in list of pieces per movement
         std::vector<Pieza *>::iterator itPos;
-        aux->setPos(*it);
+        std::vector<Pieza *>::iterator itPos2;
+        // Pieza *aux2 = nullptr;
+        aux->setPos(*mov);
         // si le toca al blanco
         if (turn)
         {
@@ -770,10 +809,24 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
                     // auto iterator = whitePieces.erase(i);
                     itPos = whitePieces.erase(i);
                     whitePieces.insert(itPos, aux);
-                    //whitePieces.erase(i);
-                    //whitePieces.push_back(aux);
-                    //std::cout << "pieza i " << (*i)->getNameFEN() << " " << (*i)->getPos() << std::endl;
-                    //std::cout << "pieza p " << p->getNameFEN() << " " << p->getPos() << std::endl;
+                    // whitePieces.erase(i);
+                    // whitePieces.push_back(aux);
+                    // std::cout << "pieza i " << (*i)->getNameFEN() << " " << (*i)->getPos() << std::endl;
+                    // std::cout << "pieza p " << p->getNameFEN() << " " << p->getPos() << std::endl;
+                    break;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+            // if there is some enemy piece to eat, must be cleaned now to make calculus
+            for (auto i = begin(blackPieces); i != end(blackPieces);)
+            {
+                if ((*i)->getPos() == (*mov))
+                {
+                    itPos2 = blackPieces.erase(i);
+                    // aux2 = *i;
                     break;
                 }
                 else
@@ -791,8 +844,21 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
                     // auto iterator = whitePieces.erase(i);
                     itPos = blackPieces.erase(i);
                     blackPieces.insert(itPos, aux);
-                    //blackPieces.erase(i);
-                    //blackPieces.push_back(aux);
+                    // blackPieces.erase(i);
+                    // blackPieces.push_back(aux);
+                    break;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+            for (auto i = begin(whitePieces); i != end(whitePieces);)
+            {
+                if ((*i)->getPos() == (*mov))
+                {
+                    itPos2 = whitePieces.erase(i);
+                    // aux2 = *i;
                     break;
                 }
                 else
@@ -802,8 +868,10 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
             }
         }
 
+        std::cout << "hola" << std::endl;
+
         // cambiamos el tablero momentaneamente
-        int currentSquare = *it;
+        int currentSquare = *mov;
         // std::cout << "piezas negras: ";
         // for (auto const &i : blackPieces){
         //     std::cout << i->getNameFEN() << "(" << toChessPosition(i->getPos()) << ") ";
@@ -814,17 +882,15 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         tablero[currentSquare] = aux;
         // std::cout << "Ponemos en la casilla " << toChessPosition(*it) << " la pieza aux" << std::endl;
 
-        // if check , cannot move :)
         // std::cout << "CHECKING CHECKS PER ENEMY PIECE! (FOR MOVE " << toChessPosition(*it) << ")" << std::endl;
+        // if check , cannot move (erase movement) :)
         if (checkIfChecks())
         {
-            // std::cout << "CHECK!!" << std::endl;
-            filteredMovements.erase(it);
+            filteredMovements.erase(mov);
         }
-        else
+        else // can move!
         {
-            // std::cout << "NO CHECK!!" << std::endl;
-            it++;
+            mov++;
         }
         // std::cout << "STOPPING CHECKING CHECKS" << std::endl;
 
@@ -837,21 +903,26 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
 
         if (turn) // blancas
         {
-            //whitePieces.pop_back();
+            // whitePieces.pop_back();
             whitePieces.erase(itPos);
             whitePieces.insert(itPos, p);
-            //whitePieces.push_back(p);   
+            if (enemyPiece != nullptr)
+            {
+                blackPieces.insert(itPos2, enemyPiece);
+            }
         }
         else
         {
             blackPieces.erase(itPos);
             blackPieces.insert(itPos, p);
-            //blackPieces.pop_back();
-            //blackPieces.push_back(p);
+            if (enemyPiece != nullptr)
+            {
+                whitePieces.insert(itPos2, enemyPiece);
+            }
         }
 
         // ponemos el tablero como antes
-        //std::cout << "Ponemos la casilla " << toChessPosition(p->getPos()) << " a null" << std::endl;
+        // std::cout << "Ponemos la casilla " << toChessPosition(p->getPos()) << " a null" << std::endl;
         if (enemyPiece != nullptr && enemyPiece->getColor() != p->getColor())
         {
             tablero[currentSquare] = enemyPiece;
@@ -862,24 +933,23 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         }
         tablero[p->getPos()] = p;
 
+        std::cout << "hola2" << std::endl;
+
         // delete aux piece
         delete aux;
 
-        // std::cout << "piezas blancas: ";
-        // for (auto const &i : whitePieces){
-        //     std::cout << i->getNameFEN() << "(" << toChessPosition(i->getPos()) << ") ";
-        // }
-        // std::cout << std::endl;
-        // std::cout << "FEN: " << saveFen() << std::endl;
-
+        std::cout << "piezas blancas: ";
+        for (auto const &i : whitePieces)
+        {
+            std::cout << i->getNameFEN() << "(" << toChessPosition(i->getPos()) << ") ";
+        }
+        std::cout << std::endl;
+        std::cout << "FEN: " << saveFen() << std::endl;
     }
-    //std::cout << "STOPPING ALL VERIFICATIONS" << std::endl;
-
-    
+    // std::cout << "STOPPING ALL VERIFICATIONS" << std::endl;
 
     return filteredMovements;
 }
-
 
 std::vector<int> Partida::createMovesSquares()
 {
@@ -887,7 +957,7 @@ std::vector<int> Partida::createMovesSquares()
     std::vector<int> validMovements = filterValidMovements(selectedPiece);
     // illegal moves are those which moving would end up with a check (pinned piece, moving king to incorrect position or castling bad).
     validMovements = filterIllegalMoves(selectedPiece, validMovements);
-    
+
     std::cout << "new movements!: ";
     for (auto m : validMovements)
     {
@@ -904,7 +974,14 @@ std::vector<int> Partida::createMovesSquares()
     for (int i = 0; i < (int)validMovements.size(); i++)
     {
         sf::RectangleShape tmp;
+        // if (orientation){
+        //     tmp.setPosition(sf::Vector2f((validMovements.at(i) % 8) * OBJECT_SIZE_F, (7 - (validMovements.at(i) / 8)) * OBJECT_SIZE_F));
+        // }
+        // else {
+        //     tmp.setPosition(sf::Vector2f((7 - (validMovements.at(i) % 8)) * OBJECT_SIZE_F, (validMovements.at(i) / 8) * OBJECT_SIZE_F));
+        // }
         tmp.setPosition(sf::Vector2f((validMovements.at(i) % 8) * OBJECT_SIZE_F, (7 - (validMovements.at(i) / 8)) * OBJECT_SIZE_F));
+
         tmp.setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
         if (tablero[validMovements.at(i)] != nullptr && tablero[validMovements.at(i)]->getColor() != selectedPiece->getColor()) // another piece, put in red
         {
@@ -976,7 +1053,20 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
         else
         {
         }
+
+        // check if check or checkmate
+        bool isCheck = checkIfChecks();
+        if (isCheck)
+        {
+            j->setCheckmate(checkIfCheckmate());
+            j->setCheck(isCheck);
+        }
+        // bool isCheckmate = checkIfCheckmate();
+        // j->setCheckmate(isCheckmate);
+
+        // update play info
         j->generateString();
+        std::cout << "Jugada " << jugadas.size() << " (" << j->getPieza()->getColor() << "): " << j->to_string() << std::endl;
         gameInfo->updateJugada();
 
         // deselecting current piece
@@ -985,7 +1075,7 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
     return valid;
 }
 
-void Partida::rotateBoard()
+bool Partida::rotateBoard()
 {
     orientation = !orientation;
     for (auto const &i : whitePieces)
@@ -1002,6 +1092,8 @@ void Partida::rotateBoard()
         // std::cout << "selecting" << 63 - selectedPiece->getPos() << std::endl;
         selectPiece(63 - selectedPiece->getPos());
     }
+
+    return orientation;
 }
 
 std::string Partida::savePgn()

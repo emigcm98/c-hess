@@ -81,6 +81,7 @@ int main()
                         {
                             buttonPos = (7 - (event.mouseButton.x / OBJECT_SIZE)) + ((event.mouseButton.y / OBJECT_SIZE) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                         }
+                        //buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
 
                         p = partida.getSelectedPiece();
                         if (p == nullptr)
@@ -103,8 +104,7 @@ int main()
 
                 if (event.key.code == sf::Keyboard::R)
                 {
-                    partida.rotateBoard();
-                    orientation = !orientation;
+                    orientation = partida.rotateBoard();
                 }
                 else if (event.key.code == sf::Keyboard::P)
                 {

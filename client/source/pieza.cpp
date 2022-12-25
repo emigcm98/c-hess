@@ -353,9 +353,13 @@ std::vector<int> Peon::calcularMovimiento()
 
     if (tmp >= 0 || tmp <= 63)
     {
-        possibleMovs.push_back(tmp - 1); // eat
         possibleMovs.push_back(tmp);
-        possibleMovs.push_back(tmp + 1); // eat
+        if (tmp / 8 == (tmp -1) / 8){
+            possibleMovs.push_back(tmp - 1); // eat
+        }
+        if (tmp / 8 == (tmp +1) / 8){
+            possibleMovs.push_back(tmp + 1); // eat
+        }
     }
 
     return possibleMovs;

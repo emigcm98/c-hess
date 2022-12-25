@@ -35,13 +35,13 @@ public:
     bool isFirstPieceMove();
     Pieza *getEatenPiece();
     // setters
-    void setJaque(bool check);
-    void setJaqueMate(bool checkmate);
+    void setCheck(bool check);
+    void setCheckmate(bool checkmate);
     void setFirstPieceMoved(bool moved);
     // methods
     void eat(Pieza *p);
-    bool isJaque();
-    bool isJaqueMate();
+    bool isCheck();
+    bool isCheckmate();
     void shortCastle();
     void longCastle();
 
