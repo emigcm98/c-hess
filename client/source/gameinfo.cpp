@@ -37,7 +37,7 @@ GameInfo::GameInfo(User *blancas, User *negras, std::vector<Jugada *> *jugadas, 
     eloNegras.setFillColor(sf::Color::Green);
 
     lastPlay.setFont(*font);
-    lastPlay.setString("NONE");
+    lastPlay.setString("Play :)");
     lastPlay.setCharacterSize(18);
     lastPlay.setPosition(OBJECT_SIZE_F * 11, OBJECT_SIZE_F * 4);
     lastPlay.setFillColor(sf::Color::Black);
@@ -48,6 +48,12 @@ void GameInfo::updateJugada()
     if (!jugadas->empty()){
         lastPlay.setString(jugadas->back()->to_string());
     }
+}
+
+void GameInfo::updateElos(int whiteElo, int blackElo)
+{
+    eloBlancas.setString(std::to_string(whiteElo));
+    eloNegras.setString(std::to_string(blackElo));
 }
 
 void GameInfo::draw(sf::RenderTarget &target, sf::RenderStates states) const

@@ -28,7 +28,7 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
         tablero[i] = nullptr;
     }
 
-    loadFen("k7/5P1Q/2K5/8/8/6p1/8/8 w");
+    loadFen();
     load();
 }
 
@@ -174,6 +174,12 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
 
     int pos = p->getPos();
     std::vector<int> movements = p->calcularMovimiento();
+    
+    // std::cout << "movements: ";
+    // for (auto m : movements)
+    // {
+    //     std::cout << m << " ";
+    // }
 
     for (auto it = begin(movements); it != end(movements);)
     {
@@ -217,7 +223,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             int deleted = 0;
 
             int i = 1;
-            while (it != end(movements) && i < 8) // i < 7
+            while (it != end(movements) && i < 7) // i < 7
             {
                 // if ((*(it) % diff) == (pos))
                 // std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
@@ -231,7 +237,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 }
                 else
                 {
-                    // std::cout << *(it) << " sale de la secuencia actual" << std::endl;
+                    //std::cout << *(it) << " sale de la secuencia actual" << std::endl;
                     break;
                 }
                 i++;
@@ -299,18 +305,6 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             }
             else if (instanceof <Rey>(p))
             {
-                // if (!jugadas.empty() && p->getTimesMoved() == 0)
-                // {
-                int originalPosition;
-                if (p->getColor())
-                {
-                    originalPosition = fromChessPosition("e1");
-                }
-                else
-                {
-                    originalPosition = fromChessPosition("e8");
-                }
-
                 Jugada *lastMove = nullptr;
                 if (!jugadas.empty())
                 {
@@ -320,9 +314,17 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 {
                     Pieza *rook = tablero[pos + 3];
 
-                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && tablero[pos + 1] == nullptr && originalPosition == pos)
+                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && tablero[pos + 1] == nullptr)
                     {
                         it++;
+                        if (p->getColor())
+                        {
+                            whiteCanShortCastling = true;
+                        }
+                        else
+                        {
+                            blackCanShortCastling = true;
+                        }
                     }
                     else
                     {
@@ -340,9 +342,17 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 else if ((*it - pos) == -2 && p->getTimesMoved() == 0) // enroque largo
                 {
                     Pieza *rook = tablero[pos - 4];
-                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && tablero[pos - 1] == nullptr && originalPosition == pos)
+                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && tablero[pos - 1] == nullptr)
                     {
                         it++;
+                        if (p->getColor())
+                        {
+                            whiteCanLongCastling = true;
+                        }
+                        else
+                        {
+                            blackCanLongCastling = true;
+                        }
                     }
                     else
                     {
@@ -1380,8 +1390,9 @@ void Partida::setResultado(Resultado r)
 {
     this->r = r;
     // user's calculations
-    usuario_blancas->calculate_new_elo(usuario_negras->getElo(), r);
-    usuario_negras->calculate_new_elo(usuario_blancas->getElo(), r);
+    usuario_blancas->calculate_new_elo(usuario_negras->getElo(), float(r/2));
+    usuario_negras->calculate_new_elo(usuario_blancas->getElo(), float((2-r)/2));
+    gameInfo->updateElos(usuario_blancas->getElo(), usuario_negras->getElo());
 }
 
 bool Partida::isJaque()

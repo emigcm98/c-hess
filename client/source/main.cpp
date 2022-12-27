@@ -32,7 +32,7 @@ int main()
 
     User u2 = User("fuen", "password", birthdate);
 
-    Partida partida = Partida(&u, &u2, &font);
+    Partida partida = Partida(&u2, &u, &font);
 
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
     sf::RenderWindow window(sf::VideoMode(OBJECT_SIZE * 14, OBJECT_SIZE * 8), "Chess", sf::Style::Titlebar | sf::Style::Close);

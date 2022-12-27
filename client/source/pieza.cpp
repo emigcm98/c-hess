@@ -346,7 +346,15 @@ std::vector<int> Peon::calcularMovimiento()
 
     int tmp = pos + posRel;
 
-    if (timesMoved == 0)
+    int originalRow;
+    if (blancas){
+        originalRow = 1;
+    }
+    else {
+        originalRow = 6;
+    }
+
+    if (timesMoved == 0 && pos/8 == originalRow)
     {
         possibleMovs.push_back(tmp + posRel); // extra move
     }
@@ -404,8 +412,17 @@ std::vector<int> Rey::calcularMovimiento()
         }
     }
 
+    int originalPosition;
+    if (blancas)
+    {
+        originalPosition = fromChessPosition("e1");
+    }
+    else {
+        originalPosition = fromChessPosition("e8");
+    }
+
     // enroque
-    if (timesMoved == 0)
+    if (timesMoved == 0 && originalPosition == pos)
     {
         possibleMovs.push_back(pos + 2);
         possibleMovs.push_back(pos - 2);
@@ -446,8 +463,10 @@ std::vector<int> Dama::calcularMovimiento()
         int times = 0;
         for (int j = tmp; (j <= 63 && j >= 0 && times < 7); j += posRel[i])
         {
-
-            if ((abs(j / 8 - pos / 8) * abs(j % 8 - pos % 8)) == 0 || (abs(j / 8 - pos / 8) - abs(j % 8 - pos % 8)) == 0)
+            if ((pos % 8 == 7 && i == 3) || (pos % 8 == 0 && i == 1)){
+                //   
+            }
+            else if ((abs(j / 8 - pos / 8) * abs(j % 8 - pos % 8)) == 0 || (abs(j / 8 - pos / 8) - abs(j % 8 - pos % 8)) == 0)
             {
                 possibleMovs.push_back(j);
             }
@@ -456,7 +475,10 @@ std::vector<int> Dama::calcularMovimiento()
         times = 0;
         for (int j = tmp2; (j <= 63 && j >= 0 && times < 7); j -= posRel[i])
         {
-            if ((abs(j / 8 - pos / 8) * abs(j % 8 - pos % 8)) == 0 || (abs(j / 8 - pos / 8) - abs(j % 8 - pos % 8)) == 0)
+            if ((pos % 8 == 7 && i == 1) || (pos % 8 == 0 && i == 3)){
+                //   
+            }
+            else if ((abs(j / 8 - pos / 8) * abs(j % 8 - pos % 8)) == 0 || (abs(j / 8 - pos / 8) - abs(j % 8 - pos % 8)) == 0)
             {
                 possibleMovs.push_back(j);
             }

@@ -21,4 +21,5 @@ private:
 public:
     GameInfo(User* blancas, User* negras, std::vector<Jugada*> *jugadas, sf::Font* font);
     void updateJugada();
+    void updateElos(int whiteElo, int blackElo);
 };
