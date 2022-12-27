@@ -66,7 +66,7 @@ public:
 
     // methods
     void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
-    void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b");
+    void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
     std::string saveFen();
     std::string savePgn();
     bool aplicarJugada(Jugada* j, std::vector<int> movements); // aplica los cambios al tablero
@@ -78,7 +78,10 @@ public:
     bool isChecking(Pieza *p);
     bool checkIfChecks(bool color);
     bool checkIfCheckmate(bool color);
+    bool checkIfDrawsByMaterial();
+    bool checkIfDrawsByPosition(bool color);
     bool canPieceMove(Pieza *p);
+    Pieza* promote(Pieza *p);
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Pieza *p);
     std::vector<int> filterIllegalMoves(Pieza *p, std::vector<int> filteredMovements, bool color);

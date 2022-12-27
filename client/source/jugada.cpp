@@ -133,3 +133,7 @@ void Jugada::eat(Pieza* p) {
 Pieza* Jugada::getEatenPiece() {
     return eatenPiece;
 }
+
+void Jugada::setPiece(Pieza *p) {
+    this->pieza = p;
+}

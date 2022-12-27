@@ -28,10 +28,7 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
         tablero[i] = nullptr;
     }
 
-    // loadFen("1nbqkbnr/1p1p2pp/p1P1p3/r2Bp3/2p1P3/8/PPPP2PP/RNBQK1NR b");
-    // loadFen("1nbqkbnr/8/8/8/8/8/8/8 b");
-    // loadFen("rn1qkbnr/p1pp1pp1/bp5p/4p3/4P3/5N2/PPPP1PPP/RNBQK2R w");
-    loadFen();
+    loadFen("k7/5P1Q/2K5/8/8/6p1/8/8 w");
     load();
 }
 
@@ -178,36 +175,6 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
     int pos = p->getPos();
     std::vector<int> movements = p->calcularMovimiento();
 
-    // if check, only can move king (DEBUG)
-    // if (jugadas.size() > 0)
-    // {
-    //     Jugada *lastPlay = jugadas.back();
-
-    //     if (lastPlay->isJaque())
-    //     {
-    //         for (auto const &i : lastPlay->checkingPieces)
-    //         {
-    //             std::cout << "Checking by " << i->getNameFEN() << std::endl;
-    //         }
-    //         if (! instanceof <Rey>(p) && p->getColor() == turn)
-    //         {
-    //             movements.clear();
-    //             return movements;
-    //         }
-    //     }
-    // }
-
-    // return movements; // PRUEBA
-
-    // std::cout << "movements: ";
-    // for (auto m : movements)
-    // {
-    //     std::cout << m << " ";
-    // }
-    // std::cout << std::endl;
-
-    // int size = (int)movements.size();
-
     for (auto it = begin(movements); it != end(movements);)
     {
         // piece !
@@ -227,11 +194,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             int diff = (*it - pos) / div; // cantidad que se desplaza hacia esa dirección concreta OK
 
             int firstSquare = *it;
-            // std::cout << "hay una pieza en la pos " << firstSquare << std::endl;
 
-            // if (tablero[*it]->getColor() == p->getColor()){
-            //     movements.erase(it);
-            // }
             if (isSameColor) // borramos, (no se vale ese movimiento porque no puedes comer una pieza de tu color)
             {
                 // std::cout << "borrando movimeinto a " << *it << " (mismo color)" << std::endl;
@@ -251,17 +214,10 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 *it++;
             }
 
-            // size--;
-            // std::cout << "diff: " << diff << std::endl;
-
             int deleted = 0;
 
-            // for (int i = 0; i < (size-1); i++) {
-
-            // if (! instanceof <Rey>(p) && ! instanceof<Caballo>(p)) // no se si sirve
-            //{
             int i = 1;
-            while (it != end(movements) && i < 7)
+            while (it != end(movements) && i < 8) // i < 7
             {
                 // if ((*(it) % diff) == (pos))
                 // std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
@@ -310,6 +266,32 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                         movements.erase(it);
                     }
                 }
+                else if (abs(*it - pos) == 16)
+                {
+                    if (turn)
+                    {
+                        // row is ok
+                        if ((pos / 8 != 1) || tablero[pos + 8] != nullptr)
+                        {
+                            movements.erase(it);
+                        }
+                        else
+                        {
+                            *it++;
+                        }
+                    }
+                    else
+                    {
+                        if ((pos / 8 != 6) || tablero[pos - 8] != nullptr)
+                        {
+                            movements.erase(it);
+                        }
+                        else
+                        {
+                            *it++;
+                        }
+                    }
+                }
                 else
                 {
                     *it++;
@@ -317,61 +299,73 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             }
             else if (instanceof <Rey>(p))
             {
-                if (!jugadas.empty() && p->getTimesMoved() == 0)
+                // if (!jugadas.empty() && p->getTimesMoved() == 0)
+                // {
+                int originalPosition;
+                if (p->getColor())
                 {
-                    Jugada *lastMove = jugadas.back();
-                    if ((*it - p->getPos()) == 2) // enroque corto
-                    {
-                        Pieza *rook = tablero[p->getPos() + 3];
+                    originalPosition = fromChessPosition("e1");
+                }
+                else
+                {
+                    originalPosition = fromChessPosition("e8");
+                }
 
-                        if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0
-                            && rook->getColor() == p->getColor() && !lastMove->isCheck() && tablero[p->getPos() + 1] == nullptr)
-                        {
-                            it++;
-                        }
-                        else
-                        {
-                            if (p->getColor())
-                            {
-                                whiteCanShortCastling = false;
-                            }
-                            else
-                            {
-                                blackCanShortCastling = false;
-                            }
-                            movements.erase(it);
-                        }
-                    }
-                    else if ((*it - p->getPos()) == -2) // enroque largo
+                Jugada *lastMove = nullptr;
+                if (!jugadas.empty())
+                {
+                    lastMove = jugadas.back();
+                }
+                if ((*it - pos) == 2 && p->getTimesMoved() == 0) // enroque corto
+                {
+                    Pieza *rook = tablero[pos + 3];
+
+                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && tablero[pos + 1] == nullptr && originalPosition == pos)
                     {
-                        Pieza *rook = tablero[p->getPos() - 4];
-                        if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 
-                            && rook->getColor() == p->getColor() && !lastMove->isCheck() && tablero[p->getPos() - 1] == nullptr)
-                        {
-                            it++;
-                        }
-                        else
-                        {
-                            if (p->getColor())
-                            {
-                                whiteCanLongCastling = false;
-                            }
-                            else
-                            {
-                                blackCanLongCastling = false;
-                            }
-                            movements.erase(it);
-                        }
+                        it++;
                     }
                     else
                     {
-                        *it++;
+                        if (p->getColor())
+                        {
+                            whiteCanShortCastling = false;
+                        }
+                        else
+                        {
+                            blackCanShortCastling = false;
+                        }
+                        movements.erase(it);
+                    }
+                }
+                else if ((*it - pos) == -2 && p->getTimesMoved() == 0) // enroque largo
+                {
+                    Pieza *rook = tablero[pos - 4];
+                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && tablero[pos - 1] == nullptr && originalPosition == pos)
+                    {
+                        it++;
+                    }
+                    else
+                    {
+                        if (p->getColor())
+                        {
+                            whiteCanLongCastling = false;
+                        }
+                        else
+                        {
+                            blackCanLongCastling = false;
+                        }
+                        movements.erase(it);
                     }
                 }
                 else
                 {
                     *it++;
                 }
+                // }
+                // else
+                // {
+                //     *it++;
+                // }
             }
             else
             {
@@ -478,7 +472,7 @@ bool Partida::isChecking(Pieza *p)
         Pieza *checkedPiece = tablero[*it];
         if (checkedPiece != nullptr && instanceof <Rey>(checkedPiece))
         {
-            //std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
+            // std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
         }
         if (checkedPiece != nullptr && checkedPiece->getColor() != p->getColor() && instanceof <Rey>(checkedPiece))
         {
@@ -597,7 +591,7 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
     }
     else if (std::count(movements.begin(), movements.end(), newpos))
     {
-        selectedPiece = nullptr;
+        //selectedPiece = nullptr;
         is_aplicable = true;
 
         if (instanceof <Rey>(pieza))
@@ -647,26 +641,56 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
         // comer
         if (pieza_enemiga != nullptr && pieza_enemiga->getColor() != pieza->getColor())
         {
-            if (pieza_enemiga->getColor()) // blanca
+            if (!turn) // blanca
             {
-                for (int i = 0; i < 16; i++)
+                for (auto it = begin(whitePieces); it != end(whitePieces);)
                 {
-                    if (whitePieces[i]->getPos() == enemyPos)
+                    if ((*it)->getPos() == enemyPos)
                     {
-                        whitePieces.erase(whitePieces.begin() + i);
+                        whitePieces.erase(it);
+                        break;
+                    }
+                    else
+                    {
+                        it++;
                     }
                 }
             }
             else
             {
-                for (int i = 0; i < 16; i++)
+                for (auto it = begin(blackPieces); it != end(blackPieces);)
                 {
-                    if (blackPieces[i]->getPos() == enemyPos)
+                    if ((*it)->getPos() == enemyPos)
                     {
-                        blackPieces.erase(blackPieces.begin() + i);
+                        blackPieces.erase(it);
+                        break;
+                    }
+                    else
+                    {
+                        it++;
                     }
                 }
             }
+            // if (pieza_enemiga->getColor()) // blanca
+            // {
+            //     for (int i = 0; i < 16; i++)
+            //     {
+            //         if (whitePieces[i]->getPos() == enemyPos)
+            //         {
+            //             whitePieces.erase(whitePieces.begin() + i);
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     for (int i = 0; i < 16; i++)
+            //     {
+            //         if (blackPieces[i]->getPos() == enemyPos)
+            //         {
+            //             blackPieces.erase(blackPieces.begin() + i);
+            //         }
+            //     }
+            // }
             // delete tablero[enemyPos];
             if (pieza_enemiga->getColor())
             {
@@ -746,26 +770,29 @@ std::vector<int> Partida::selectPiece(int pos)
 {
 
     std::vector<int> validMovements;
+    selectedPiece = nullptr;
 
-    for (int i = 0; i < 16; i++)
+    if (turn)
     {
-        if (turn)
+        for (auto const &i : whitePieces)
         {
-            if (whitePieces[i]->getPos() == pos)
+            if (i->getPos() == pos)
             {
-                selectedPiece = whitePieces[i];
+                selectedPiece = i;
                 break;
             }
         }
-        else
+    }
+    else
+    {
+        for (auto const &i : blackPieces)
         {
-            if (blackPieces[i]->getPos() == pos)
+            if (i->getPos() == pos)
             {
-                selectedPiece = blackPieces[i];
+                selectedPiece = i;
                 break;
             }
         }
-        selectedPiece = nullptr;
     }
 
     if (selectedPiece == nullptr)
@@ -1083,6 +1110,32 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
         {
         }
 
+        if (instanceof <Peon>(selectedPiece))
+        {
+            if (selectedPiece->getColor())
+            {
+                if (selectedPiece->getPos() / 8 == 7)
+                {
+                    selectedPiece = promote(selectedPiece);
+                }
+            }
+            else
+            {
+                if (selectedPiece->getPos() / 8 == 0)
+                {
+                    selectedPiece = promote(selectedPiece);
+                }
+            }
+            j->setPiece(selectedPiece);
+        }
+
+        bool isDraws = checkIfDrawsByMaterial();
+        if (isDraws)
+        {
+            finished = true;
+            setResultado(Resultado::DRAW);
+        }
+
         // check if check or checkmate
         bool isCheck = checkIfChecks(!turn);
         if (isCheck)
@@ -1103,8 +1156,16 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
                 }
             }
         }
-        // bool isCheckmate = checkIfCheckmate();
-        // j->setCheckmate(isCheckmate);
+        else
+        {
+            // MIRAR
+            bool isDraws = checkIfDrawsByPosition(turn);
+            if (isDraws)
+            {
+                finished = true;
+                setResultado(Resultado::DRAW);
+            }
+        }
 
         // update play info
         j->generateString();
@@ -1117,6 +1178,121 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
         turn = !turn;
     }
     return valid;
+}
+
+Pieza *Partida::promote(Pieza *p)
+{
+    Pieza *newPiece = nullptr;
+    std::vector<Pieza *>::iterator itPos;
+    if (p->getColor())
+    {
+        for (auto it = begin(whitePieces); it != end(whitePieces);)
+        {
+            if (*it == p)
+            {
+                newPiece = Pieza::create(p->getPos(), 'Q');
+                tablero[p->getPos()] = newPiece;
+                itPos = whitePieces.erase(it);
+                whitePieces.insert(itPos, newPiece);
+                break;
+            }
+            else
+            {
+                *it++;
+            }
+        }
+    }
+    else
+    {
+        for (auto it = begin(blackPieces); it != end(blackPieces);)
+        {
+            if (*it == p)
+            {
+                newPiece = Pieza::create(p->getPos(), 'q');
+                tablero[p->getPos()] = newPiece;
+                itPos = blackPieces.erase(it);
+                blackPieces.insert(itPos, newPiece);
+                break;
+            }
+            else
+            {
+                it++;
+            }
+        }
+    }
+    delete p;
+
+    std::cout << "newPiece: " << newPiece->getNameFEN() << " " << toChessPosition(newPiece->getPos()) << std::endl;
+
+    return newPiece;
+}
+
+bool Partida::checkIfDrawsByPosition(bool color)
+{
+    bool draws = true;
+    if (color)
+    {
+        for (auto const &p : blackPieces)
+        {
+            bool canMove = canPieceMove(p);
+            if (canMove)
+            {
+                draws = false;
+                break;
+            }
+        }
+    }
+    else
+    {
+        for (auto const &p : whitePieces)
+        {
+            bool canMove = canPieceMove(p);
+            if (canMove)
+            {
+                draws = false;
+                break;
+            }
+        }
+    }
+    return draws;
+}
+
+bool Partida::checkIfDrawsByMaterial()
+{
+    bool draws = true;
+    if (whitePieces.size() <= 2)
+    {
+        for (auto const &p : whitePieces)
+        {
+            if (instanceof <Torre>(p) || instanceof <Dama>(p) || instanceof <Peon>(p))
+            {
+                draws = false;
+                break;
+            }
+        }
+    }
+    else
+    {
+        draws = false;
+    }
+
+    if (blackPieces.size() <= 2)
+    {
+        for (auto const &p : blackPieces)
+        {
+            if (instanceof <Torre>(p) || instanceof <Dama>(p) || instanceof <Peon>(p))
+            {
+                draws = false;
+                break;
+            }
+        }
+    }
+    else
+    {
+        draws = false;
+    }
+
+    return draws;
 }
 
 bool Partida::rotateBoard()
@@ -1170,11 +1346,13 @@ std::string Partida::savePgn()
         case Resultado::BLACK:
             result += "0-1";
             break;
+        case Resultado::DRAW:
+            result += "1/2-1/2";
         default:
             break;
         }
+        pgn += "[Result \"" + result + "\"]\n";
     }
-    pgn += "[Result \"" + result + "\"]\n";
     pgn += '\n';
 
     // write plays

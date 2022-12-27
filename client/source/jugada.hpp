@@ -35,6 +35,7 @@ public:
     bool isFirstPieceMove();
     Pieza *getEatenPiece();
     // setters
+    void setPiece(Pieza *p);
     void setCheck(bool check);
     void setCheckmate(bool checkmate);
     void setFirstPieceMoved(bool moved);
