@@ -63,7 +63,7 @@ int main()
             {
                 window.close();
             }
-            if(event.type == sf::Event::MouseButtonPressed){ 
+            if(!partida.isFinished() && event.type == sf::Event::MouseButtonPressed){ 
                 
                 // must be in the actualPlay to select and move!
                 if(event.mouseButton.button == sf::Mouse::Left && actualPlay == int(partida.getJugadas().size())){

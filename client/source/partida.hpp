@@ -11,9 +11,9 @@
 #include "gameinfo.hpp"
 
 enum Resultado { //dividir entre 2 en la fórmula
-    BLANCAS = 2,
-    TABLAS = 1,
-    NEGRAS = 0
+    WHITE = 2,
+    DRAW = 1,
+    BLACK = 0
 };
 
 class Partida : public sf::Drawable
@@ -43,7 +43,9 @@ private:
     bool blackCanShortCastling;
     bool whiteCanLongCastling;
     bool blackCanLongCastling;
-    // public member function
+
+    bool finished;
+    Resultado r;
 public:
     Partida(User* usuario_blancas, User* usuario_negras, sf::Font* font);
     Pieza* tablero[64];
@@ -55,6 +57,7 @@ public:
     std::vector<Jugada*> getJugadas();
     //Pieza* getPotentiallyPieceEnPassant();
     Pieza* getSelectedPiece();
+    bool isFinished();
 
     // setters
     void setResultado(Resultado r); // aplica los cambios a los jugadores
@@ -73,10 +76,10 @@ public:
     bool moveSelected(int pos, std::vector<int> validMovements);
     bool rotateBoard();
     bool isChecking(Pieza *p);
-    bool checkIfChecks();
-    bool checkIfCheckmate();
+    bool checkIfChecks(bool color);
+    bool checkIfCheckmate(bool color);
     bool canPieceMove(Pieza *p);
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Pieza *p);
-    std::vector<int> filterIllegalMoves(Pieza *p, std::vector<int> filteredMovements);
+    std::vector<int> filterIllegalMoves(Pieza *p, std::vector<int> filteredMovements, bool color);
 };

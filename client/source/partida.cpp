@@ -20,6 +20,8 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
     blackCanShortCastling = true;
     blackCanLongCastling = true;
 
+    finished = false;
+
     // tablero vacio
     for (int i = 0; i < 64; i++)
     {
@@ -28,7 +30,7 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 
     // loadFen("1nbqkbnr/1p1p2pp/p1P1p3/r2Bp3/2p1P3/8/PPPP2PP/RNBQK1NR b");
     // loadFen("1nbqkbnr/8/8/8/8/8/8/8 b");
-    loadFen();
+    loadFen("rnbqk1nr/pppp1pp1/7p/2b1p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w");
     load();
 }
 
@@ -379,10 +381,10 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
 /*
 Return true if there is any check in the actual position.
 */
-bool Partida::checkIfChecks()
+bool Partida::checkIfChecks(bool color)
 {
     // if white pieces
-    if (turn)
+    if (color)
     {
         // we iterate black pieces to see if they are checking white king
         for (auto const &i : blackPieces)
@@ -412,23 +414,26 @@ bool Partida::checkIfChecks()
 
 bool Partida::canPieceMove(Pieza *p)
 {
-    std::cout << "fuen" << std::endl;
     std::vector<int> movements = filterValidMovements(p);
-    //movements = filterIllegalMoves(p, movements);
-    std::cout << "fuen2" << std::endl;
-    return movements.size() > 0;
+    // check movements for the other sides
+    movements = filterIllegalMoves(p, movements, !turn);
+    return !movements.empty();
 }
 
-bool Partida::checkIfCheckmate()
+/*
+Check if 'color' side is being checkmated
+*/
+bool Partida::checkIfCheckmate(bool color)
 {
 
-    if (turn)
+    if (color)
     {
         for (auto const &i : blackPieces)
         {
             bool canMove = canPieceMove(i);
             if (canMove)
             {
+                std::cout<< "Turn " << turn << " Piece " << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") can move!" << std::endl;
                 return false;
             }
         }
@@ -440,6 +445,7 @@ bool Partida::checkIfCheckmate()
             bool canMove = canPieceMove(i);
             if (canMove)
             {
+                std::cout<< "Turn " << turn << " Piece " << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") can move!" << std::endl;
                 return false;
             }
         }
@@ -460,7 +466,7 @@ bool Partida::isChecking(Pieza *p)
         Pieza *checkedPiece = tablero[*it];
         if (checkedPiece != nullptr && instanceof <Rey>(checkedPiece))
         {
-            std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
+            // std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
         }
         if (checkedPiece != nullptr && checkedPiece->getColor() != p->getColor() && instanceof <Rey>(checkedPiece))
         {
@@ -782,7 +788,7 @@ std::vector<int> Partida::selectPiece(int pos)
     return validMovements;
 }
 
-std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filteredMovements)
+std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filteredMovements, bool color)
 {
     // check if after all, there is a check
     // aux piece for checking!
@@ -798,7 +804,7 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         // Pieza *aux2 = nullptr;
         aux->setPos(*mov);
         // si le toca al blanco
-        if (turn)
+        if (color)
         {
 
             // we delete Piece p and introduce the new one
@@ -868,7 +874,6 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
             }
         }
 
-        std::cout << "hola" << std::endl;
 
         // cambiamos el tablero momentaneamente
         int currentSquare = *mov;
@@ -884,7 +889,7 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
 
         // std::cout << "CHECKING CHECKS PER ENEMY PIECE! (FOR MOVE " << toChessPosition(*it) << ")" << std::endl;
         // if check , cannot move (erase movement) :)
-        if (checkIfChecks())
+        if (checkIfChecks(color))
         {
             filteredMovements.erase(mov);
         }
@@ -901,11 +906,12 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         // std::cout << std::endl;
         // std::cout << "FEN: " << saveFen() << std::endl;
 
-        if (turn) // blancas
+        if (color) // blancas
         {
-            // whitePieces.pop_back();
             whitePieces.erase(itPos);
             whitePieces.insert(itPos, p);
+            // whitePieces.pop_back();
+            // whitePieces.push_back(p);
             if (enemyPiece != nullptr)
             {
                 blackPieces.insert(itPos2, enemyPiece);
@@ -915,6 +921,8 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         {
             blackPieces.erase(itPos);
             blackPieces.insert(itPos, p);
+            // blackPieces.pop_back();
+            // blackPieces.push_back(p);
             if (enemyPiece != nullptr)
             {
                 whitePieces.insert(itPos2, enemyPiece);
@@ -922,7 +930,7 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         }
 
         // ponemos el tablero como antes
-        // std::cout << "Ponemos la casilla " << toChessPosition(p->getPos()) << " a null" << std::endl;
+        // std::cout << "Ponemos la casilla " << toChessPosition(p->getPos()) << " a null" << std::endl;n
         if (enemyPiece != nullptr && enemyPiece->getColor() != p->getColor())
         {
             tablero[currentSquare] = enemyPiece;
@@ -933,18 +941,16 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         }
         tablero[p->getPos()] = p;
 
-        std::cout << "hola2" << std::endl;
-
         // delete aux piece
         delete aux;
 
-        std::cout << "piezas blancas: ";
-        for (auto const &i : whitePieces)
-        {
-            std::cout << i->getNameFEN() << "(" << toChessPosition(i->getPos()) << ") ";
-        }
-        std::cout << std::endl;
-        std::cout << "FEN: " << saveFen() << std::endl;
+        // std::cout << "piezas blancas: ";
+        // for (auto const &i : whitePieces)
+        // {
+        //     std::cout << i->getNameFEN() << "(" << toChessPosition(i->getPos()) << ") ";
+        // }
+        // std::cout << std::endl;
+        // std::cout << "FEN: " << saveFen() << std::endl;
     }
     // std::cout << "STOPPING ALL VERIFICATIONS" << std::endl;
 
@@ -956,15 +962,16 @@ std::vector<int> Partida::createMovesSquares()
     // valid movements are those which cannot jump pieces or eat same color, as well as en passant and castling.
     std::vector<int> validMovements = filterValidMovements(selectedPiece);
     // illegal moves are those which moving would end up with a check (pinned piece, moving king to incorrect position or castling bad).
-    validMovements = filterIllegalMoves(selectedPiece, validMovements);
+    // check movements for the same side
+    validMovements = filterIllegalMoves(selectedPiece, validMovements, turn);
 
-    std::cout << "new movements!: ";
-    for (auto m : validMovements)
-    {
-        std::cout << m << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "FEN!: " << saveFen() << std::endl;
+    // std::cout << "new movements!: ";
+    // for (auto m : validMovements)
+    // {
+    //     std::cout << m << " ";
+    // }
+    // std::cout << std::endl;
+    // std::cout << "FEN!: " << saveFen() << std::endl;
 
     if (selectedPiece == nullptr)
         return validMovements;
@@ -1014,21 +1021,21 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
     // no piece or not selected or piece but same square as before
     if (selectedPiece == nullptr || (selectedPiece != nullptr && selectedPiece->getPos() == pos))
     {
-        std::cout << "same square, deselecting current piece" << std::endl;
+        // std::cout << "same square, deselecting current piece" << std::endl;
         selectedPiece = nullptr;
         return false;
     }
     // another piece
     else if (selectedPiece != nullptr && tablero[pos] != nullptr && tablero[pos]->getColor() == selectedPiece->getColor())
     {
-        std::cout << "selecting another piece" << std::endl;
+        // std::cout << "selecting another piece" << std::endl;
         selectPiece(pos);
         return false;
     }
     // no possible movements
     else if (validMovements.empty())
     {
-        std::cout << "there is no movements" << std::endl;
+        // std::cout << "there is no movements" << std::endl;
         return false;
     }
 
@@ -1043,7 +1050,6 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
     {
         jugadas.push_back(j);
 
-        turn = !turn;
         // si no ha movido antes ponemos qeue esta jugada es la primera en la que mueve
         if (!pieceHasMoved)
         {
@@ -1055,22 +1061,35 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
         }
 
         // check if check or checkmate
-        bool isCheck = checkIfChecks();
+        bool isCheck = checkIfChecks(!turn);
         if (isCheck)
         {
-            j->setCheckmate(checkIfCheckmate());
             j->setCheck(isCheck);
+            bool isCheckmate = checkIfCheckmate(turn);
+            j->setCheckmate(isCheckmate);
+            if (isCheckmate)
+            {
+                finished = true;
+                if (turn){
+                    setResultado(Resultado::WHITE);
+                }
+                else {
+                    setResultado(Resultado::BLACK);
+                }
+            }
         }
         // bool isCheckmate = checkIfCheckmate();
         // j->setCheckmate(isCheckmate);
 
         // update play info
         j->generateString();
-        std::cout << "Jugada " << jugadas.size() << " (" << j->getPieza()->getColor() << "): " << j->to_string() << std::endl;
+        //std::cout << "Jugada " << jugadas.size() << " (" << j->getPieza()->getColor() << "): " << j->to_string() << std::endl;
         gameInfo->updateJugada();
 
         // deselecting current piece
         selectedPiece = nullptr;
+        // turn changing
+        turn = !turn;
     }
     return valid;
 }
@@ -1114,7 +1133,22 @@ std::string Partida::savePgn()
     pgn += "[Black \"" + usuario_negras->getUsername() + "\"]\n";
     pgn += "[WhiteElo \"" + std::to_string(usuario_blancas->getElo()) + "\"]\n";
     pgn += "[BlackElo \"" + std::to_string(usuario_negras->getElo()) + "\"]\n";
-    pgn += "[Result \"1-0\"]\n";
+
+    std::string result;
+    if (finished)
+    {
+        switch (r){
+            case Resultado::WHITE:
+                result += "1-0";
+                break;
+            case Resultado::BLACK:
+                result += "0-1";
+                break;
+            default:
+                break;
+        }
+    }
+    pgn += "[Result \"" + result + "\"]\n";
     pgn += '\n';
 
     // write plays
@@ -1130,13 +1164,18 @@ std::string Partida::savePgn()
         cont++;
     }
     // write result
-    pgn += "1-0";
+    if (finished)
+    {
+        pgn += result;
+    }
 
     return pgn;
 }
 
 void Partida::setResultado(Resultado r)
 {
+    this->r = r;
+    // user's calculations
     usuario_blancas->calculate_new_elo(usuario_negras->getElo(), r);
     usuario_negras->calculate_new_elo(usuario_blancas->getElo(), r);
 }
@@ -1174,4 +1213,9 @@ void Partida::setOrientation(bool orientation)
 Pieza *Partida::getSelectedPiece()
 {
     return selectedPiece;
+}
+
+bool Partida::isFinished()
+{
+    return finished;
 }
