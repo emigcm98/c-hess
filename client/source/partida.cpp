@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "partida.hpp"
 #include "configuration.cpp"
 
@@ -371,11 +373,7 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
                 {
                     *it++;
                 }
-                // }
-                // else
-                // {
-                //     *it++;
-                // }
+
             }
             else
             {
@@ -480,10 +478,10 @@ bool Partida::isChecking(Pieza *p)
     for (auto it = begin(movements); it != end(movements); *it++)
     {
         Pieza *checkedPiece = tablero[*it];
-        if (checkedPiece != nullptr && instanceof <Rey>(checkedPiece))
-        {
-            // std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
-        }
+        // if (checkedPiece != nullptr && instanceof <Rey>(checkedPiece))
+        // {
+        //     // std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
+        // }
         if (checkedPiece != nullptr && checkedPiece->getColor() != p->getColor() && instanceof <Rey>(checkedPiece))
         {
             check = true;
@@ -1127,6 +1125,8 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
                 if (selectedPiece->getPos() / 8 == 7)
                 {
                     selectedPiece = promote(selectedPiece);
+                    j->setPiece(selectedPiece);
+                    j->setPromoted(true);
                 }
             }
             else
@@ -1134,9 +1134,10 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
                 if (selectedPiece->getPos() / 8 == 0)
                 {
                     selectedPiece = promote(selectedPiece);
+                    j->setPiece(selectedPiece);
+                    j->setPromoted(true);
                 }
             }
-            j->setPiece(selectedPiece);
         }
 
         bool isDraws = checkIfDrawsByMaterial();
@@ -1433,4 +1434,35 @@ Pieza *Partida::getSelectedPiece()
 bool Partida::isFinished()
 {
     return finished;
+}
+
+void Partida::playNextMove()
+{
+    srand(time(0));
+    // choose piece
+    std::vector<int> movements;
+    if (turn){
+        while (true){
+            int n = rand() % whitePieces.size();
+            Pieza *p = whitePieces.at(n);
+            movements = selectPiece(p->getPos());
+            if (!movements.empty()){
+                break;
+            }
+        }
+    }
+    else {
+        while(true){
+            int n = rand() % blackPieces.size();
+            Pieza *p = blackPieces.at(n);
+            movements = selectPiece(p->getPos());
+            if (!movements.empty()){
+                break;
+            }
+        }
+    }
+    
+    // select movement
+    int i = rand() % movements.size();
+    moveSelected(movements.at(i), movements);
 }

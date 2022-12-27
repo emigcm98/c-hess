@@ -9,30 +9,20 @@ Jugada::Jugada(Pieza *pieza, int newPos)
     this->prevPos = pieza->getPos();
     this->newPos = newPos;
     this->newPosStr = toChessPosition(newPos);
+    if (!instanceof<Peon>(pieza))
+    {
+        this->pieceNameNotation = pieza->getNameNotation();
+    }
+
     this->shortCastling = false;
     this->longCastling = false;
     this->firstPieceMove = false;
     this->enPassant = false;
     this->check = false;
     this->checkmate = false;
+    this->promoted = false;
     this->eatenPiece = nullptr;
 }
-
-// bool Jugada::check_movement()
-// {
-//     bool is_possible = true;
-
-//     // if (is_possible == false){
-//     //     delete this;
-//     // }
-//     // else {
-//     //     p->aplicarJugada(this);
-//     // }
-
-//     // this->pieza->move(this->newPos);
-
-//     return is_possible;
-// }
 
 Pieza *Jugada::getPieza()
 {
@@ -71,17 +61,25 @@ void Jugada::generateString()
     }
     else
     {
-        if (!instanceof<Peon>(pieza))
+        if (pieceNameNotation != '\0')
         {
-            str += pieza->getNameNotation();
+            str += pieceNameNotation;
         }
         if (eatenPiece != nullptr){
+            if (pieceNameNotation == '\0')
+            {
+                str += ((prevPos%8) + 'a');
+            }
             str += 'x';
         }
         str += newPosStr;
-        if (isCheck()){
+        if (promoted){
+            str += '=';
+            str += pieza->getNameNotation();
+        }
+        if (check){
             str += '+';
-            if (isCheckmate()){
+            if (checkmate){
                 str += '+';
             }
         }
@@ -124,6 +122,10 @@ void Jugada::setCheck(bool check) {
 
 void Jugada::setCheckmate(bool checkmate) {
     this->checkmate = checkmate;
+}
+
+void Jugada::setPromoted(bool promoted){
+    this->promoted = promoted;
 }
 
 void Jugada::eat(Pieza* p) {

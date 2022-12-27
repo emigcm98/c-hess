@@ -11,12 +11,15 @@ private:
     int prevPos;
     int newPos;
     std::string newPosStr;
+    char pieceNameNotation;
+
     bool shortCastling;
     bool longCastling;
     bool firstPieceMove;
     bool enPassant;
     bool check;
     bool checkmate;
+    bool promoted;
     Pieza* eatenPiece;
 
     std::string str;
@@ -38,6 +41,7 @@ public:
     void setPiece(Pieza *p);
     void setCheck(bool check);
     void setCheckmate(bool checkmate);
+    void setPromoted(bool promoted);
     void setFirstPieceMoved(bool moved);
     // methods
     void eat(Pieza *p);

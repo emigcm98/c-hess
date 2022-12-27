@@ -46,7 +46,6 @@ int main()
     std::vector<int> validMovements;
     int actualPlay = 0;
 
-
     // Alfil *aux = Pieza::create(10, 'A');
     // std::cout << "creando pieza. Es de tipo alfil?" << std::endl;
     // std::cout << instanceof<Alfil>(aux) << std::endl;
@@ -56,6 +55,7 @@ int main()
     {
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
+        bool moved = false;
         while (window.pollEvent(event))
         {
             // "close requested" event: we close the window
@@ -63,16 +63,18 @@ int main()
             {
                 window.close();
             }
-            if(!partida.isFinished() && event.type == sf::Event::MouseButtonPressed){ 
-                
+            if (!partida.isFinished() && event.type == sf::Event::MouseButtonPressed)
+            {
+
                 // must be in the actualPlay to select and move!
-                if(event.mouseButton.button == sf::Mouse::Left && actualPlay == int(partida.getJugadas().size())){
-                  
+                if (event.mouseButton.button == sf::Mouse::Left && actualPlay == int(partida.getJugadas().size()))
+                {
+
                     // only select in board
                     if ((0 <= event.mouseButton.x) && (event.mouseButton.x <= (OBJECT_SIZE * 8)) && (0 <= event.mouseButton.y) && (event.mouseButton.y <= (OBJECT_SIZE * 8)))
                     {
                         int buttonPos;
-                        
+
                         if (orientation)
                         {
                             buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
@@ -81,7 +83,7 @@ int main()
                         {
                             buttonPos = (7 - (event.mouseButton.x / OBJECT_SIZE)) + ((event.mouseButton.y / OBJECT_SIZE) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
                         }
-                        //buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
+                        // buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
 
                         p = partida.getSelectedPiece();
                         if (p == nullptr)
@@ -90,15 +92,16 @@ int main()
                         }
                         else
                         {
-                            bool moved = partida.moveSelected(buttonPos, validMovements);
+                            moved = partida.moveSelected(buttonPos, validMovements);
                             if (moved)
                             {
                                 actualPlay++;
+                                partida.playNextMove();
                             }
                         }
                     }
                 }
-            }  
+            }
             if (event.type == sf::Event::EventType::KeyPressed)
             {
 
@@ -116,25 +119,29 @@ int main()
                 }
                 else if (event.key.code == sf::Keyboard::Left)
                 {
-                    if (actualPlay > 0){
+                    if (actualPlay > 0)
+                    {
                         actualPlay--;
                         partida.undoPlay(actualPlay);
                     }
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
-                    if (actualPlay < int(partida.getJugadas().size())){
+                    if (actualPlay < int(partida.getJugadas().size()))
+                    {
                         partida.applyPlay(actualPlay);
                         actualPlay++;
                     }
                 }
             }
         }
-            // clear the window with black color
-            window.clear(sf::Color::Black);
-            
-            window.draw(partida);
-            window.display();
+
+        // clear the window with black color
+        window.clear(sf::Color::Black);
+
+        window.draw(partida);
+        window.display();
+
     }
 
     return 0;

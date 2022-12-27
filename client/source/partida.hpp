@@ -85,4 +85,6 @@ public:
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Pieza *p);
     std::vector<int> filterIllegalMoves(Pieza *p, std::vector<int> filteredMovements, bool color);
+
+    void playNextMove();
 };
