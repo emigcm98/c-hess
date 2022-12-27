@@ -30,7 +30,8 @@ Partida::Partida(User *usuario_blancas, User *usuario_negras, sf::Font *font)
 
     // loadFen("1nbqkbnr/1p1p2pp/p1P1p3/r2Bp3/2p1P3/8/PPPP2PP/RNBQK1NR b");
     // loadFen("1nbqkbnr/8/8/8/8/8/8/8 b");
-    loadFen("rnbqk1nr/pppp1pp1/7p/2b1p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w");
+    // loadFen("rn1qkbnr/p1pp1pp1/bp5p/4p3/4P3/5N2/PPPP1PPP/RNBQK2R w");
+    loadFen();
     load();
 }
 
@@ -316,44 +317,55 @@ std::vector<int> Partida::filterValidMovements(Pieza *p)
             }
             else if (instanceof <Rey>(p))
             {
-                if ((*it - p->getPos()) == 2) // enroque corto
+                if (!jugadas.empty() && p->getTimesMoved() == 0)
                 {
-                    Pieza *rook = tablero[p->getPos() + 3];
-                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor())
+                    Jugada *lastMove = jugadas.back();
+                    if ((*it - p->getPos()) == 2) // enroque corto
                     {
-                        it++;
-                    }
-                    else
-                    {
-                        if (p->getColor())
+                        Pieza *rook = tablero[p->getPos() + 3];
+
+                        if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0
+                            && rook->getColor() == p->getColor() && !lastMove->isCheck() && tablero[p->getPos() + 1] == nullptr)
                         {
-                            whiteCanShortCastling = false;
+                            it++;
                         }
                         else
                         {
-                            blackCanShortCastling = false;
+                            if (p->getColor())
+                            {
+                                whiteCanShortCastling = false;
+                            }
+                            else
+                            {
+                                blackCanShortCastling = false;
+                            }
+                            movements.erase(it);
                         }
-                        movements.erase(it);
                     }
-                }
-                else if ((*it - p->getPos()) == -2) // enroque largo
-                {
-                    Pieza *rook = tablero[p->getPos() - 4];
-                    if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor())
+                    else if ((*it - p->getPos()) == -2) // enroque largo
                     {
-                        it++;
-                    }
-                    else
-                    {
-                        if (p->getColor())
+                        Pieza *rook = tablero[p->getPos() - 4];
+                        if (rook != nullptr && instanceof <Torre>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 
+                            && rook->getColor() == p->getColor() && !lastMove->isCheck() && tablero[p->getPos() - 1] == nullptr)
                         {
-                            whiteCanLongCastling = false;
+                            it++;
                         }
                         else
                         {
-                            blackCanLongCastling = false;
+                            if (p->getColor())
+                            {
+                                whiteCanLongCastling = false;
+                            }
+                            else
+                            {
+                                blackCanLongCastling = false;
+                            }
+                            movements.erase(it);
                         }
-                        movements.erase(it);
+                    }
+                    else
+                    {
+                        *it++;
                     }
                 }
                 else
@@ -433,7 +445,7 @@ bool Partida::checkIfCheckmate(bool color)
             bool canMove = canPieceMove(i);
             if (canMove)
             {
-                std::cout<< "Turn " << turn << " Piece " << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") can move!" << std::endl;
+                std::cout << "Turn " << turn << " Piece " << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") can move!" << std::endl;
                 return false;
             }
         }
@@ -445,7 +457,7 @@ bool Partida::checkIfCheckmate(bool color)
             bool canMove = canPieceMove(i);
             if (canMove)
             {
-                std::cout<< "Turn " << turn << " Piece " << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") can move!" << std::endl;
+                std::cout << "Turn " << turn << " Piece " << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") can move!" << std::endl;
                 return false;
             }
         }
@@ -466,7 +478,7 @@ bool Partida::isChecking(Pieza *p)
         Pieza *checkedPiece = tablero[*it];
         if (checkedPiece != nullptr && instanceof <Rey>(checkedPiece))
         {
-            // std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
+            //std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
         }
         if (checkedPiece != nullptr && checkedPiece->getColor() != p->getColor() && instanceof <Rey>(checkedPiece))
         {
@@ -793,6 +805,10 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
     // check if after all, there is a check
     // aux piece for checking!
     // std::cout << "FEN ANTES: " << saveFen() << std::endl;
+
+    // check king castle!
+    std::vector<int> erasedMovs;
+
     for (auto mov = begin(filteredMovements); mov != end(filteredMovements);)
     {
         Pieza *enemyPiece = tablero[*mov];
@@ -803,22 +819,16 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         std::vector<Pieza *>::iterator itPos2;
         // Pieza *aux2 = nullptr;
         aux->setPos(*mov);
-        // si le toca al blanco
+        // color = true it's white's turn
         if (color)
         {
-
             // we delete Piece p and introduce the new one
             for (auto i = begin(whitePieces); i != end(whitePieces);)
             {
                 if (*i == p)
                 {
-                    // auto iterator = whitePieces.erase(i);
                     itPos = whitePieces.erase(i);
                     whitePieces.insert(itPos, aux);
-                    // whitePieces.erase(i);
-                    // whitePieces.push_back(aux);
-                    // std::cout << "pieza i " << (*i)->getNameFEN() << " " << (*i)->getPos() << std::endl;
-                    // std::cout << "pieza p " << p->getNameFEN() << " " << p->getPos() << std::endl;
                     break;
                 }
                 else
@@ -832,8 +842,6 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
                 if ((*i)->getPos() == (*mov))
                 {
                     itPos2 = blackPieces.erase(i);
-                    // aux2 = *i;
-                    break;
                 }
                 else
                 {
@@ -847,11 +855,8 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
             {
                 if (*i == p)
                 {
-                    // auto iterator = whitePieces.erase(i);
                     itPos = blackPieces.erase(i);
                     blackPieces.insert(itPos, aux);
-                    // blackPieces.erase(i);
-                    // blackPieces.push_back(aux);
                     break;
                 }
                 else
@@ -874,7 +879,6 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
             }
         }
 
-
         // cambiamos el tablero momentaneamente
         int currentSquare = *mov;
         // std::cout << "piezas negras: ";
@@ -891,11 +895,30 @@ std::vector<int> Partida::filterIllegalMoves(Pieza *p, std::vector<int> filtered
         // if check , cannot move (erase movement) :)
         if (checkIfChecks(color))
         {
+            erasedMovs.push_back(*mov);
             filteredMovements.erase(mov);
         }
         else // can move!
         {
-            mov++;
+            if (instanceof <Rey>(p) && p->getTimesMoved() == 0)
+            {
+                if (std::count(erasedMovs.begin(), erasedMovs.end(), p->getPos() + 1) && (*mov == p->getPos() + 2))
+                {
+                    filteredMovements.erase(mov);
+                }
+                else if (std::count(erasedMovs.begin(), erasedMovs.end(), p->getPos() - 1) && (*mov == p->getPos() - 2))
+                {
+                    filteredMovements.erase(mov);
+                }
+                else
+                {
+                    mov++;
+                }
+            }
+            else
+            {
+                mov++;
+            }
         }
         // std::cout << "STOPPING CHECKING CHECKS" << std::endl;
 
@@ -1070,10 +1093,12 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
             if (isCheckmate)
             {
                 finished = true;
-                if (turn){
+                if (turn)
+                {
                     setResultado(Resultado::WHITE);
                 }
-                else {
+                else
+                {
                     setResultado(Resultado::BLACK);
                 }
             }
@@ -1083,7 +1108,7 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
 
         // update play info
         j->generateString();
-        //std::cout << "Jugada " << jugadas.size() << " (" << j->getPieza()->getColor() << "): " << j->to_string() << std::endl;
+        // std::cout << "Jugada " << jugadas.size() << " (" << j->getPieza()->getColor() << "): " << j->to_string() << std::endl;
         gameInfo->updateJugada();
 
         // deselecting current piece
@@ -1137,15 +1162,16 @@ std::string Partida::savePgn()
     std::string result;
     if (finished)
     {
-        switch (r){
-            case Resultado::WHITE:
-                result += "1-0";
-                break;
-            case Resultado::BLACK:
-                result += "0-1";
-                break;
-            default:
-                break;
+        switch (r)
+        {
+        case Resultado::WHITE:
+            result += "1-0";
+            break;
+        case Resultado::BLACK:
+            result += "0-1";
+            break;
+        default:
+            break;
         }
     }
     pgn += "[Result \"" + result + "\"]\n";

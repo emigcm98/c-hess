@@ -66,7 +66,7 @@ public:
 
     // methods
     void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
-    void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b");
     std::string saveFen();
     std::string savePgn();
     bool aplicarJugada(Jugada* j, std::vector<int> movements); // aplica los cambios al tablero
