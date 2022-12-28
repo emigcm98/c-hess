@@ -23,10 +23,10 @@ public:
     std::string getUsername();
     // setters
     void setElo(double elo);
-    double calculate_new_elo(double opponent_elo, float resultado); // returns the difference
+    double calculateNewElo(double opponent_elo, float resultado); // returns the difference
 
     // methods
-    int calcular_edad();
-    bool is_birthday();
+    int calculateAge();
+    bool isBirthday();
 
 };

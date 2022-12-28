@@ -16,13 +16,13 @@ inline bool instanceof (const T *ptr)
 int fromChessPosition(std::string cp);
 std::string toChessPosition(int pos);
 
-class Pieza : public sf::Drawable
+class Piece : public sf::Drawable
 {
 
 protected:
     char nameFEN;
     char nameNotation;
-    bool blancas;
+    bool color;
     int pos;
     //bool moved;
     int timesMoved; 
@@ -36,9 +36,9 @@ protected:
     {   target.draw(m_sprite);  }
 
 public:
-    static Pieza* create(int pos, char nombre);
-    Pieza(int pos, bool blancas); // pos from 0 to 63
-    Pieza(std::string pos, bool blancas) : Pieza(fromChessPosition(pos), blancas){}; // pos from 0 to 63
+    static Piece* create(int pos, char nombre);
+    Piece(int pos, bool color); // pos from 0 to 63
+    Piece(std::string pos, bool color) : Piece(fromChessPosition(pos), color){}; // pos from 0 to 63
     // getters
     int getPos();
     bool getColor();
@@ -49,68 +49,68 @@ public:
     //void setMoved(bool moved);
     void setPos(int pos);
     // methods
-    virtual std::vector<int> calcularMovimiento() = 0; // calcula los movimientos posibles de la pieza (abstracto)
+    virtual std::vector<int> calcularMovimiento() = 0; // calcula los movimientos posibles de la Piece (abstracto)
     void move(int pos, bool moved = true);
     void move(std::string pos);
     void rotate(bool orientation);
 };
 
-// ALFIL
+// Bishop
 
-class Alfil : public Pieza
+class Bishop : public Piece
 {
 public:
-    Alfil(int pos, bool blancas);
-    Alfil(std::string pos, bool blancas) : Alfil(fromChessPosition(pos), blancas){};
+    Bishop(int pos, bool color);
+    Bishop(std::string pos, bool color) : Bishop(fromChessPosition(pos), color){};
     virtual std::vector<int> calcularMovimiento();
 };
 
-// Caballo
+// Knight
 
-class Caballo : public Pieza
+class Knight : public Piece
 {
 public:
-    Caballo(int pos, bool blancas);
-    Caballo(std::string pos, bool blancas) : Caballo(fromChessPosition(pos), blancas){};
+    Knight(int pos, bool color);
+    Knight(std::string pos, bool color) : Knight(fromChessPosition(pos), color){};
     virtual std::vector<int> calcularMovimiento();
 };
 
-// PEON
+// Pawn
 
-class Peon : public Pieza
+class Pawn : public Piece
 {
 public:
-    Peon(int pos, bool blancas);
-    Peon(std::string pos, bool blancas) : Peon(fromChessPosition(pos), blancas){};
+    Pawn(int pos, bool color);
+    Pawn(std::string pos, bool color) : Pawn(fromChessPosition(pos), color){};
     virtual std::vector<int> calcularMovimiento();
 };
 
-// TORRE
+// Rook
 
-class Torre : public Pieza
+class Rook : public Piece
 {
 public:
-    Torre(int pos, bool blancas);
-    Torre(std::string pos, bool blancas) : Torre(fromChessPosition(pos), blancas){};
+    Rook(int pos, bool color);
+    Rook(std::string pos, bool color) : Rook(fromChessPosition(pos), color){};
     virtual std::vector<int> calcularMovimiento();
 };
 
-// REY
+// King
 
-class Rey : public Pieza
+class King : public Piece
 {
 public:
-    Rey(int pos, bool blancas);
-    Rey(std::string pos, bool blancas) : Rey(fromChessPosition(pos), blancas){};
+    King(int pos, bool color);
+    King(std::string pos, bool color) : King(fromChessPosition(pos), color){};
     virtual std::vector<int> calcularMovimiento();
 };
 
-// DAMA
+// Queen
 
-class Dama : public Pieza
+class Queen : public Piece
 {
 public:
-    Dama(int pos, bool blancas);
-    Dama(std::string pos, bool blancas) : Dama(fromChessPosition(pos), blancas){};
+    Queen(int pos, bool color);
+    Queen(std::string pos, bool color) : Queen(fromChessPosition(pos), color){};
     virtual std::vector<int> calcularMovimiento();
 };

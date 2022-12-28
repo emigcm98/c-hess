@@ -1,16 +1,16 @@
-#include "partida.hpp"
+#include "chessgame.hpp"
 
 class ChessAlgorithm
 {
     protected:
         bool color;
-        std::vector<Pieza *> *whitePieces;
-        std::vector<Pieza *> *blackPieces;
-        Partida *partida;
-        //Pieza* tablero[64];
+        std::vector<Piece *> *whitePieces;
+        std::vector<Piece *> *blackPieces;
+        ChessGame *chessgame;
+        //Piece* tablero[64];
         float prevPositionEvaluation;
     public:
-        ChessAlgorithm(Partida *p, bool color);
+        ChessAlgorithm(ChessGame *chessgame, bool color);
         virtual float evaluatePosition() = 0; // with fake moveSelected() to evaluate best position
         virtual int getBestOption() = 0;
 };
@@ -18,7 +18,7 @@ class ChessAlgorithm
 class RandomChessAlgorithm : public ChessAlgorithm
 {
     public: 
-        RandomChessAlgorithm(Partida *p, bool color);
+        RandomChessAlgorithm(ChessGame *chessgame, bool color);
         virtual float evaluatePosition(); // with fake moveSelected() to evaluate best position
         virtual int getBestOption();
 };
@@ -32,7 +32,7 @@ class BasicChessAlgorithm : public ChessAlgorithm
         int rookValue = 5;
         int queenValue = 10;
     public:
-        BasicChessAlgorithm(Partida *p, bool color);
+        BasicChessAlgorithm(ChessGame *chessgame, bool color);
         virtual float evaluatePosition(); // with fake moveSelected() to evaluate best position
         virtual int getBestOption();
 };

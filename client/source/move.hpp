@@ -1,13 +1,12 @@
 #pragma once
 
 #include <ctype.h>
-#include "pieza.hpp"
-//#include "partida.hpp"
+#include "piece.hpp"
 
-class Jugada {
+class Move {
 
 private:
-    Pieza* pieza;
+    Piece* piece;
     int prevPos;
     int newPos;
     std::string newPosStr;
@@ -20,31 +19,31 @@ private:
     bool check;
     bool checkmate;
     bool promoted;
-    Pieza* eatenPiece;
+    Piece* eatenPiece;
 
     std::string str;
 public:
-    Jugada(Pieza* pieza, std::string new_pos);
-    Jugada(Pieza* pieza, int new_pos);
+    Move(Piece* p, std::string newPos);
+    Move(Piece* p, int newPos);
     
-    std::vector<Pieza*> checkingPieces;
+    std::vector<Piece*> checkingPieces;
 
     // getters
-    Pieza* getPieza();
+    Piece* getPiece();
     int getNewPos();
     int getPrevPos();
     bool isShortCastling();
     bool isLongCastling();
     bool isFirstPieceMove();
-    Pieza *getEatenPiece();
+    Piece *getEatenPiece();
     // setters
-    void setPiece(Pieza *p);
+    void setPiece(Piece *p);
     void setCheck(bool check);
     void setCheckmate(bool checkmate);
     void setPromoted(bool promoted);
     void setFirstPieceMoved(bool moved);
     // methods
-    void eat(Pieza *p);
+    void eat(Piece *p);
     bool isCheck();
     bool isCheckmate();
     void shortCastle();

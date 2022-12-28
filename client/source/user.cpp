@@ -9,7 +9,7 @@ User::User(std::string username, std::string password, struct tm birthdate){
     k = 30;
 }
 
-int User::calcular_edad()
+int User::calculateAge()
 {
 
     time_t tNow = time(0);
@@ -46,7 +46,7 @@ int User::calcular_edad()
     }
 }
 
-bool User::is_birthday() {
+bool User::isBirthday() {
 
     time_t tNow = time(0);
     struct tm now = *localtime(&tNow);
@@ -63,7 +63,7 @@ bool User::is_birthday() {
        
 }
 
-double User::calculate_new_elo(double opponent_elo, float resultado)
+double User::calculateNewElo(double opponent_elo, float resultado)
 {
     double p_esp = 1/(1+pow(10, (opponent_elo - elo)/400));
     std::cout << "Puntuación esperada: " << p_esp << " (k=" << k << ")." << std::endl;

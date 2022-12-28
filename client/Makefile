@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-Wall -g
 LDPATH=-lsfml-graphics -lsfml-window -lsfml-system
 DEPS=
-OBJ=pieceTextures.o pieza.o jugada.o partida.o algorithm.o user.o gameinfo.o main.o
+OBJ=pieceTextures.o piece.o move.o chessgame.o algorithm.o user.o gameinfo.o main.o
 NAME=chess-client
 
 $(NAME): $(OBJ)
@@ -11,23 +11,23 @@ $(NAME): $(OBJ)
 main.o: source/main.cpp source/gameinfo.cpp
 	$(CC) -c source/main.cpp $(CFLAGS)
 
-gameinfo.o: source/gameinfo.cpp source/gameinfo.cpp source/jugada.hpp source/user.hpp
+gameinfo.o: source/gameinfo.cpp source/gameinfo.cpp source/move.hpp source/user.hpp
 	$(CC) -c source/gameinfo.cpp $(CFLAGS)
 
 user.o: source/user.cpp source/user.hpp
 	$(CC) -c source/user.cpp $(CFLAGS)
 
-algorithm.o: source/algorithm.cpp source/algorithm.hpp source/partida.hpp
+algorithm.o: source/algorithm.cpp source/algorithm.hpp source/chessgame.hpp
 	$(CC) -c source/algorithm.cpp $(CFLAGS)
 
-partida.o: source/partida.cpp source/partida.hpp source/pieza.hpp source/jugada.hpp
-	$(CC) -c source/partida.cpp $(CFLAGS)
+chessgame.o: source/chessgame.cpp source/chessgame.hpp source/piece.hpp source/move.hpp
+	$(CC) -c source/chessgame.cpp $(CFLAGS)
 
-jugada.o: source/jugada.cpp source/jugada.hpp
-	$(CC) -c source/jugada.cpp $(CFLAGS)
+move.o: source/move.cpp source/move.hpp
+	$(CC) -c source/move.cpp $(CFLAGS)
 
-pieza.o: source/pieza.cpp source/pieza.hpp
-	$(CC) -c source/pieza.cpp $(CFLAGS)
+piece.o: source/piece.cpp source/piece.hpp
+	$(CC) -c source/piece.cpp $(CFLAGS)
 
 pieceTextures.o: source/pieceTextures.cpp source/pieceTextures.hpp
 	$(CC) -c source/pieceTextures.cpp $(CFLAGS)

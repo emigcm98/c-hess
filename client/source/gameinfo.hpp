@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "jugada.hpp"
+#include "move.hpp"
 #include "user.hpp"
 
 class GameInfo : public sf::Drawable
@@ -8,18 +8,18 @@ class GameInfo : public sf::Drawable
 private:
     //User* blancas;
     //User* negras;
-    std::vector<Jugada*> *jugadas;
+    std::vector<Move*> *moves;
     //sf::Font* font;
     sf::RectangleShape container;
-    sf::Text nombreBlancas;
-    sf::Text nombreNegras;
-    sf::Text eloBlancas;
-    sf::Text eloNegras;
-    sf::Text lastPlay;
+    sf::Text whiteName;
+    sf::Text blackName;
+    sf::Text whiteElo;
+    sf::Text blackElo;
+    sf::Text lastMove;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 public:
-    GameInfo(User* blancas, User* negras, std::vector<Jugada*> *jugadas, sf::Font* font);
-    void updateJugada();
-    void updateElos(int whiteElo, int blackElo);
+    GameInfo(User* whitePlayer, User* blackPlayer, std::vector<Move*> *moves, sf::Font* font);
+    void updateMove();
+    void updateElo(int whiteElo, int blackElo);
 };

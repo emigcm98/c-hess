@@ -4,17 +4,17 @@
 
 // BASE
 
-ChessAlgorithm::ChessAlgorithm(Partida *p, bool color)
+ChessAlgorithm::ChessAlgorithm(ChessGame *chessgame, bool color)
 {
-    this->partida = p;
+    this->chessgame = chessgame;
     this->color = color;
-    this->whitePieces = p->getWhitePieces();
-    this->blackPieces = p->getBlackPieces();
+    this->whitePieces = chessgame->getWhitePieces();
+    this->blackPieces = chessgame->getBlackPieces();
 }
 
 // RANDOM CHESS ALGORITHM
 
-RandomChessAlgorithm::RandomChessAlgorithm(Partida *p, bool color) : ChessAlgorithm(p, color)
+RandomChessAlgorithm::RandomChessAlgorithm(ChessGame *p, bool color) : ChessAlgorithm(p, color)
 {
 
 }
@@ -32,8 +32,8 @@ int RandomChessAlgorithm::getBestOption()
     if (color){
         while (true){
             int n = rand() % whitePieces->size();
-            Pieza *p = whitePieces->at(n);
-            movements = partida->selectPiece(p->getPos());
+            Piece *p = whitePieces->at(n);
+            movements = chessgame->selectPiece(p->getPos());
             if (!movements.empty()){
                 break;
             }
@@ -42,8 +42,8 @@ int RandomChessAlgorithm::getBestOption()
     else {
         while(true){
             int n = rand() % blackPieces->size();
-            Pieza *p = blackPieces->at(n);
-            movements = partida->selectPiece(p->getPos());
+            Piece *p = blackPieces->at(n);
+            movements = chessgame->selectPiece(p->getPos());
             if (!movements.empty()){
                 break;
             }
@@ -56,7 +56,7 @@ int RandomChessAlgorithm::getBestOption()
 
 // BASIC CHESS ALGORITHM
 
-BasicChessAlgorithm::BasicChessAlgorithm(Partida *p, bool color) : ChessAlgorithm(p, color)
+BasicChessAlgorithm::BasicChessAlgorithm(ChessGame *p, bool color) : ChessAlgorithm(p, color)
 {
     this->prevPositionEvaluation = 0.0;
 }
@@ -68,37 +68,37 @@ float BasicChessAlgorithm::evaluatePosition()
     float evaluation = 0.0;
 
     for (auto const &i : *whitePieces){
-        if (instanceof<Peon>(i)){
+        if (instanceof<Pawn>(i)){
             evaluation += 1;
         }
-        else if (instanceof<Alfil>(i)){
+        else if (instanceof<Bishop>(i)){
             evaluation += 3;
         }
-        else if (instanceof<Caballo>(i)){
+        else if (instanceof<Knight>(i)){
             evaluation += 3;
         }
-        else if (instanceof<Torre>(i)){
+        else if (instanceof<Rook>(i)){
             evaluation += 5;
         }
-        else if (instanceof<Dama>(i)){
+        else if (instanceof<Queen>(i)){
             evaluation += 10;
         }
     }
 
     for (auto const &i : *blackPieces){
-        if (instanceof<Peon>(i)){
+        if (instanceof<Pawn>(i)){
             evaluation -= 1;
         }
-        else if (instanceof<Alfil>(i)){
+        else if (instanceof<Bishop>(i)){
             evaluation -= 3;
         }
-        else if (instanceof<Caballo>(i)){
+        else if (instanceof<Knight>(i)){
             evaluation -= 3;
         }
-        else if (instanceof<Torre>(i)){
+        else if (instanceof<Rook>(i)){
             evaluation -= 5;
         }
-        else if (instanceof<Dama>(i)){
+        else if (instanceof<Queen>(i)){
             evaluation -= 10;
         }
     }
@@ -109,7 +109,7 @@ float BasicChessAlgorithm::evaluatePosition()
 int BasicChessAlgorithm::getBestOption()
 {
     int bestMovement = -1;
-    Pieza * piece = nullptr;
+    Piece * piece = nullptr;
 
     float bestEvaluation;
     if (color) {
@@ -122,29 +122,29 @@ int BasicChessAlgorithm::getBestOption()
     if (color){
         for (auto const &i : *whitePieces){
             // we select
-            std::vector <int> movements = partida->selectPiece(i->getPos());
-            partida->deselectPiece();
+            std::vector <int> movements = chessgame->selectPiece(i->getPos());
+            chessgame->deselectPiece();
             if (movements.empty()) continue;
             for (auto const &mov : movements){
-                Jugada *j = new Jugada(i, mov);
-                Jugada *j2;
-                bool valid = partida->aplicarJugada(j, movements);
+                Move *j = new Move(i, mov);
+                Move *j2;
+                bool valid = chessgame->aplicarMove(j, movements);
                 if (valid){
-                    partida->getJugadas().push_back(j);
+                    chessgame->getMoves().push_back(j);
                 }
                 // else {
                 //     delete j;
                 // }
 
                 for (auto const &i2 : *blackPieces){
-                    std::vector <int> movements2 = partida->selectPiece(i2->getPos());
-                    partida->deselectPiece();
+                    std::vector <int> movements2 = chessgame->selectPiece(i2->getPos());
+                    chessgame->deselectPiece();
                     if (movements2.empty()) continue;
                     for (auto const &mov2 : movements2){
-                        j2 = new Jugada(i2, mov2);
-                        bool valid2 = partida->aplicarJugada(j2, movements);
+                        j2 = new Move(i2, mov2);
+                        bool valid2 = chessgame->aplicarMove(j2, movements);
                         if (valid2){
-                            partida->getJugadas().push_back(j2);
+                            chessgame->getMoves().push_back(j2);
                         }
                     }
                 }
@@ -157,10 +157,10 @@ int BasicChessAlgorithm::getBestOption()
                 }
 
                 // delete j and j2
-                partida->undoPlay();
-                partida->undoPlay();
-                partida->getJugadas().pop_back();
-                partida->getJugadas().pop_back();
+                chessgame->undoPlay();
+                chessgame->undoPlay();
+                chessgame->getMoves().pop_back();
+                chessgame->getMoves().pop_back();
                 //delete j2;
                 //delete j;
             }
@@ -170,29 +170,29 @@ int BasicChessAlgorithm::getBestOption()
     {
         for (auto const &i : *blackPieces){
             // we select
-            std::vector <int> movements = partida->selectPiece(i->getPos());
-            partida->deselectPiece();
+            std::vector <int> movements = chessgame->selectPiece(i->getPos());
+            chessgame->deselectPiece();
             if (movements.empty()) continue;
             for (auto const &mov : movements){
-                Jugada *j = new Jugada(i, mov);
-                Jugada *j2;
-                bool valid = partida->aplicarJugada(j, movements);
+                Move *j = new Move(i, mov);
+                Move *j2;
+                bool valid = chessgame->aplicarMove(j, movements);
                 if (valid){
-                    partida->getJugadas().push_back(j);
+                    chessgame->getMoves().push_back(j);
                 }
                 // else {
                 //     delete j;
                 // }
 
                 for (auto const &i2 : *whitePieces){
-                    std::vector <int> movements2 = partida->selectPiece(i2->getPos());
-                    partida->deselectPiece();
+                    std::vector <int> movements2 = chessgame->selectPiece(i2->getPos());
+                    chessgame->deselectPiece();
                     if (movements2.empty()) continue;
                     for (auto const &mov2 : movements2){
-                        j2 = new Jugada(i2, mov2);
-                        bool valid2 = partida->aplicarJugada(j2, movements);
+                        j2 = new Move(i2, mov2);
+                        bool valid2 = chessgame->aplicarMove(j2, movements);
                         if (valid2){
-                            partida->getJugadas().push_back(j2);
+                            chessgame->getMoves().push_back(j2);
                         }
                     }
                 }
@@ -205,17 +205,17 @@ int BasicChessAlgorithm::getBestOption()
                 }
 
                 // delete j and j2
-                partida->undoPlay();
-                partida->undoPlay();
-                partida->getJugadas().pop_back();
-                partida->getJugadas().pop_back();
+                chessgame->undoPlay();
+                chessgame->undoPlay();
+                chessgame->getMoves().pop_back();
+                chessgame->getMoves().pop_back();
                 //delete j2;
                 //delete j;
             }
         }
     }
 
-    partida->selectPiece(piece->getPos());
+    chessgame->selectPiece(piece->getPos());
     return bestMovement;
 }
 

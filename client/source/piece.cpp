@@ -1,6 +1,6 @@
 #include <math.h>
 
-#include "pieza.hpp"
+#include "piece.hpp"
 #include "configuration.cpp"
 
 
@@ -26,44 +26,44 @@ std::string toChessPosition(int pos)
     return std::string(1, col) + row;
 }
 
-Pieza* Pieza::create(int pos, char nombre)
+Piece* Piece::create(int pos, char nombre)
 {
     switch (nombre){
         case 'B':
-            return new Alfil(pos, true);
+            return new Bishop(pos, true);
             break;
         case 'b':
-            return new Alfil(pos, false);
+            return new Bishop(pos, false);
             break;
         case 'N':
-            return new Caballo(pos, true);
+            return new Knight(pos, true);
             break;
         case 'n':
-            return new Caballo(pos, false);
+            return new Knight(pos, false);
             break;
         case 'R':
-            return new Torre(pos, true);
+            return new Rook(pos, true);
             break;
         case 'r':
-            return new Torre(pos, false);
+            return new Rook(pos, false);
             break;
         case 'P':
-            return new Peon(pos, true);
+            return new Pawn(pos, true);
             break;
         case 'p':
-            return new Peon(pos, false);
+            return new Pawn(pos, false);
             break;
         case 'K':
-            return new Rey(pos, true);
+            return new King(pos, true);
             break;
         case 'k':
-            return new Rey(pos, false);
+            return new King(pos, false);
             break;
         case 'Q':
-            return new Dama(pos, true);
+            return new Queen(pos, true);
             break;
         case 'q':
-            return new Dama(pos, false);
+            return new Queen(pos, false);
             break;
         default:
             return nullptr;
@@ -71,39 +71,39 @@ Pieza* Pieza::create(int pos, char nombre)
     }
 }
 
-Pieza::Pieza(int pos, bool blancas)
+Piece::Piece(int pos, bool color)
 {
     this->pos = pos;
-    this->blancas = blancas;
+    this->color = color;
     this->timesMoved = 0;
 };
 
-char Pieza::getNameFEN()
+char Piece::getNameFEN()
 {
     return nameFEN;
 }
 
-char Pieza::getNameNotation()
+char Piece::getNameNotation()
 {
     return nameNotation;
 }
 
-bool Pieza::getColor()
+bool Piece::getColor()
 {
-    return blancas;
+    return color;
 }
 
-int Pieza::getPos()
+int Piece::getPos()
 {
     return pos;
 }
 
-int Pieza::getTimesMoved()
+int Piece::getTimesMoved()
 {
     return timesMoved;
 }
 
-void Pieza::move(int pos, bool moved)
+void Piece::move(int pos, bool moved)
 {
 
     this->pos = pos;
@@ -118,19 +118,19 @@ void Pieza::move(int pos, bool moved)
     }
 }
 
-void Pieza::move(std::string pos)
+void Piece::move(std::string pos)
 {
     move(fromChessPosition(pos));
 }
 
-// void Pieza::loadTexture(std::string filePath)
+// void Piece::loadTexture(std::string filePath)
 // {
 //     if (!texture.loadFromFile(filePath))
 //         std::cout << "Error loading file\n";
 //     texture.setSmooth(true);
 // }
 
-// void Pieza::setTexture()
+// void Piece::setTexture()
 // {
 //     m_sprite.setTexture(texture);
 
@@ -139,32 +139,32 @@ void Pieza::move(std::string pos)
 
 //     m_sprite.setOrigin(sf::Vector2f(spriteSizeX / 2, spriteSizeY / 2));
 //     m_sprite.setScale(sf::Vector2f(0.75f*OBJECT_SIZE/spriteSizeX, 0.75f*OBJECT_SIZE/spriteSizeY));
-//     m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista blancas
+//     m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista color
 //     // m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
 // }
 
-void Pieza::setTexture()
+void Piece::setTexture()
 {
     m_sprite = sf::Sprite();
     switch (nameNotation)
     {
         case 'K':
-            m_sprite.setTexture(blancas ? PieceTextures::whiteKing : PieceTextures::blackKing);
+            m_sprite.setTexture(color ? PieceTextures::whiteKing : PieceTextures::blackKing);
             break;
         case 'Q':
-            m_sprite.setTexture(blancas ? PieceTextures::whiteQueen : PieceTextures::blackQueen);
+            m_sprite.setTexture(color ? PieceTextures::whiteQueen : PieceTextures::blackQueen);
             break;
         case 'R':
-            m_sprite.setTexture(blancas ? PieceTextures::whiteRook : PieceTextures::blackRook);
+            m_sprite.setTexture(color ? PieceTextures::whiteRook : PieceTextures::blackRook);
             break;
         case 'B':
-            m_sprite.setTexture(blancas ? PieceTextures::whiteBishop : PieceTextures::blackBishop);
+            m_sprite.setTexture(color ? PieceTextures::whiteBishop : PieceTextures::blackBishop);
             break;
         case 'N':
-            m_sprite.setTexture(blancas ? PieceTextures::whiteKnight : PieceTextures::blackKnight);
+            m_sprite.setTexture(color ? PieceTextures::whiteKnight : PieceTextures::blackKnight);
             break;
         case 'P':
-            m_sprite.setTexture(blancas ? PieceTextures::whitePawn : PieceTextures::blackPawn);
+            m_sprite.setTexture(color ? PieceTextures::whitePawn : PieceTextures::blackPawn);
             break;
         default:
             std::cerr << "Error piece type does not exist.\n";
@@ -176,29 +176,29 @@ void Pieza::setTexture()
 
     m_sprite.setOrigin(sf::Vector2f(spriteSizeX/2 , spriteSizeY/2));
     m_sprite.setScale(sf::Vector2f(0.75f*OBJECT_SIZE/spriteSizeX, 0.75f*OBJECT_SIZE/spriteSizeY));
-    m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista blancas
+    m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista color
     //m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
 }
 
-void Pieza::rotate(bool orientation){
+void Piece::rotate(bool orientation){
     if (orientation)
     {
-        m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista blancas
+        m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista color
     }
     else {
         m_sprite.setPosition((7-(pos%8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2, pos/8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2);
     }
 }
 
-void Pieza::setPos(int pos){
+void Piece::setPos(int pos){
     this->pos = pos;
 }
 
-// ALFIL
+// Bishop
 
-Alfil::Alfil(int pos, bool blancas) : Pieza(pos, blancas)
+Bishop::Bishop(int pos, bool color) : Piece(pos, color)
 {
-    if (blancas){
+    if (color){
         this->nameFEN = 'B';
     }
     else {
@@ -207,12 +207,12 @@ Alfil::Alfil(int pos, bool blancas) : Pieza(pos, blancas)
     this->nameNotation = 'B';
     setTexture();
     //std::string name = "bishop";
-    //this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    //this->texture_file = ("img/" + std::string(color ? "w_" : "b_") + name + ".png");
     //loadTexture(this->texture_file);
     //setTexture();
 }
 
-std::vector<int> Alfil::calcularMovimiento()
+std::vector<int> Bishop::calcularMovimiento()
 {
     std::vector<int> possibleMovs;
 
@@ -233,11 +233,11 @@ std::vector<int> Alfil::calcularMovimiento()
     return possibleMovs;
 }
 
-// CABALLO
+// Knight
 
-Caballo::Caballo(int pos, bool blancas) : Pieza(pos, blancas)
+Knight::Knight(int pos, bool color) : Piece(pos, color)
 {
-    if (blancas){
+    if (color){
         this->nameFEN = 'N';
     }
     else {
@@ -247,7 +247,7 @@ Caballo::Caballo(int pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-std::vector<int> Caballo::calcularMovimiento()
+std::vector<int> Knight::calcularMovimiento()
 {
     std::vector<int> possibleMovs;
 
@@ -269,11 +269,11 @@ std::vector<int> Caballo::calcularMovimiento()
     return possibleMovs;
 }
 
-// TORRE
+// Rook
 
-Torre::Torre(int pos, bool blancas) : Pieza(pos, blancas)
+Rook::Rook(int pos, bool color) : Piece(pos, color)
 {
-    if (blancas){
+    if (color){
         this->nameFEN = 'R';
     }
     else {
@@ -283,7 +283,7 @@ Torre::Torre(int pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-std::vector<int> Torre::calcularMovimiento()
+std::vector<int> Rook::calcularMovimiento()
 {
     std::vector<int> possibleMovs;
 
@@ -307,11 +307,11 @@ std::vector<int> Torre::calcularMovimiento()
     return possibleMovs;
 }
 
-// PEON
+// Pawn
 
-Peon::Peon(int pos, bool blancas) : Pieza(pos, blancas)
+Pawn::Pawn(int pos, bool color) : Piece(pos, color)
 {
-    if (blancas){
+    if (color){
         this->nameFEN = 'P';
     }
     else {
@@ -321,13 +321,13 @@ Peon::Peon(int pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-std::vector<int> Peon::calcularMovimiento()
+std::vector<int> Pawn::calcularMovimiento()
 {
     std::vector<int> possibleMovs;
 
     int posRel = 8;
 
-    if (!blancas)
+    if (!color)
     {
         posRel = -posRel;
     }
@@ -335,7 +335,7 @@ std::vector<int> Peon::calcularMovimiento()
     int tmp = pos + posRel;
 
     int originalRow;
-    if (blancas){
+    if (color){
         originalRow = 1;
     }
     else {
@@ -361,11 +361,11 @@ std::vector<int> Peon::calcularMovimiento()
     return possibleMovs;
 }
 
-// REY
+// King
 
-Rey::Rey(int pos, bool blancas) : Pieza(pos, blancas)
+King::King(int pos, bool color) : Piece(pos, color)
 {
-    if (blancas){
+    if (color){
         this->nameFEN = 'K';
     }
     else {
@@ -375,7 +375,7 @@ Rey::Rey(int pos, bool blancas) : Pieza(pos, blancas)
     setTexture();
 }
 
-std::vector<int> Rey::calcularMovimiento()
+std::vector<int> King::calcularMovimiento()
 {
     std::vector<int> possibleMovs;
 
@@ -397,7 +397,7 @@ std::vector<int> Rey::calcularMovimiento()
     }
 
     int originalPosition;
-    if (blancas)
+    if (color)
     {
         originalPosition = fromChessPosition("e1");
     }
@@ -415,11 +415,11 @@ std::vector<int> Rey::calcularMovimiento()
     return possibleMovs;
 }
 
-// DAMA
+// Queen
 
-Dama::Dama(int pos, bool blancas) : Pieza(pos, blancas)
+Queen::Queen(int pos, bool color) : Piece(pos, color)
 {
-    if (blancas){
+    if (color){
         this->nameFEN = 'Q';
     }
     else {
@@ -428,12 +428,12 @@ Dama::Dama(int pos, bool blancas) : Pieza(pos, blancas)
     this->nameNotation = 'Q';
     setTexture();
     // std::string name = "queen";
-    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
+    // this->texture_file = ("img/" + std::string(color ? "w_" : "b_") + name + ".png");
     // loadTexture(this->texture_file);
     // setTexture();
 }
 
-std::vector<int> Dama::calcularMovimiento()
+std::vector<int> Queen::calcularMovimiento()
 {
     std::vector<int> possibleMovs;
 

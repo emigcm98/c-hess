@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <chrono>
 #include "user.hpp"
-#include "pieza.hpp"
+#include "piece.hpp"
 #include "configuration.cpp"
 #include "algorithm.hpp"
 
@@ -32,7 +32,7 @@ int main()
 
     User u2 = User("fuen", "password", birthdate);
 
-    Partida partida = Partida(&u, &u2, &font);
+    ChessGame partida = ChessGame(&u, &u2, &font);
 
     // IA :)
     RandomChessAlgorithm ca = RandomChessAlgorithm(&partida, false);
@@ -45,7 +45,7 @@ int main()
     window.setActive(false);
 
     // current piece and valid movements
-    Pieza *p;
+    Piece *p;
     // std::vector<int> validMovements;
     int actualPlay = 0;
 
@@ -70,7 +70,7 @@ int main()
             {
 
                 // must be in the actualPlay to select and move!
-                if (event.mouseButton.button == sf::Mouse::Left && actualPlay == int(partida.getJugadas().size()))
+                if (event.mouseButton.button == sf::Mouse::Left && actualPlay == int(partida.getMoves().size()))
                 {
 
                     // only select in board
@@ -139,7 +139,7 @@ int main()
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
-                    if (actualPlay < int(partida.getJugadas().size()))
+                    if (actualPlay < int(partida.getMoves().size()))
                     {
                         partida.applyPlay(actualPlay);
                         actualPlay++;

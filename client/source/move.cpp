@@ -1,17 +1,17 @@
-#include "jugada.hpp"
+#include "move.hpp"
 // #include "partida.hpp"
 
-Jugada::Jugada(Pieza *pieza, std::string newPos) : Jugada(pieza, fromChessPosition(newPos)){}
+Move::Move(Piece *piece, std::string newPos) : Move(piece, fromChessPosition(newPos)){}
 
-Jugada::Jugada(Pieza *pieza, int newPos)
+Move::Move(Piece *piece, int newPos)
 {
-    this->pieza = pieza;
-    this->prevPos = pieza->getPos();
+    this->piece = piece;
+    this->prevPos = piece->getPos();
     this->newPos = newPos;
     this->newPosStr = toChessPosition(newPos);
-    if (!instanceof<Peon>(pieza))
+    if (!instanceof<Pawn>(piece))
     {
-        this->pieceNameNotation = pieza->getNameNotation();
+        this->pieceNameNotation = piece->getNameNotation();
     }
 
     this->shortCastling = false;
@@ -24,32 +24,32 @@ Jugada::Jugada(Pieza *pieza, int newPos)
     this->eatenPiece = nullptr;
 }
 
-Pieza *Jugada::getPieza()
+Piece *Move::getPiece()
 {
-    return this->pieza;
+    return this->piece;
 }
 
-int Jugada::getPrevPos()
+int Move::getPrevPos()
 {
     return prevPos;
 }
 
-int Jugada::getNewPos()
+int Move::getNewPos()
 {
     return newPos;
 }
 
-bool Jugada::isCheck()
+bool Move::isCheck()
 {
     return check;
 }
 
-bool Jugada::isCheckmate()
+bool Move::isCheckmate()
 {
     return checkmate;
 }
 
-void Jugada::generateString()
+void Move::generateString()
 {
     if (shortCastling)
     {
@@ -75,7 +75,7 @@ void Jugada::generateString()
         str += newPosStr;
         if (promoted){
             str += '=';
-            str += pieza->getNameNotation();
+            str += piece->getNameNotation();
         }
         if (check){
             str += '+';
@@ -83,59 +83,59 @@ void Jugada::generateString()
                 str += '+';
             }
         }
-        //return std::string(1, pieza->getNombre()) + newPosStr; //+ (isJaque ? "+" : "") + (isJaqueMate ? "+" : "");
+        //return std::string(1, piece->getNombre()) + newPosStr; //+ (isJaque ? "+" : "") + (isJaqueMate ? "+" : "");
     }
 }
 
-std::string Jugada::to_string() {
+std::string Move::to_string() {
     return str;
 }
 
-void Jugada::shortCastle() {
+void Move::shortCastle() {
     shortCastling = true;
 }
 
-void Jugada::longCastle() {
+void Move::longCastle() {
     longCastling = true;
 }
 
-bool Jugada::isShortCastling() {
+bool Move::isShortCastling() {
     return shortCastling;
 }
 
-bool Jugada::isLongCastling() {
+bool Move::isLongCastling() {
     return longCastling;
 }
 
-bool Jugada::isFirstPieceMove() {
+bool Move::isFirstPieceMove() {
     return firstPieceMove;
 }
 
-void Jugada::setFirstPieceMoved(bool moved) {
+void Move::setFirstPieceMoved(bool moved) {
     firstPieceMove = moved;
-    //pieza->setMoved(moved);
+    //piece->setMoved(moved);
 }
 
-void Jugada::setCheck(bool check) {
+void Move::setCheck(bool check) {
     this->check = check;
 }
 
-void Jugada::setCheckmate(bool checkmate) {
+void Move::setCheckmate(bool checkmate) {
     this->checkmate = checkmate;
 }
 
-void Jugada::setPromoted(bool promoted){
+void Move::setPromoted(bool promoted){
     this->promoted = promoted;
 }
 
-void Jugada::eat(Pieza* p) {
+void Move::eat(Piece* p) {
     this->eatenPiece = p;
 }
 
-Pieza* Jugada::getEatenPiece() {
+Piece* Move::getEatenPiece() {
     return eatenPiece;
 }
 
-void Jugada::setPiece(Pieza *p) {
-    this->pieza = p;
+void Move::setPiece(Piece *p) {
+    this->piece = p;
 }
