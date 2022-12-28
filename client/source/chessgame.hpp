@@ -84,7 +84,7 @@ public:
     bool checkIfDrawsByMaterial();
     bool checkIfDrawsByPosition(bool color);
     bool canPieceMove(Piece *p);
-    Piece* promote(Piece *p);
+    Piece* promote(Piece *p, char pieceNameNotation = 'Q');
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Piece *p);
     std::vector<int> filterIllegalMoves(Piece *p, std::vector<int> filteredMovements, bool color);

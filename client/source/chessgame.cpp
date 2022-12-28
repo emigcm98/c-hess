@@ -1115,7 +1115,7 @@ bool ChessGame::moveSelected(int pos)
             {
                 if (selectedPiece->getPos() / 8 == 7)
                 {
-                    selectedPiece = promote(selectedPiece);
+                    selectedPiece = promote(selectedPiece, DEFAULT_PROMOTION);
                     j->setPiece(selectedPiece);
                     j->setPromoted(true);
                 }
@@ -1124,7 +1124,7 @@ bool ChessGame::moveSelected(int pos)
             {
                 if (selectedPiece->getPos() / 8 == 0)
                 {
-                    selectedPiece = promote(selectedPiece);
+                    selectedPiece = promote(selectedPiece, DEFAULT_PROMOTION);
                     j->setPiece(selectedPiece);
                     j->setPromoted(true);
                 }
@@ -1182,7 +1182,7 @@ bool ChessGame::moveSelected(int pos)
     return valid;
 }
 
-Piece *ChessGame::promote(Piece *p)
+Piece *ChessGame::promote(Piece *p, char pieceNameNotation)
 {
     Piece *newPiece = nullptr;
     std::vector<Piece *>::iterator itPos;
@@ -1192,7 +1192,7 @@ Piece *ChessGame::promote(Piece *p)
         {
             if (*it == p)
             {
-                newPiece = Piece::create(p->getPos(), 'Q');
+                newPiece = Piece::create(p->getPos(), pieceNameNotation);
                 tablero[p->getPos()] = newPiece;
                 itPos = whitePieces.erase(it);
                 whitePieces.insert(itPos, newPiece);
@@ -1210,7 +1210,7 @@ Piece *ChessGame::promote(Piece *p)
         {
             if (*it == p)
             {
-                newPiece = Piece::create(p->getPos(), 'q');
+                newPiece = Piece::create(p->getPos(), pieceNameNotation + 32);
                 tablero[p->getPos()] = newPiece;
                 itPos = blackPieces.erase(it);
                 blackPieces.insert(itPos, newPiece);
