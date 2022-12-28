@@ -54,7 +54,7 @@ public:
     // getters
     bool getOrientation();
     Piece* getPieceByPos(std::string pos);
-    std::vector<Move*> getMoves();
+    std::vector<Move*>* getMoves();
     Piece* getSelectedPiece();
     bool isFinished();
 
@@ -70,12 +70,13 @@ public:
     void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
     std::string saveFen();
     std::string savePgn();
-    bool aplicarMove(Move* j, std::vector<int> movements); // aplica los cambios al tablero
+    void passTurn();
+    bool applyMove(Move* j, std::vector<int> movements); // aplica los cambios al tablero
     void undoPlay(int nPlay = -1);
     bool applyPlay(int nPlay);
     void deselectPiece();
     std::vector<int> selectPiece(int pos);
-    bool moveSelected(int pos);
+    Move* moveSelected(int pos);
     //bool fakeMove(int pos, std::vector<int> validMovements);
     bool rotateBoard();
     bool isChecking(Piece *p);

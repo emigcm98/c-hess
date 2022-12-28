@@ -20,6 +20,7 @@ private:
     bool checkmate;
     bool promoted;
     Piece* eatenPiece;
+    Piece* pawnBeforePromoting;
 
     std::string str;
 public:
@@ -36,11 +37,13 @@ public:
     bool isLongCastling();
     bool isFirstPieceMove();
     Piece *getEatenPiece();
+    Piece* getPawnBeforePromoting();
     // setters
     void setPiece(Piece *p);
     void setCheck(bool check);
     void setCheckmate(bool checkmate);
     void setPromoted(bool promoted);
+    void setPawnBeforePromoting(Piece *pawn);
     void setFirstPieceMoved(bool moved);
     // methods
     void eat(Piece *p);

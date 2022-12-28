@@ -31,9 +31,10 @@ int main()
     // IA :)
     ChessAlgorithm *ca = nullptr;
     ca = new RandomChessAlgorithm(chessgame, false);
+    //ca = new BasicChessAlgorithm(chessgame, false);
 
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
-    sf::RenderWindow window(sf::VideoMode(OBJECT_SIZE * 14, OBJECT_SIZE * 8), "Chess", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(OBJECT_SIZE * 14, OBJECT_SIZE * 8), "C-hess", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
     // deactivate its OpenGL context
@@ -42,6 +43,7 @@ int main()
     // current piece and valid movements
     Piece *p;
     int actualPlay = 0;
+    std::vector<Move*>* gameMoves = chessgame->getMoves();
 
     // the event/logic/whatever loop
     while (window.isOpen())
@@ -61,7 +63,7 @@ int main()
             {
 
                 // must be in the actualPlay to select and move!
-                if (event.mouseButton.button == sf::Mouse::Left && actualPlay == int(chessgame->getMoves().size()))
+                if (event.mouseButton.button == sf::Mouse::Left && actualPlay == int(gameMoves->size()))
                 {
 
                     // only select in board
@@ -129,11 +131,24 @@ int main()
                 }
                 else if (event.key.code == sf::Keyboard::Right)
                 {
-                    if (actualPlay < int(chessgame->getMoves().size()))
+                    if (actualPlay < int(gameMoves->size()))
                     {
                         chessgame->applyPlay(actualPlay);
                         actualPlay++;
                     }
+                }
+                else if (event.key.code == sf::Keyboard::Escape)
+                {
+                    if (actualPlay > 0)
+                    {
+                        actualPlay--;
+                        //chessgame->takeback();
+                        chessgame->undoPlay();
+                    }
+                }
+                else if (event.key.code == sf::Keyboard::J)
+                {
+                    std::cout << gameMoves->size() << std::endl;
                 }
             }
             if (chessgame->isFinished()){

@@ -6,6 +6,7 @@ class ChessAlgorithm
         bool color;
         std::vector<Piece *> *whitePieces;
         std::vector<Piece *> *blackPieces;
+        std::vector<Move *> *gameMoves; 
         ChessGame *chessgame;
         //Piece* tablero[64];
         float prevPositionEvaluation;

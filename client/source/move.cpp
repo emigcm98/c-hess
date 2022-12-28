@@ -22,6 +22,7 @@ Move::Move(Piece *piece, int newPos)
     this->checkmate = false;
     this->promoted = false;
     this->eatenPiece = nullptr;
+    this->pawnBeforePromoting = nullptr;
 }
 
 Piece *Move::getPiece()
@@ -138,4 +139,13 @@ Piece* Move::getEatenPiece() {
 
 void Move::setPiece(Piece *p) {
     this->piece = p;
+}
+
+Piece* Move::getPawnBeforePromoting() {
+    return pawnBeforePromoting;
+}
+
+void Move::setPawnBeforePromoting(Piece *pawn)
+{
+    pawnBeforePromoting = pawn;
 }
