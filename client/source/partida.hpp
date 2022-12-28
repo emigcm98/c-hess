@@ -33,6 +33,8 @@ private:
     std::vector<sf::RectangleShape> possibleMovesSquares;
     
     Pieza* potentiallyPieceEnPassant;
+
+    std::vector<int> validMovements;
     
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     
@@ -50,19 +52,18 @@ public:
     Partida(User* usuario_blancas, User* usuario_negras, sf::Font* font);
     Pieza* tablero[64];
     // getters
-    bool isJaque();
-    bool isJaqueMate();
     bool getOrientation();
     Pieza* getPiezaByPos(std::string pos);
     std::vector<Jugada*> getJugadas();
-    //Pieza* getPotentiallyPieceEnPassant();
     Pieza* getSelectedPiece();
     bool isFinished();
+
+    std::vector<Pieza*>* getWhitePieces();
+    std::vector<Pieza*>* getBlackPieces();
 
     // setters
     void setResultado(Resultado r); // aplica los cambios a los jugadores
     void setOrientation(bool orientation);
-    //void setPotentiallyPieceEnPassant(Pieza *p);
 
     // methods
     void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
@@ -70,10 +71,12 @@ public:
     std::string saveFen();
     std::string savePgn();
     bool aplicarJugada(Jugada* j, std::vector<int> movements); // aplica los cambios al tablero
-    void undoPlay(int nPlay);
+    void undoPlay(int nPlay = -1);
     bool applyPlay(int nPlay);
+    void deselectPiece();
     std::vector<int> selectPiece(int pos);
-    bool moveSelected(int pos, std::vector<int> validMovements);
+    bool moveSelected(int pos);
+    //bool fakeMove(int pos, std::vector<int> validMovements);
     bool rotateBoard();
     bool isChecking(Pieza *p);
     bool checkIfChecks(bool color);

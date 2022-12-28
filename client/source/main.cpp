@@ -1,9 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <chrono>
 #include "user.hpp"
-#include "partida.hpp"
 #include "pieza.hpp"
 #include "configuration.cpp"
+#include "algorithm.hpp"
 
 // by default white
 bool orientation = true;
@@ -32,7 +32,10 @@ int main()
 
     User u2 = User("fuen", "password", birthdate);
 
-    Partida partida = Partida(&u2, &u, &font);
+    Partida partida = Partida(&u, &u2, &font);
+
+    // IA :)
+    RandomChessAlgorithm ca = RandomChessAlgorithm(&partida, false);
 
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
     sf::RenderWindow window(sf::VideoMode(OBJECT_SIZE * 14, OBJECT_SIZE * 8), "Chess", sf::Style::Titlebar | sf::Style::Close);
@@ -43,7 +46,7 @@ int main()
 
     // current piece and valid movements
     Pieza *p;
-    std::vector<int> validMovements;
+    // std::vector<int> validMovements;
     int actualPlay = 0;
 
     // Alfil *aux = Pieza::create(10, 'A');
@@ -88,15 +91,24 @@ int main()
                         p = partida.getSelectedPiece();
                         if (p == nullptr)
                         {
-                            validMovements = partida.selectPiece(buttonPos);
+                            partida.selectPiece(buttonPos);
                         }
                         else
                         {
-                            moved = partida.moveSelected(buttonPos, validMovements);
+                            moved = partida.moveSelected(buttonPos);
                             if (moved)
                             {
                                 actualPlay++;
-                                partida.playNextMove();
+                                if (!partida.isFinished()){
+                                    //partida.playNextMove();
+                                    int mov = ca.getBestOption();
+                                    std::cout << "mov: " << mov << std::endl;
+                                    bool moved = partida.moveSelected(mov);
+                                    if (moved)
+                                    {
+                                        actualPlay++;
+                                    }
+                                }
                             }
                         }
                     }

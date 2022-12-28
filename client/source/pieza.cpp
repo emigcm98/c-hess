@@ -245,10 +245,6 @@ Caballo::Caballo(int pos, bool blancas) : Pieza(pos, blancas)
     }
     this->nameNotation = 'N';
     setTexture();
-    // std::string name = "knight";
-    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    // loadTexture(this->texture_file);
-    // setTexture();
 }
 
 std::vector<int> Caballo::calcularMovimiento()
@@ -285,10 +281,6 @@ Torre::Torre(int pos, bool blancas) : Pieza(pos, blancas)
     }
     this->nameNotation = 'R';
     setTexture();
-    // std::string name = "rook";
-    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    // loadTexture(this->texture_file);
-    // setTexture();
 }
 
 std::vector<int> Torre::calcularMovimiento()
@@ -327,10 +319,6 @@ Peon::Peon(int pos, bool blancas) : Pieza(pos, blancas)
     }
     this->nameNotation = 'P';
     setTexture();
-    // std::string name = "pawn";
-    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    // loadTexture(this->texture_file);
-    // setTexture();
 }
 
 std::vector<int> Peon::calcularMovimiento()
@@ -385,10 +373,6 @@ Rey::Rey(int pos, bool blancas) : Pieza(pos, blancas)
     }
     this->nameNotation = 'K';
     setTexture();
-    // std::string name = "king";
-    // this->texture_file = ("img/" + std::string(blancas ? "w_" : "b_") + name + ".png");
-    // loadTexture(this->texture_file);
-    // setTexture();
 }
 
 std::vector<int> Rey::calcularMovimiento()

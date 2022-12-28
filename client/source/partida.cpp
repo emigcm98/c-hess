@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include "partida.hpp"
 #include "configuration.cpp"
 
@@ -493,7 +491,15 @@ bool Partida::isChecking(Pieza *p)
 void Partida::undoPlay(int nPlay)
 {
     std::cout << "nPlay: " << nPlay << std::endl;
-    Jugada *j = jugadas.at(nPlay);
+    Jugada *j;
+    if (nPlay == -1)
+    {
+        j = jugadas.back();
+    }
+    else 
+    {
+        j = jugadas.at(nPlay);
+    }
     Pieza *piece = j->getPieza();
     Pieza *eatenPiece = j->getEatenPiece();
 
@@ -679,27 +685,10 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
                     }
                 }
             }
-            // if (pieza_enemiga->getColor()) // blanca
-            // {
-            //     for (int i = 0; i < 16; i++)
-            //     {
-            //         if (whitePieces[i]->getPos() == enemyPos)
-            //         {
-            //             whitePieces.erase(whitePieces.begin() + i);
-            //         }
-            //     }
-            // }
-            // else
-            // {
-            //     for (int i = 0; i < 16; i++)
-            //     {
-            //         if (blackPieces[i]->getPos() == enemyPos)
-            //         {
-            //             blackPieces.erase(blackPieces.begin() + i);
-            //         }
-            //     }
-            // }
-            // delete tablero[enemyPos];
+
+            // MIRAR
+            delete tablero[enemyPos];
+            
             if (pieza_enemiga->getColor())
             {
                 whitePiecesKilled.push_back(pieza_enemiga);
@@ -777,7 +766,7 @@ bool Partida::aplicarJugada(Jugada *j, std::vector<int> movements)
 std::vector<int> Partida::selectPiece(int pos)
 {
 
-    std::vector<int> validMovements;
+    //std::vector<int> validMovements;
     selectedPiece = nullptr;
 
     if (turn)
@@ -1073,7 +1062,7 @@ std::vector<int> Partida::createMovesSquares()
     return validMovements;
 }
 
-bool Partida::moveSelected(int pos, std::vector<int> validMovements)
+bool Partida::moveSelected(int pos)
 {
 
     // no piece or not selected or piece but same square as before
@@ -1081,12 +1070,14 @@ bool Partida::moveSelected(int pos, std::vector<int> validMovements)
     {
         // std::cout << "same square, deselecting current piece" << std::endl;
         selectedPiece = nullptr;
+        validMovements.clear();
         return false;
     }
     // another piece
     else if (selectedPiece != nullptr && tablero[pos] != nullptr && tablero[pos]->getColor() == selectedPiece->getColor())
     {
         // std::cout << "selecting another piece" << std::endl;
+        validMovements.clear();
         selectPiece(pos);
         return false;
     }
@@ -1396,14 +1387,9 @@ void Partida::setResultado(Resultado r)
     gameInfo->updateElos(usuario_blancas->getElo(), usuario_negras->getElo());
 }
 
-bool Partida::isJaque()
-{
-    return false;
-}
-
-bool Partida::isJaqueMate()
-{
-    return false;
+void Partida::deselectPiece(){
+    selectedPiece = nullptr;
+    validMovements.clear();
 }
 
 Pieza *Partida::getPiezaByPos(std::string pos)
@@ -1436,33 +1422,12 @@ bool Partida::isFinished()
     return finished;
 }
 
-void Partida::playNextMove()
+std::vector<Pieza*>* Partida::getWhitePieces()
 {
-    srand(time(0));
-    // choose piece
-    std::vector<int> movements;
-    if (turn){
-        while (true){
-            int n = rand() % whitePieces.size();
-            Pieza *p = whitePieces.at(n);
-            movements = selectPiece(p->getPos());
-            if (!movements.empty()){
-                break;
-            }
-        }
-    }
-    else {
-        while(true){
-            int n = rand() % blackPieces.size();
-            Pieza *p = blackPieces.at(n);
-            movements = selectPiece(p->getPos());
-            if (!movements.empty()){
-                break;
-            }
-        }
-    }
-    
-    // select movement
-    int i = rand() % movements.size();
-    moveSelected(movements.at(i), movements);
+    return &whitePieces;
+}
+
+std::vector<Pieza*>* Partida::getBlackPieces()
+{
+    return &blackPieces;
 }
