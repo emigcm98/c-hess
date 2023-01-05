@@ -52,6 +52,8 @@ public:
     void shortCastle();
     void longCastle();
 
+    //void showPromotionChoice();
+
     void generateString();
     std::string to_string();
 };

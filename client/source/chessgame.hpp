@@ -9,6 +9,7 @@
 #include "move.hpp"
 #include "user.hpp"
 #include "gameinfo.hpp"
+#include "promotionComponent.hpp"
 
 enum Result { //divided by 2 in formula
     WHITE = 2,
@@ -27,7 +28,10 @@ private:
     std::vector<Piece*> whitePiecesKilled;
     std::vector<Piece*> blackPiecesKilled;
     std::vector<Move*> moves;
+
     GameInfo* gameInfo;
+    PromotionComponent* promotionComponent;
+
     time_t fecha;
     std::array<sf::RectangleShape, 64> m_boardSquares;
     std::vector<sf::RectangleShape> possibleMovesSquares;
@@ -46,6 +50,8 @@ private:
     bool whiteCanLongCastling;
     bool blackCanLongCastling;
 
+    bool selectingPromoted;
+
     bool finished;
     Result r;
 public:
@@ -60,6 +66,10 @@ public:
 
     std::vector<Piece*>* getWhitePieces();
     std::vector<Piece*>* getBlackPieces();
+
+    bool getTurn();
+
+    bool getIfSelectingPromoted();
 
     // setters
     void setResult(Result r); // aplica los cambios a los jugadores
@@ -85,10 +95,11 @@ public:
     bool checkIfDrawsByMaterial();
     bool checkIfDrawsByPosition(bool color);
     bool canPieceMove(Piece *p);
-    Piece* promote(Piece *p, char pieceNameNotation = 'Q');
+    Move* checkStatusAfterMoving(Move *m);
+    Piece* promote(Move *m, char pieceNameNotation = 'Q');
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMovements(Piece *p);
     std::vector<int> filterIllegalMoves(Piece *p, std::vector<int> filteredMovements, bool color);
 
-    void playNextMove();
+    char getPieceType(int pos);
 };

@@ -8,10 +8,12 @@ class ChessAlgorithm
         std::vector<Piece *> *blackPieces;
         std::vector<Move *> *gameMoves; 
         ChessGame *chessgame;
+        User* computer;
         //Piece* tablero[64];
         float prevPositionEvaluation;
     public:
         ChessAlgorithm(ChessGame *chessgame, bool color);
+        User* getUser();
         virtual float evaluatePosition() = 0; // with fake moveSelected() to evaluate best position
         virtual int getBestOption() = 0;
 };

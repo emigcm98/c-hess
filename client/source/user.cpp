@@ -1,11 +1,11 @@
 #include "user.hpp"
 #include <math.h> 
 
-User::User(std::string username, std::string password, struct tm birthdate){
+User::User(std::string username, std::string password, struct tm birthdate, double elo){
     this->username = username;
     this->password = password;
     this->birthdate = birthdate;
-    elo = 1200.0;
+    this->elo = elo;
     k = 30;
 }
 

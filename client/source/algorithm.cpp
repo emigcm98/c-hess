@@ -11,12 +11,24 @@ ChessAlgorithm::ChessAlgorithm(ChessGame *chessgame, bool color)
     this->whitePieces = chessgame->getWhitePieces();
     this->blackPieces = chessgame->getBlackPieces();
     this->gameMoves = chessgame->getMoves();
+    
+    // struct tm birthdate;
+    // this->computer = new User("¿¿??", "", birthdate, 0);
 }
+
+
 
 // RANDOM CHESS ALGORITHM
 
 RandomChessAlgorithm::RandomChessAlgorithm(ChessGame *p, bool color) : ChessAlgorithm(p, color)
 {
+    struct tm birthdate;
+    this->computer = new User("randomAlg", "", birthdate, 500);
+}
+
+User *ChessAlgorithm::getUser()
+{
+    return this->computer;
 }
 
 float RandomChessAlgorithm::evaluatePosition()

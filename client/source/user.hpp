@@ -17,7 +17,7 @@ private:
 
     // public member function
 public:
-    User(std::string username, std::string password, struct tm birthdate);
+    User(std::string username, std::string password, struct tm birthdate, double elo = 1200.0);
     // getters
     int getElo();
     std::string getUsername();

@@ -1,7 +1,7 @@
 #include "move.hpp"
 // #include "partida.hpp"
 
-Move::Move(Piece *piece, std::string newPos) : Move(piece, fromChessPosition(newPos)){}
+Move::Move(Piece *piece, std::string newPos) : Move(piece, fromChessPosition(newPos)) {}
 
 Move::Move(Piece *piece, int newPos)
 {
@@ -9,9 +9,13 @@ Move::Move(Piece *piece, int newPos)
     this->prevPos = piece->getPos();
     this->newPos = newPos;
     this->newPosStr = toChessPosition(newPos);
-    if (!instanceof<Pawn>(piece))
+    if (! instanceof <Pawn>(piece))
     {
         this->pieceNameNotation = piece->getNameNotation();
+    }
+    else
+    {
+        this->pieceNameNotation = '\0';
     }
 
     this->shortCastling = false;
@@ -66,82 +70,100 @@ void Move::generateString()
         {
             str += pieceNameNotation;
         }
-        if (eatenPiece != nullptr){
+        if (eatenPiece != nullptr)
+        {
             if (pieceNameNotation == '\0')
             {
-                str += ((prevPos%8) + 'a');
+                str += ((prevPos % 8) + 'a');
             }
             str += 'x';
         }
         str += newPosStr;
-        if (promoted){
+        if (promoted)
+        {
             str += '=';
             str += piece->getNameNotation();
         }
-        if (check){
+        if (check)
+        {
             str += '+';
-            if (checkmate){
+            if (checkmate)
+            {
                 str += '+';
             }
         }
-        //return std::string(1, piece->getNombre()) + newPosStr; //+ (isJaque ? "+" : "") + (isJaqueMate ? "+" : "");
+        // return std::string(1, piece->getNombre()) + newPosStr; //+ (isJaque ? "+" : "") + (isJaqueMate ? "+" : "");
     }
 }
 
-std::string Move::to_string() {
+std::string Move::to_string()
+{
     return str;
 }
 
-void Move::shortCastle() {
+void Move::shortCastle()
+{
     shortCastling = true;
 }
 
-void Move::longCastle() {
+void Move::longCastle()
+{
     longCastling = true;
 }
 
-bool Move::isShortCastling() {
+bool Move::isShortCastling()
+{
     return shortCastling;
 }
 
-bool Move::isLongCastling() {
+bool Move::isLongCastling()
+{
     return longCastling;
 }
 
-bool Move::isFirstPieceMove() {
+bool Move::isFirstPieceMove()
+{
     return firstPieceMove;
 }
 
-void Move::setFirstPieceMoved(bool moved) {
+void Move::setFirstPieceMoved(bool moved)
+{
     firstPieceMove = moved;
-    //piece->setMoved(moved);
+    // piece->setMoved(moved);
 }
 
-void Move::setCheck(bool check) {
+void Move::setCheck(bool check)
+{
     this->check = check;
 }
 
-void Move::setCheckmate(bool checkmate) {
+void Move::setCheckmate(bool checkmate)
+{
     this->checkmate = checkmate;
 }
 
-void Move::setPromoted(bool promoted){
+void Move::setPromoted(bool promoted)
+{
     this->promoted = promoted;
 }
 
-void Move::eat(Piece* p) {
+void Move::eat(Piece *p)
+{
     this->eatenPiece = p;
 }
 
-Piece* Move::getEatenPiece() {
+Piece *Move::getEatenPiece()
+{
     return eatenPiece;
 }
 
-void Move::setPiece(Piece *p) {
+void Move::setPiece(Piece *p)
+{
     this->piece = p;
 }
 
-Piece* Move::getPawnBeforePromoting() {
+Piece *Move::getPawnBeforePromoting()
+{
     return pawnBeforePromoting;
 }
 
@@ -149,3 +171,14 @@ void Move::setPawnBeforePromoting(Piece *pawn)
 {
     pawnBeforePromoting = pawn;
 }
+
+// void Move::showPromotionChoice()
+// {
+//     // get newpos
+//     if (piece->getColor()){
+//         // get white sprites
+//     }
+//     else {
+//         // get black sprites
+//     }
+// }

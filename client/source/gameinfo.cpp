@@ -20,7 +20,7 @@ GameInfo::GameInfo(User *blancas, User *negras, std::vector<Move *> *moves, sf::
 
     blackName.setFont(*font);
     blackName.setString(negras->getUsername());
-    blackName.setCharacterSize(18);
+    blackName.setCharacterSize(14);
     blackName.setPosition(OBJECT_SIZE_F * 10, OBJECT_SIZE_F * 1 + OBJECT_SIZE_F / 3);
     blackName.setFillColor(sf::Color::Black);
 

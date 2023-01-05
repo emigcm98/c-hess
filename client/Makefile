@@ -2,17 +2,23 @@ CC=g++
 CFLAGS=-Wall -g
 LDPATH=-lsfml-graphics -lsfml-window -lsfml-system
 DEPS=
-OBJ=pieceTextures.o piece.o move.o chessgame.o algorithm.o user.o gameinfo.o main.o
+OBJ=pieceTextures.o piece.o move.o chessgame.o algorithm.o user.o gameinfo.o promotionComponent.o chessgameHandler.o main.o
 NAME=chess-client
 
 $(NAME): $(OBJ)
 	$(CC) $^ -o $@  $(CFLAGS) $(LDPATH)
 
-main.o: source/main.cpp source/gameinfo.cpp
+main.o: source/main.cpp
 	$(CC) -c source/main.cpp $(CFLAGS)
 
-gameinfo.o: source/gameinfo.cpp source/gameinfo.cpp source/move.hpp source/user.hpp
-	$(CC) -c source/gameinfo.cpp $(CFLAGS)
+chessgameHandler.o: source/chessgameHandler.cpp source/chessgameHandler.hpp
+	$(CC) -c source/chessgameHandler.cpp
+
+promotionComponent.o: source/promotionComponent.cpp source/promotionComponent.hpp
+	$(CC) -c source/promotionComponent.cpp $(CFLAGS)
+
+gameinfo.o: source/gameinfo.cpp source/gameinfo.hpp source/move.hpp source/user.hpp 
+	$(CC) -c source/gameinfo.cpp  $(CFLAGS)
 
 user.o: source/user.cpp source/user.hpp
 	$(CC) -c source/user.cpp $(CFLAGS)
