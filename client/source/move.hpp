@@ -26,6 +26,7 @@ private:
 public:
     Move(Piece* p, std::string newPos);
     Move(Piece* p, int newPos);
+    ~Move();
     
     std::vector<Piece*> checkingPieces;
 

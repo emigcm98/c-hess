@@ -10,6 +10,7 @@ private:
     ChessGame* chessgame;
     ChessAlgorithm* ca;
     User* player;
+    User* computer;
     bool humanColor;
     bool orientation;
     
@@ -24,5 +25,6 @@ private:
 
 public:
     ChessGameHandler(User *player, bool humanColor);
+    ~ChessGameHandler();
     int start();
 };

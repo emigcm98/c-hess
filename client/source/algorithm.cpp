@@ -16,7 +16,9 @@ ChessAlgorithm::ChessAlgorithm(ChessGame *chessgame, bool color)
     // this->computer = new User("¿¿??", "", birthdate, 0);
 }
 
-
+ChessAlgorithm::~ChessAlgorithm()
+{
+}
 
 // RANDOM CHESS ALGORITHM
 
@@ -24,6 +26,11 @@ RandomChessAlgorithm::RandomChessAlgorithm(ChessGame *p, bool color) : ChessAlgo
 {
     struct tm birthdate;
     this->computer = new User("randomAlg", "", birthdate, 500);
+}
+
+RandomChessAlgorithm::~RandomChessAlgorithm()
+{
+    //std::cout << "deleting RandomChessAlgorithm" << std::endl;
 }
 
 User *ChessAlgorithm::getUser()
@@ -77,6 +84,11 @@ int RandomChessAlgorithm::getBestOption()
 BasicChessAlgorithm::BasicChessAlgorithm(ChessGame *p, bool color) : ChessAlgorithm(p, color)
 {
     this->prevPositionEvaluation = 0.0;
+}
+
+BasicChessAlgorithm::~BasicChessAlgorithm()
+{
+    //std::cout << "deleting BasicChessAlgorithm" << std::endl;
 }
 
 float BasicChessAlgorithm::evaluatePosition()

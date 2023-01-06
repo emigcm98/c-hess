@@ -29,6 +29,11 @@ Move::Move(Piece *piece, int newPos)
     this->pawnBeforePromoting = nullptr;
 }
 
+Move::~Move()
+{
+    //std::cout << "deleting move " << str << std::endl;
+}
+
 Piece *Move::getPiece()
 {
     return this->piece;
@@ -172,13 +177,3 @@ void Move::setPawnBeforePromoting(Piece *pawn)
     pawnBeforePromoting = pawn;
 }
 
-// void Move::showPromotionChoice()
-// {
-//     // get newpos
-//     if (piece->getColor()){
-//         // get white sprites
-//     }
-//     else {
-//         // get black sprites
-//     }
-// }

@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "chessgameHandler.hpp"
 
-ChessGameHandler::ChessGameHandler(User* player, bool humanColor)
+ChessGameHandler::ChessGameHandler(User *player, bool humanColor)
 {
     if (!font.loadFromFile("fonts/Courier-BoldRegular.ttf"))
     {
@@ -17,13 +17,12 @@ ChessGameHandler::ChessGameHandler(User* player, bool humanColor)
     birthdate.tm_year = 1998;
     birthdate.tm_mon = 9; // 0 - 11
     birthdate.tm_mday = 14;
-    User computer = User("randomChess", "password", birthdate, 500.0);
+    this->computer = new User("randomChess", "password", birthdate, 500.0);
 
-    this->chessgame = new ChessGame(player, &computer, &font); 
+    this->chessgame = new ChessGame(this->player, this->computer, &font);
     this->ca = new RandomChessAlgorithm(chessgame, !humanColor);
 
     this->orientation = true;
-
 
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
     window.create(sf::VideoMode(OBJECT_SIZE * 14, OBJECT_SIZE * 8), "C-hess", sf::Style::Titlebar | sf::Style::Close);
@@ -36,6 +35,14 @@ ChessGameHandler::ChessGameHandler(User* player, bool humanColor)
     this->selectedPiece = nullptr;
     this->nMove = 0;
     this->gameMoves = chessgame->getMoves();
+}
+
+ChessGameHandler::~ChessGameHandler()
+{
+    // std::cout << "deleting ChessAlgorithm:" << std::endl;
+    delete ca;
+    // std::cout << "deleting ChessGame:" << std::endl;
+    delete chessgame;
 }
 
 int ChessGameHandler::start()
@@ -80,20 +87,21 @@ int ChessGameHandler::start()
                         // buttonPos = (event.mouseButton.x / OBJECT_SIZE) + ((7 - (event.mouseButton.y / OBJECT_SIZE)) * (8 * ((OBJECT_SIZE * 8) / window.getSize().y)));
 
                         // wait for user input to select the type of piece to promote
-                        if (selectingPromoted)
-                        {
-                            lastMove = gameMoves->back();
-                            if (buttonPos == lastMove->getNewPos() || buttonPos == lastMove->getNewPos() - 8 ||
-                                buttonPos == lastMove->getNewPos() - 16 || buttonPos == lastMove->getNewPos() - 24)
-                            {
-                                pieceNameNotation = chessgame->getPieceType(7-buttonPos/8);
-                                promoting = true;
-                            }
-                            break;
-                        }
 
                         if (turn) // player turn
                         {
+                            if (selectingPromoted)
+                            {
+                                lastMove = gameMoves->back();
+                                if (buttonPos == lastMove->getNewPos() || buttonPos == lastMove->getNewPos() - 8 ||
+                                    buttonPos == lastMove->getNewPos() - 16 || buttonPos == lastMove->getNewPos() - 24)
+                                {
+                                    pieceNameNotation = chessgame->getPieceType(7 - buttonPos / 8);
+                                    promoting = true;
+                                }
+                                break;
+                            }
+
                             selectedPiece = chessgame->getSelectedPiece();
                             if (selectedPiece == nullptr)
                             {
@@ -106,13 +114,14 @@ int ChessGameHandler::start()
                                 {
                                     nMove++;
                                 }
-                                else {
+                                else
+                                {
                                     selectingPromoted = chessgame->getIfSelectingPromoted();
-                                    if (selectingPromoted){
+                                    if (selectingPromoted)
+                                    {
                                         nMove++;
                                         std::cout << "lastMove == null == promoted!!" << std::endl;
                                     }
-                                    
                                 }
                                 // else { // can be promoted
                                 //     if (selectingPromoted){ // user is selecting promoted after pawn arrived to last row
@@ -169,13 +178,6 @@ int ChessGameHandler::start()
                     std::cout << gameMoves->size() << std::endl;
                 }
             }
-            if (chessgame->isFinished())
-            {
-                if (ca != nullptr)
-                {
-                    // delete ca;
-                }
-            }
         }
 
         // AI turn! (!turn)
@@ -185,14 +187,23 @@ int ChessGameHandler::start()
             int mov = ca->getBestOption();
             // wait a little time
             sf::sleep(sf::milliseconds(500));
-            Move *lastMove2 = chessgame->moveSelected(mov);
+            
+            Move *lastMove2 = chessgame->moveSelected(mov, false);
             if (lastMove2 != nullptr)
             {
                 nMove++;
             }
+
+            selectingPromoted = chessgame->getIfSelectingPromoted();
+            if (selectingPromoted){
+                lastMove2 = gameMoves->back();
+                chessgame->promote(lastMove2, turn ? 'Q' : 'q');
+                promoting = false;
+                nMove++;
+            }
         }
 
-        if (promoting)
+        if (turn && promoting)
         {
 
             // while(window.pollEvent()){
@@ -205,7 +216,7 @@ int ChessGameHandler::start()
                 chessgame->promote(lastMove, pieceNameNotation);
                 //?
                 promoting = false;
-                //nMove++;
+                // nMove++;
             }
         }
 
@@ -215,9 +226,7 @@ int ChessGameHandler::start()
         window.draw(*chessgame);
 
         window.display();
-
     }
 
     return 0;
 }
-

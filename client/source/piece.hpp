@@ -39,6 +39,7 @@ public:
     static Piece* create(int pos, char nombre);
     Piece(int pos, bool color); // pos from 0 to 63
     Piece(std::string pos, bool color) : Piece(fromChessPosition(pos), color){}; // pos from 0 to 63
+    virtual ~Piece();
     // getters
     int getPos();
     bool getColor();
@@ -62,6 +63,7 @@ class Bishop : public Piece
 public:
     Bishop(int pos, bool color);
     Bishop(std::string pos, bool color) : Bishop(fromChessPosition(pos), color){};
+    virtual ~Bishop();
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -72,6 +74,7 @@ class Knight : public Piece
 public:
     Knight(int pos, bool color);
     Knight(std::string pos, bool color) : Knight(fromChessPosition(pos), color){};
+    virtual ~Knight();
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -82,6 +85,7 @@ class Pawn : public Piece
 public:
     Pawn(int pos, bool color);
     Pawn(std::string pos, bool color) : Pawn(fromChessPosition(pos), color){};
+    virtual ~Pawn();
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -92,6 +96,7 @@ class Rook : public Piece
 public:
     Rook(int pos, bool color);
     Rook(std::string pos, bool color) : Rook(fromChessPosition(pos), color){};
+    virtual ~Rook();
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -102,6 +107,7 @@ class King : public Piece
 public:
     King(int pos, bool color);
     King(std::string pos, bool color) : King(fromChessPosition(pos), color){};
+    virtual ~King();
     virtual std::vector<int> calcularMovimiento();
 };
 
@@ -112,5 +118,6 @@ class Queen : public Piece
 public:
     Queen(int pos, bool color);
     Queen(std::string pos, bool color) : Queen(fromChessPosition(pos), color){};
+    virtual ~Queen();
     virtual std::vector<int> calcularMovimiento();
 };

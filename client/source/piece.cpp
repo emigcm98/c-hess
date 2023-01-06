@@ -76,7 +76,11 @@ Piece::Piece(int pos, bool color)
     this->pos = pos;
     this->color = color;
     this->timesMoved = 0;
-};
+}
+
+Piece::~Piece()
+{
+}
 
 char Piece::getNameFEN()
 {
@@ -122,26 +126,6 @@ void Piece::move(std::string pos)
 {
     move(fromChessPosition(pos));
 }
-
-// void Piece::loadTexture(std::string filePath)
-// {
-//     if (!texture.loadFromFile(filePath))
-//         std::cout << "Error loading file\n";
-//     texture.setSmooth(true);
-// }
-
-// void Piece::setTexture()
-// {
-//     m_sprite.setTexture(texture);
-
-//     int spriteSizeX = m_sprite.getTexture()->getSize().x;
-//     int spriteSizeY = m_sprite.getTexture()->getSize().y;
-
-//     m_sprite.setOrigin(sf::Vector2f(spriteSizeX / 2, spriteSizeY / 2));
-//     m_sprite.setScale(sf::Vector2f(0.75f*OBJECT_SIZE/spriteSizeX, 0.75f*OBJECT_SIZE/spriteSizeY));
-//     m_sprite.setPosition(pos % 8 * OBJECT_SIZE_F + OBJECT_SIZE_F/2, (7 - (pos / 8)) * OBJECT_SIZE_F + OBJECT_SIZE_F/2); // vista color
-//     // m_sprite.setPosition((7-(pos%8)) * 64.0f + 32.0f, pos/8 * 64.0f + 32.0f); // vista negras
-// }
 
 void Piece::setTexture()
 {
@@ -212,6 +196,12 @@ Bishop::Bishop(int pos, bool color) : Piece(pos, color)
     //setTexture();
 }
 
+Bishop::~Bishop()
+{
+    //std::cout << "Deleting " << (color ? "white" : "black") << " bishop" << std::endl;
+}
+
+
 std::vector<int> Bishop::calcularMovimiento()
 {
     std::vector<int> possibleMovs;
@@ -245,6 +235,11 @@ Knight::Knight(int pos, bool color) : Piece(pos, color)
     }
     this->nameNotation = 'N';
     setTexture();
+}
+
+Knight::~Knight()
+{
+    //std::cout << "Deleting " << (color ? "white" : "black") << " knight" << std::endl;
 }
 
 std::vector<int> Knight::calcularMovimiento()
@@ -283,6 +278,11 @@ Rook::Rook(int pos, bool color) : Piece(pos, color)
     setTexture();
 }
 
+Rook::~Rook()
+{
+    //std::cout << "Deleting " << (color ? "white" : "black") << " rook" << std::endl;
+}
+
 std::vector<int> Rook::calcularMovimiento()
 {
     std::vector<int> possibleMovs;
@@ -319,6 +319,11 @@ Pawn::Pawn(int pos, bool color) : Piece(pos, color)
     }
     this->nameNotation = 'P';
     setTexture();
+}
+
+Pawn::~Pawn()
+{
+    //std::cout << "Deleting " << (color ? "white" : "black") << " pawn" << std::endl;
 }
 
 std::vector<int> Pawn::calcularMovimiento()
@@ -373,6 +378,11 @@ King::King(int pos, bool color) : Piece(pos, color)
     }
     this->nameNotation = 'K';
     setTexture();
+}
+
+King::~King()
+{
+    //std::cout << "Deleting " << (color ? "white" : "black") << " king" << std::endl;
 }
 
 std::vector<int> King::calcularMovimiento()
@@ -431,6 +441,11 @@ Queen::Queen(int pos, bool color) : Piece(pos, color)
     // this->texture_file = ("img/" + std::string(color ? "w_" : "b_") + name + ".png");
     // loadTexture(this->texture_file);
     // setTexture();
+}
+
+Queen::~Queen()
+{
+    //std::cout << "Deleting " << (color ? "white" : "black") << " queen" << std::endl;
 }
 
 std::vector<int> Queen::calcularMovimiento()

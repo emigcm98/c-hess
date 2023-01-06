@@ -56,7 +56,8 @@ private:
     Result r;
 public:
     ChessGame(User* whitePlayer, User* blackPlayer, sf::Font* font);
-    Piece* tablero[64];
+    ~ChessGame();
+    Piece* board[64];
     // getters
     bool getOrientation();
     Piece* getPieceByPos(std::string pos);
@@ -86,7 +87,7 @@ public:
     bool applyPlay(int nPlay);
     void deselectPiece();
     std::vector<int> selectPiece(int pos);
-    Move* moveSelected(int pos);
+    Move* moveSelected(int pos, bool createPromotionComponent = true);
     //bool fakeMove(int pos, std::vector<int> validMovements);
     bool rotateBoard();
     bool isChecking(Piece *p);
@@ -98,7 +99,7 @@ public:
     Move* checkStatusAfterMoving(Move *m);
     Piece* promote(Move *m, char pieceNameNotation = 'Q');
     std::vector<int> createMovesSquares();
-    std::vector<int> filterValidMovements(Piece *p);
+    std::vector<int> filterValidMoves(Piece *p);
     std::vector<int> filterIllegalMoves(Piece *p, std::vector<int> filteredMovements, bool color);
 
     char getPieceType(int pos);

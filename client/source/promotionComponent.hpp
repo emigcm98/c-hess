@@ -4,10 +4,9 @@
 class PromotionComponent : public sf::Drawable
 {
 private:
-    std::array<sf::RectangleShape, 4> whitePromotionChoices; // static
-    std::array<sf::RectangleShape, 4> blackPromotionChoices; // static
+    std::array<sf::RectangleShape, 4> whitePromotionChoices;
+    std::array<sf::RectangleShape, 4> blackPromotionChoices;
     int posX;
-    int posY;
     bool color;
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 

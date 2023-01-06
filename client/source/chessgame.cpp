@@ -26,14 +26,53 @@ ChessGame::ChessGame(User *whitePlayer, User *blackPlayer, sf::Font *font)
 
     finished = false;
 
-    // tablero vacio
+    // board vacio
     for (int i = 0; i < 64; i++)
     {
-        tablero[i] = nullptr;
+        board[i] = nullptr;
     }
 
-    loadFen("1r1qkbnr/P2ppppp/8/8/8/8/1PPPPPPP/RNBQKBNR w");
+    loadFen("8/P7/8/8/8/7k/K2ppppp/Q7 w");
     load();
+}
+
+ChessGame::~ChessGame()
+{
+    // std::cout << "whitePieces:" << std::endl;
+    for (auto const &i : whitePieces)
+    {
+        delete i;
+    }
+    // std::cout << "whitePiecesKilled:" << std::endl;
+    for (auto const &i : whitePiecesKilled)
+    {
+        delete i;
+    }
+    // std::cout << "blackPieces:" << std::endl;
+    for (auto const &i : blackPieces)
+    {
+        delete i;
+    }
+    // std::cout << "blackPiecesKilled:" << std::endl;
+    for (auto const &i : blackPiecesKilled)
+    {
+        delete i;
+    }
+
+    // std::cout << "moves:" << std::endl;
+    for (auto const &i : moves)
+    {
+        delete i;
+    }
+
+    // std::cout << "gameInfo:" << std::endl;
+    delete gameInfo;
+
+    if (promotionComponent != nullptr)
+    {
+        // std::cout << "deleting promotion component?:" << std::endl;
+        delete promotionComponent;
+    }
 }
 
 void ChessGame::loadFen(std::string fen)
@@ -47,11 +86,11 @@ void ChessGame::loadFen(std::string fen)
         char aux = fen.at(i);
         if (aux >= 'A' && aux <= 'Z')
         {
-            whitePieces.push_back((tablero[pos] = Piece::create(pos, aux)));
+            whitePieces.push_back((board[pos] = Piece::create(pos, aux)));
         }
         else if (aux >= 'a' && aux <= 'z')
         {
-            blackPieces.push_back((tablero[pos] = Piece::create(pos, aux)));
+            blackPieces.push_back((board[pos] = Piece::create(pos, aux)));
         }
         else if (aux >= '1' && aux <= '8')
         {
@@ -102,13 +141,13 @@ std::string ChessGame::saveFen()
             }
             fen += '/';
         }
-        if (tablero[pos] != nullptr)
+        if (board[pos] != nullptr)
         {
             if (blank > 0)
             {
                 fen += ('0' + blank);
             }
-            fen += tablero[pos]->getNameFEN();
+            fen += board[pos]->getNameFEN();
 
             blank = 0;
         }
@@ -178,7 +217,7 @@ void ChessGame::draw(sf::RenderTarget &target, sf::RenderStates states) const
     }
 }
 
-std::vector<int> ChessGame::filterValidMovements(Piece *p)
+std::vector<int> ChessGame::filterValidMoves(Piece *p)
 {
 
     int pos = p->getPos();
@@ -193,9 +232,9 @@ std::vector<int> ChessGame::filterValidMovements(Piece *p)
     for (auto it = begin(movements); it != end(movements);)
     {
         // piece !
-        if (tablero[*it] != nullptr)
+        if (board[*it] != nullptr)
         {
-            bool isSameColor = tablero[*it]->getColor() == p->getColor();
+            bool isSameColor = board[*it]->getColor() == p->getColor();
             int div;
             if (abs(*it / 8 - pos / 8) == 0)
             {
@@ -260,7 +299,7 @@ std::vector<int> ChessGame::filterValidMovements(Piece *p)
                 // en passant
                 if (abs(*it - pos) == 7)
                 {
-                    if (potentiallyPieceEnPassant != nullptr && tablero[pos - 1] == potentiallyPieceEnPassant)
+                    if (potentiallyPieceEnPassant != nullptr && board[pos - 1] == potentiallyPieceEnPassant)
                     {
                         it++;
                     }
@@ -272,7 +311,7 @@ std::vector<int> ChessGame::filterValidMovements(Piece *p)
                 }
                 else if (abs(*it - pos) == 9)
                 {
-                    if (potentiallyPieceEnPassant && tablero[pos + 1] == potentiallyPieceEnPassant)
+                    if (potentiallyPieceEnPassant && board[pos + 1] == potentiallyPieceEnPassant)
                     {
                         it++;
                     }
@@ -286,7 +325,7 @@ std::vector<int> ChessGame::filterValidMovements(Piece *p)
                     if (turn)
                     {
                         // row is ok
-                        if ((pos / 8 != 1) || tablero[pos + 8] != nullptr)
+                        if ((pos / 8 != 1) || board[pos + 8] != nullptr)
                         {
                             movements.erase(it);
                         }
@@ -297,7 +336,7 @@ std::vector<int> ChessGame::filterValidMovements(Piece *p)
                     }
                     else
                     {
-                        if ((pos / 8 != 6) || tablero[pos - 8] != nullptr)
+                        if ((pos / 8 != 6) || board[pos - 8] != nullptr)
                         {
                             movements.erase(it);
                         }
@@ -321,9 +360,9 @@ std::vector<int> ChessGame::filterValidMovements(Piece *p)
                 }
                 if ((*it - pos) == 2 && p->getTimesMoved() == 0) // enroque corto
                 {
-                    Piece *rook = tablero[pos + 3];
+                    Piece *rook = board[pos + 3];
 
-                    if (rook != nullptr && instanceof <Rook>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && tablero[pos + 1] == nullptr)
+                    if (rook != nullptr && instanceof <Rook>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && board[pos + 1] == nullptr)
                     {
                         it++;
                         if (p->getColor())
@@ -350,8 +389,8 @@ std::vector<int> ChessGame::filterValidMovements(Piece *p)
                 }
                 else if ((*it - pos) == -2 && p->getTimesMoved() == 0) // enroque largo
                 {
-                    Piece *rook = tablero[pos - 4];
-                    if (rook != nullptr && instanceof <Rook>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && tablero[pos - 1] == nullptr)
+                    Piece *rook = board[pos - 4];
+                    if (rook != nullptr && instanceof <Rook>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && lastMove != nullptr && !lastMove->isCheck() && board[pos - 1] == nullptr)
                     {
                         it++;
                         if (p->getColor())
@@ -434,7 +473,7 @@ bool ChessGame::checkIfChecks(bool color)
 
 bool ChessGame::canPieceMove(Piece *p)
 {
-    std::vector<int> movements = filterValidMovements(p);
+    std::vector<int> movements = filterValidMoves(p);
     // check movements for the other sides
     movements = filterIllegalMoves(p, movements, !turn);
     return !movements.empty();
@@ -480,10 +519,10 @@ bool ChessGame::isChecking(Piece *p)
 {
     bool check = false;
     // once moved, we check new movements
-    std::vector<int> movements = filterValidMovements(p);
+    std::vector<int> movements = filterValidMoves(p);
     for (auto it = begin(movements); it != end(movements); *it++)
     {
-        Piece *checkedPiece = tablero[*it];
+        Piece *checkedPiece = board[*it];
         // if (checkedPiece != nullptr && instanceof <King>(checkedPiece))
         // {
         //     std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
@@ -544,19 +583,19 @@ void ChessGame::undoPlay(int nPlay)
             blackPieces.push_back(eatenPiece);
         }
         eatenPiece->move(j->getNewPos(), false); // not really move, is undo/takeback
-        tablero[j->getNewPos()] = eatenPiece;
+        board[j->getNewPos()] = eatenPiece;
 
         piece->move(j->getPrevPos(), false); // not really move, is undo
         // if (j->isFirstPieceMove()){
         //     j->setFirstPieceMoved(false);
         // }
-        tablero[j->getPrevPos()] = piece;
+        board[j->getPrevPos()] = piece;
     }
     else
     { // no se come pieza, solo se mueve
-        tablero[j->getNewPos()] = nullptr;
+        board[j->getNewPos()] = nullptr;
         piece->move(j->getPrevPos(), false); // not really move, is undo/takeback
-        tablero[j->getPrevPos()] = piece;
+        board[j->getPrevPos()] = piece;
     }
 
     // NO HACEMOS AL PASO (MUCHO FOLLON CREO)
@@ -570,7 +609,7 @@ bool ChessGame::applyPlay(int nPlay)
 
     std::cout << "pieza: " << piece->getNameFEN() << " -> (" << toChessPosition(j->getPrevPos()) << ", " << toChessPosition(j->getNewPos()) << ") [" << piece->getTimesMoved() << "]" << std::endl;
 
-    std::vector<int> validMovements = filterValidMovements(piece);
+    std::vector<int> validMovements = filterValidMoves(piece);
 
     std::cout << "movements: ";
     for (auto m : validMovements)
@@ -587,7 +626,7 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
 
     // se mira si se puede hacer (la Piezq tiene movimeinto, no hay jaque)
 
-    // si se puede hacer, se mueve, se actualiza el tablero y se devuelve true (y se mete a la lista de moves)
+    // si se puede hacer, se mueve, se actualiza el board y se devuelve true (y se mete a la lista de moves)
 
     bool is_aplicable = false;
 
@@ -650,7 +689,7 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
     {
 
         // quitamos movimiento del antiguo
-        tablero[pieza->getPos()] = nullptr;
+        board[pieza->getPos()] = nullptr;
 
         // si ya habia una pieza, se come y se elimina
         int enemyPos;
@@ -662,7 +701,7 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
         {
             enemyPos = newpos;
         }
-        Piece *pieza_enemiga = tablero[enemyPos];
+        Piece *pieza_enemiga = board[enemyPos];
         // comer
         if (pieza_enemiga != nullptr && pieza_enemiga->getColor() != pieza->getColor())
         {
@@ -698,7 +737,7 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
             }
 
             // not deleted, it goest to whitePieceKilled!
-            // delete tablero[enemyPos];
+            // delete board[enemyPos];
 
             if (pieza_enemiga->getColor())
             {
@@ -713,10 +752,10 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
 
         if (possibleShortCastling)
         {
-            Piece *rook = tablero[pieza->getPos() + 3];
+            Piece *rook = board[pieza->getPos() + 3];
             rook->move(pieza->getPos() + 1);
-            tablero[pieza->getPos() + 3] = nullptr;
-            tablero[pieza->getPos() + 1] = rook;
+            board[pieza->getPos() + 3] = nullptr;
+            board[pieza->getPos() + 1] = rook;
             j->shortCastle(); // in the play
             // shortCastle();    // in the game itself
             //  0-0
@@ -724,10 +763,10 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
         if (possibleLongCastling)
         {
 
-            Piece *rook = tablero[pieza->getPos() - 4];
+            Piece *rook = board[pieza->getPos() - 4];
             rook->move(pieza->getPos() - 1);
-            tablero[pieza->getPos() - 4] = nullptr;
-            tablero[pieza->getPos() - 1] = rook;
+            board[pieza->getPos() - 4] = nullptr;
+            board[pieza->getPos() - 1] = rook;
             j->longCastle(); // in the play
             // longCastle();    // in the game itself
             //  0-0-0
@@ -736,7 +775,7 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
         // movemos la pieza
         pieza->move(newpos);
         // ponemos el nuevo
-        tablero[newpos] = pieza;
+        board[newpos] = pieza;
 
         // check if it is check after move
 
@@ -846,7 +885,7 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
 
     for (auto mov = begin(filteredMovements); mov != end(filteredMovements);)
     {
-        Piece *enemyPiece = tablero[*mov];
+        Piece *enemyPiece = board[*mov];
         Piece *aux = Piece::create(p->getPos(), p->getNameFEN());
 
         // pos of the piece in list of pieces per movement
@@ -914,7 +953,7 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
             }
         }
 
-        // cambiamos el tablero momentaneamente
+        // cambiamos el board momentaneamente
         int currentSquare = *mov;
         // std::cout << "piezas negras: ";
         // for (auto const &i : blackPieces){
@@ -922,8 +961,8 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
         // }
         // std::cout << std::endl;
         // std::cout << "Ponemos la casilla " << toChessPosition(p->getPos()) << " a null" << std::endl;
-        tablero[p->getPos()] = nullptr;
-        tablero[currentSquare] = aux;
+        board[p->getPos()] = nullptr;
+        board[currentSquare] = aux;
         // std::cout << "Ponemos en la casilla " << toChessPosition(*it) << " la pieza aux" << std::endl;
 
         // std::cout << "CHECKING CHECKS PER ENEMY PIECE! (FOR MOVE " << toChessPosition(*it) << ")" << std::endl;
@@ -979,17 +1018,17 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
             }
         }
 
-        // ponemos el tablero como antes
+        // ponemos el board como antes
         // std::cout << "Ponemos la casilla " << toChessPosition(p->getPos()) << " a null" << std::endl;n
         if (enemyPiece != nullptr && enemyPiece->getColor() != p->getColor())
         {
-            tablero[currentSquare] = enemyPiece;
+            board[currentSquare] = enemyPiece;
         }
         else
         {
-            tablero[currentSquare] = nullptr;
+            board[currentSquare] = nullptr;
         }
-        tablero[p->getPos()] = p;
+        board[p->getPos()] = p;
 
         // delete aux piece
         delete aux;
@@ -1010,7 +1049,7 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
 std::vector<int> ChessGame::createMovesSquares()
 {
     // valid movements are those which cannot jump pieces or eat same color, as well as en passant and castling.
-    std::vector<int> validMovements = filterValidMovements(selectedPiece);
+    std::vector<int> validMovements = filterValidMoves(selectedPiece);
     // illegal moves are those which moving would end up with a check (pinned piece, moving king to incorrect position or castling bad).
     // check movements for the same side
     validMovements = filterIllegalMoves(selectedPiece, validMovements, turn);
@@ -1040,7 +1079,7 @@ std::vector<int> ChessGame::createMovesSquares()
         tmp.setPosition(sf::Vector2f((validMovements.at(i) % 8) * OBJECT_SIZE_F, (7 - (validMovements.at(i) / 8)) * OBJECT_SIZE_F));
 
         tmp.setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
-        if (tablero[validMovements.at(i)] != nullptr && tablero[validMovements.at(i)]->getColor() != selectedPiece->getColor()) // another piece, put in red
+        if (board[validMovements.at(i)] != nullptr && board[validMovements.at(i)]->getColor() != selectedPiece->getColor()) // another piece, put in red
         {
             // red
             tmp.setFillColor(sf::Color(0xff000050));
@@ -1065,7 +1104,7 @@ std::vector<int> ChessGame::createMovesSquares()
     return validMovements;
 }
 
-Move *ChessGame::moveSelected(int pos)
+Move *ChessGame::moveSelected(int pos, bool createPromotionComponent)
 {
 
     // no piece or not selected or piece but same square as before
@@ -1077,7 +1116,7 @@ Move *ChessGame::moveSelected(int pos)
         return nullptr;
     }
     // another piece
-    else if (selectedPiece != nullptr && tablero[pos] != nullptr && tablero[pos]->getColor() == selectedPiece->getColor())
+    else if (selectedPiece != nullptr && board[pos] != nullptr && board[pos]->getColor() == selectedPiece->getColor())
     {
         // std::cout << "selecting another piece" << std::endl;
         validMovements.clear();
@@ -1114,11 +1153,15 @@ Move *ChessGame::moveSelected(int pos)
 
         if (instanceof <Pawn>(selectedPiece))
         {
-            if (selectedPiece->getPos() / 8 == 7 || selectedPiece->getPos() == 0) // white or black last row
+            if (selectedPiece->getPos() / 8 == 7 || selectedPiece->getPos() / 8 == 0) // white or black last row
             {
+                std::cout << "pawn arrived at " << toChessPosition(selectedPiece->getPos()) << " waiting to promote!" << std::endl;
                 selectingPromoted = true;
-                promotionComponent = new PromotionComponent(pos, turn);
-                selectedPiece = nullptr;
+                if (createPromotionComponent)
+                {
+                    promotionComponent = new PromotionComponent(pos, turn);
+                    selectedPiece = nullptr;
+                }
                 // Piece *promoted = promote(j, DEFAULT_PROMOTION);
                 return nullptr; // ??
             }
@@ -1191,42 +1234,60 @@ Piece *ChessGame::promote(Move *m, char pieceNameNotation)
     Piece *p = m->getPiece();
     Piece *newPiece = nullptr;
     std::vector<Piece *>::iterator itPos;
-    if (p->getColor())
+
+    // check color to take pieceList
+    std::vector<Piece *> *piecesList = p->getColor() ? &whitePieces : &blackPieces;
+    for (auto it = begin(*piecesList); it != end(*piecesList);)
     {
-        for (auto it = begin(whitePieces); it != end(whitePieces);)
+        if (*it == p)
         {
-            if (*it == p)
-            {
-                newPiece = Piece::create(p->getPos(), pieceNameNotation);
-                tablero[p->getPos()] = newPiece;
-                itPos = whitePieces.erase(it);
-                whitePieces.insert(itPos, newPiece);
-                break;
-            }
-            else
-            {
-                *it++;
-            }
+            newPiece = Piece::create(p->getPos(), pieceNameNotation);
+            board[p->getPos()] = newPiece;
+            itPos = piecesList->erase(it);
+            piecesList->insert(itPos, newPiece);
+            break;
+        }
+        else
+        {
+            *it++;
         }
     }
-    else
-    {
-        for (auto it = begin(blackPieces); it != end(blackPieces);)
-        {
-            if (*it == p)
-            {
-                newPiece = Piece::create(p->getPos(), pieceNameNotation + 32);
-                tablero[p->getPos()] = newPiece;
-                itPos = blackPieces.erase(it);
-                blackPieces.insert(itPos, newPiece);
-                break;
-            }
-            else
-            {
-                it++;
-            }
-        }
-    }
+    // if (p->getColor())
+    // {
+    //     for (auto it = begin(whitePieces); it != end(whitePieces);)
+    //     {
+    //         if (*it == p)
+    //         {
+    //             newPiece = Piece::create(p->getPos(), pieceNameNotation);
+    //             board[p->getPos()] = newPiece;
+    //             itPos = whitePieces.erase(it);
+    //             whitePieces.insert(itPos, newPiece);
+    //             break;
+    //         }
+    //         else
+    //         {
+    //             *it++;
+    //         }
+    //     }
+    // }
+    // else
+    // {
+    //     for (auto it = begin(blackPieces); it != end(blackPieces);)
+    //     {
+    //         if (*it == p)
+    //         {
+    //             newPiece = Piece::create(p->getPos(), pieceNameNotation);
+    //             board[p->getPos()] = newPiece;
+    //             itPos = blackPieces.erase(it);
+    //             blackPieces.insert(itPos, newPiece);
+    //             break;
+    //         }
+    //         else
+    //         {
+    //             it++;
+    //         }
+    //     }
+    // }
     // it should not be deleted, must be stored at whiteKilledPieces...
     if (p->getColor())
     {
@@ -1238,8 +1299,6 @@ Piece *ChessGame::promote(Move *m, char pieceNameNotation)
     }
     // delete p;
 
-    // std::cout << "newPiece: " << newPiece->getNameFEN() << " " << toChessPosition(newPiece->getPos()) << std::endl;
-
     // update the move
     m->setPiece(newPiece);
     m->setPromoted(true);
@@ -1250,7 +1309,7 @@ Piece *ChessGame::promote(Move *m, char pieceNameNotation)
     selectingPromoted = false;
     if (promotionComponent != nullptr)
     {
-        // delete promotionComponent;
+        delete promotionComponent;
         promotionComponent = nullptr;
     }
 
@@ -1410,8 +1469,8 @@ void ChessGame::setResult(Result r)
 {
     this->r = r;
     // user's calculations
-    whitePlayer->calculateNewElo(blackPlayer->getElo(), float(r / 2));
-    blackPlayer->calculateNewElo(whitePlayer->getElo(), float((2 - r) / 2));
+    whitePlayer->calculateNewElo(blackPlayer->getElo(), (float)r / 2);
+    blackPlayer->calculateNewElo(whitePlayer->getElo(), (float)((2 - (float)r) / 2));
     gameInfo->updateElo(whitePlayer->getElo(), blackPlayer->getElo());
 }
 
@@ -1423,7 +1482,7 @@ void ChessGame::deselectPiece()
 
 Piece *ChessGame::getPieceByPos(std::string pos)
 {
-    return tablero[fromChessPosition(pos)];
+    return board[fromChessPosition(pos)];
 }
 
 std::vector<Move *> *ChessGame::getMoves()
