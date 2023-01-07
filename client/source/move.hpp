@@ -34,6 +34,7 @@ public:
     Piece* getPiece();
     int getNewPos();
     int getPrevPos();
+    bool isEnPassant();
     bool isShortCastling();
     bool isLongCastling();
     bool isFirstPieceMove();
@@ -43,6 +44,7 @@ public:
     void setPiece(Piece *p);
     void setCheck(bool check);
     void setCheckmate(bool checkmate);
+    void setEnPassant(bool enPassant);
     void setPromoted(bool promoted);
     void setPawnBeforePromoting(Piece *pawn);
     void setFirstPieceMoved(bool moved);

@@ -211,14 +211,14 @@ int BasicChessAlgorithm::getBestOption()
                             piece = i;
                         }
                         // delete j2
-                        chessgame->undoPlay();
+                        chessgame->undoMove();
                         delete j2;
                         
                     }
                 }
 
                 // delete j
-                chessgame->undoPlay();
+                chessgame->undoMove();
                 delete j;
             }
         }

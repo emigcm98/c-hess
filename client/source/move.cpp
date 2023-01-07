@@ -155,6 +155,7 @@ void Move::setPromoted(bool promoted)
 void Move::eat(Piece *p)
 {
     this->eatenPiece = p;
+    std::cout << "se ha comido un " << p->getNameFEN() << " en " << toChessPosition(p->getPos()) << std::endl;
 }
 
 Piece *Move::getEatenPiece()
@@ -177,3 +178,12 @@ void Move::setPawnBeforePromoting(Piece *pawn)
     pawnBeforePromoting = pawn;
 }
 
+bool Move::isEnPassant()
+{
+    return enPassant;
+}
+
+void Move::setEnPassant(bool enPassant)
+{
+    this->enPassant=enPassant;
+}

@@ -5,8 +5,6 @@ bool orientation = true;
 
 int main()
 {
-    
-
     struct tm birthdate;
     birthdate.tm_year = 1998;
     birthdate.tm_mon = 9; // 0 - 11
@@ -14,7 +12,9 @@ int main()
 
     User u = User("emigcm98", "password", birthdate);
 
-    ChessGameHandler cgh = ChessGameHandler(&u, true);
+    User u2 = User("eve", "password", birthdate);
+
+    ChessGameHandler cgh = ChessGameHandler(&u, &u2);
     cgh.start();
 
     // User u2 = User("fuen", "password", birthdate);

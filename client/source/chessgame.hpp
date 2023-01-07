@@ -68,7 +68,7 @@ public:
     std::vector<Piece*>* getWhitePieces();
     std::vector<Piece*>* getBlackPieces();
 
-    bool getTurn();
+    bool* getTurn();
 
     bool getIfSelectingPromoted();
 
@@ -83,7 +83,7 @@ public:
     std::string savePgn();
     void passTurn();
     bool applyMove(Move* j, std::vector<int> movements); // aplica los cambios al tablero
-    void undoPlay(int nPlay = -1);
+    void undoMove(int nPlay = -1);
     bool applyPlay(int nPlay);
     void deselectPiece();
     std::vector<int> selectPiece(int pos);

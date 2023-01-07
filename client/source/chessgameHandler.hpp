@@ -10,7 +10,7 @@ private:
     ChessGame* chessgame;
     ChessAlgorithm* ca;
     User* player;
-    User* computer;
+    User* player2;
     bool humanColor;
     bool orientation;
     
@@ -18,13 +18,13 @@ private:
     std::vector<Move *> *gameMoves;
     Piece *selectedPiece;
 
-    bool turn;
+    bool* turn;
 
     sf::Font font;
     sf::RenderWindow window;
 
 public:
-    ChessGameHandler(User *player, bool humanColor);
+    ChessGameHandler(User *player, User *player2 = nullptr, bool humanColor = true);
     ~ChessGameHandler();
     int start();
 };

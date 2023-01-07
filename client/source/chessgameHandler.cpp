@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "chessgameHandler.hpp"
 
-ChessGameHandler::ChessGameHandler(User *player, bool humanColor)
+ChessGameHandler::ChessGameHandler(User *player, User *player2, bool humanColor)
 {
     if (!font.loadFromFile("fonts/Courier-BoldRegular.ttf"))
     {
@@ -12,17 +12,29 @@ ChessGameHandler::ChessGameHandler(User *player, bool humanColor)
 
     this->humanColor = humanColor;
     this->player = player;
+    this->player2 = player2;
 
     struct tm birthdate;
     birthdate.tm_year = 1998;
     birthdate.tm_mon = 9; // 0 - 11
     birthdate.tm_mday = 14;
-    this->computer = new User("randomChess", "password", birthdate, 500.0);
 
-    this->chessgame = new ChessGame(this->player, this->computer, &font);
-    this->ca = new RandomChessAlgorithm(chessgame, !humanColor);
+    if (this->player2 == nullptr)
+    {
+        // computer
+        this->player2 = new User("randomChess", "password", birthdate, 500.0);
+
+        this->chessgame = new ChessGame(this->player, this->player2, &font);
+        this->ca = new RandomChessAlgorithm(chessgame, !humanColor);
+    }
+    else
+    {
+        this->chessgame = new ChessGame(this->player, this->player2, &font);
+        this->ca = nullptr;
+    }
 
     this->orientation = true;
+    this->turn = this->chessgame->getTurn();
 
     // create the window (remember: it's safer to create it in the main thread due to OS limitations)
     window.create(sf::VideoMode(OBJECT_SIZE * 14, OBJECT_SIZE * 8), "C-hess", sf::Style::Titlebar | sf::Style::Close);
@@ -52,7 +64,7 @@ int ChessGameHandler::start()
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
         Move *lastMove = nullptr;
-        bool turn = chessgame->getTurn();
+        //bool* turn = chessgame->getTurn();
         bool selectingPromoted = chessgame->getIfSelectingPromoted();
         bool promoting = false;
         char pieceNameNotation = '\0';
@@ -88,7 +100,7 @@ int ChessGameHandler::start()
 
                         // wait for user input to select the type of piece to promote
 
-                        if (turn) // player turn
+                        if (*turn == humanColor || ca == nullptr) // player turn
                         {
                             if (selectingPromoted)
                             {
@@ -153,7 +165,7 @@ int ChessGameHandler::start()
                     if (nMove > 0)
                     {
                         nMove--;
-                        chessgame->undoPlay(nMove);
+                        chessgame->undoMove(nMove);
                     }
                 }
                 else if (event.key.code == sf::Keyboard::Right)
@@ -166,28 +178,30 @@ int ChessGameHandler::start()
                 }
                 else if (event.key.code == sf::Keyboard::Escape)
                 {
-                    if (nMove > 0)
+                    if (nMove > 1)
                     {
                         nMove--;
                         // chessgame->takeback();
-                        chessgame->undoPlay();
+                        chessgame->undoMove();
+                        nMove--;
+                        chessgame->undoMove();
                     }
                 }
-                else if (event.key.code == sf::Keyboard::J)
-                {
-                    std::cout << gameMoves->size() << std::endl;
-                }
+                // else if (event.key.code == sf::Keyboard::J)
+                // {
+                //     std::cout << gameMoves->size() << std::endl;
+                // }
             }
         }
 
         // AI turn! (!turn)
-        if (!turn && !chessgame->isFinished() && ca != nullptr)
+        if (*turn != humanColor && !chessgame->isFinished() && ca != nullptr)
         {
             // chess engine
             int mov = ca->getBestOption();
             // wait a little time
             sf::sleep(sf::milliseconds(500));
-            
+
             Move *lastMove2 = chessgame->moveSelected(mov, false);
             if (lastMove2 != nullptr)
             {
@@ -195,7 +209,8 @@ int ChessGameHandler::start()
             }
 
             selectingPromoted = chessgame->getIfSelectingPromoted();
-            if (selectingPromoted){
+            if (selectingPromoted)
+            {
                 lastMove2 = gameMoves->back();
                 chessgame->promote(lastMove2, turn ? 'Q' : 'q');
                 promoting = false;
@@ -203,7 +218,7 @@ int ChessGameHandler::start()
             }
         }
 
-        if (turn && promoting)
+        if (*turn == humanColor && promoting)
         {
 
             // while(window.pollEvent()){
