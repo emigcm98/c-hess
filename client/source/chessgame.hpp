@@ -49,6 +49,7 @@ private:
     bool blackCanShortCastling;
     bool whiteCanLongCastling;
     bool blackCanLongCastling;
+    int fiftyMoveRuleNumber;
 
     bool selectingPromoted;
 
@@ -67,6 +68,8 @@ public:
 
     std::vector<Piece*>* getWhitePieces();
     std::vector<Piece*>* getBlackPieces();
+    std::vector<Piece*>* getWhitePiecesKilled();
+    std::vector<Piece*>* getBlackPiecesKilled();
 
     bool* getTurn();
 
@@ -78,7 +81,7 @@ public:
 
     // methods
     void load(sf::Color col1 = sf::Color::White, sf::Color col2 = sf::Color::Black);
-    void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
+    void loadFen(std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     std::string saveFen();
     std::string savePgn();
     void passTurn();
@@ -96,7 +99,7 @@ public:
     bool checkIfDrawsByMaterial();
     bool checkIfDrawsByPosition(bool color);
     bool canPieceMove(Piece *p);
-    Move* checkStatusAfterMoving(Move *m);
+    Move* updateStatusAfterMoving(Move *m);
     Piece* promote(Move *m, char pieceNameNotation = 'Q');
     std::vector<int> createMovesSquares();
     std::vector<int> filterValidMoves(Piece *p);

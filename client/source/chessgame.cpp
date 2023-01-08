@@ -15,12 +15,16 @@ ChessGame::ChessGame(User *whitePlayer, User *blackPlayer, sf::Font *font)
     turn = true; // white start
 
     orientation = true;
-    whiteCanShortCastling = true;
-    whiteCanLongCastling = true;
-    blackCanShortCastling = true;
-    blackCanLongCastling = true;
+
+    // was true before, but load in FEN
+    whiteCanShortCastling = false;
+    whiteCanLongCastling = false;
+    blackCanShortCastling = false;
+    blackCanLongCastling = false;
 
     selectingPromoted = false;
+
+    fiftyMoveRuleNumber = 0;
 
     finished = false;
 
@@ -30,7 +34,8 @@ ChessGame::ChessGame(User *whitePlayer, User *blackPlayer, sf::Font *font)
         board[i] = nullptr;
     }
 
-    loadFen("rnbqkbnr/pppppppp/8/4P3/8/8/PPPP1PPP/R3K2R b");
+    // loadFen("rnbqkbnr/pppppppp/8/4P3/8/8/PPPP1PPP/R3K2R b");
+    loadFen();
     load();
 }
 
@@ -78,39 +83,83 @@ void ChessGame::loadFen(std::string fen)
     //"rnbqkbnr/ pppppppp/     8     /    8    /     8    /     8    /PPPPPPPP/RNBQKBNR"
     /* 56 - 63 / 48 - 55 / *40 - 47 / *32 - 39 / *24 - 31 / *16 - 23 / 8 - 15 / 0 - 7 */
     int i = 0;
+    int blankspaces = 0;
     for (int pos = 56; i < int(fen.length()); pos++)
     {
-
         char aux = fen.at(i);
         if (aux >= 'A' && aux <= 'Z')
         {
-            whitePieces.push_back((board[pos] = Piece::create(pos, aux)));
+            if (blankspaces == 0)
+            {
+                whitePieces.push_back((board[pos] = Piece::create(pos, aux)));
+            }
+            else if (blankspaces == 2)
+            {
+                if (aux == 'K')
+                {
+                    whiteCanShortCastling = true;
+                }
+                else if (aux == 'Q')
+                {
+                    whiteCanLongCastling = true;
+                }
+            }
         }
         else if (aux >= 'a' && aux <= 'z')
         {
-            blackPieces.push_back((board[pos] = Piece::create(pos, aux)));
+            if (blankspaces == 0)
+            {
+                blackPieces.push_back((board[pos] = Piece::create(pos, aux)));
+            }
+            else if (blankspaces == 1)
+            {
+                if (aux == 'b')
+                {
+                    turn = false;
+                }
+                else if (aux == 'w')
+                {
+                    turn = true;
+                }
+            }
+            else if (blankspaces == 2)
+            {
+                if (aux == 'k')
+                {
+                    blackCanShortCastling = true;
+                }
+                else if (aux == 'q')
+                {
+                    blackCanLongCastling = true;
+                }
+            }
         }
-        else if (aux >= '1' && aux <= '8')
+        else if (aux >= '0' && aux <= '8')
         {
-            pos += (aux - '1');
+            if (blankspaces == 0)
+            {
+                pos += (aux - '1');
+            }
+            else if (blankspaces == 4)
+            {
+                fiftyMoveRuleNumber = (aux - '0');
+            }
         }
         else if (aux == '/')
         {
-            pos -= 17;
+            if (blankspaces == 0)
+            {
+                pos -= 17;
+            }
         }
         else if (aux == ' ')
         {
-            char next = fen.at(i + 1);
-            if (next == 'w')
-            {
-                turn = true;
-            }
-            else if (next == 'b')
-            {
-                turn = false;
-            }
-            i++;
+            blankspaces++;
         }
+        // else if (aux == '-')
+        // {
+
+        // }
         i++;
     }
 }
@@ -156,7 +205,20 @@ std::string ChessGame::saveFen()
         iter++;
     }
     fen += ' ';
-    fen += (turn ? 'w' : 'b');
+    fen += (turn ? "w " : "b ");
+    // check rook
+    fen += (whiteCanShortCastling ? 'K' : '\0');
+    fen += (whiteCanShortCastling ? 'Q' : '\0');
+    fen += (blackCanShortCastling ? 'k' : '\0');
+    fen += (blackCanShortCastling ? 'q' : '\0');
+    if (!whiteCanShortCastling && !whiteCanLongCastling && !blackCanShortCastling && !blackCanLongCastling)
+    {
+        fen += '-';
+    }
+    fen += " - ";
+    fen += std::to_string(fiftyMoveRuleNumber);
+    fen += ' ';
+    fen += std::to_string(moves.size() / 2 + 1);
 
     return fen;
 }
@@ -221,12 +283,6 @@ std::vector<int> ChessGame::filterValidMoves(Piece *p)
     int pos = p->getPos();
     std::vector<int> movements = p->calcularMovimiento();
 
-    // std::cout << "movements: ";
-    // for (auto m : movements)
-    // {
-    //     std::cout << m << " ";
-    // }
-
     for (auto it = begin(movements); it != end(movements);)
     {
         // piece !
@@ -275,15 +331,11 @@ std::vector<int> ChessGame::filterValidMoves(Piece *p)
                 // std::cout << "fs: " << firstSquare << ", *it: " << *it << ", i: " << i << std::endl;
                 if (firstSquare == (*it - i * diff) && abs(*it - pos) <= abs(diff * 7))
                 {
-                    // std::cout << "borrando! " << *(it) << std::endl;
                     movements.erase(it);
-                    // size--;
                     deleted++;
-                    // i--;
                 }
                 else
                 {
-                    // std::cout << *(it) << " sale de la secuencia actual" << std::endl;
                     break;
                 }
                 i++;
@@ -320,28 +372,14 @@ std::vector<int> ChessGame::filterValidMoves(Piece *p)
                 }
                 else if (abs(*it - pos) == 16)
                 {
-                    if (turn)
+                    // row is ok
+                    if (turn ? (pos / 8 != 1) || board[pos + 8] != nullptr : (pos / 8 != 6) || board[pos - 8] != nullptr)
                     {
-                        // row is ok
-                        if ((pos / 8 != 1) || board[pos + 8] != nullptr)
-                        {
-                            movements.erase(it);
-                        }
-                        else
-                        {
-                            *it++;
-                        }
+                        movements.erase(it);
                     }
                     else
                     {
-                        if ((pos / 8 != 6) || board[pos - 8] != nullptr)
-                        {
-                            movements.erase(it);
-                        }
-                        else
-                        {
-                            *it++;
-                        }
+                        *it++;
                     }
                 }
                 else
@@ -363,25 +401,11 @@ std::vector<int> ChessGame::filterValidMoves(Piece *p)
                     if (rook != nullptr && instanceof <Rook>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && ((lastMove != nullptr && !lastMove->isCheck()) || moves.size() == 0) && board[pos + 1] == nullptr)
                     {
                         it++;
-                        if (p->getColor())
-                        {
-                            whiteCanShortCastling = true;
-                        }
-                        else
-                        {
-                            blackCanShortCastling = true;
-                        }
+                        // p->getColor() ? whiteCanShortCastling = true : blackCanShortCastling = true;
                     }
                     else
                     {
-                        if (p->getColor())
-                        {
-                            whiteCanShortCastling = false;
-                        }
-                        else
-                        {
-                            blackCanShortCastling = false;
-                        }
+                        // p->getColor() ? whiteCanShortCastling = false : blackCanShortCastling = false;
                         movements.erase(it);
                     }
                 }
@@ -391,25 +415,11 @@ std::vector<int> ChessGame::filterValidMoves(Piece *p)
                     if (rook != nullptr && instanceof <Rook>(rook) && p->getTimesMoved() == 0 && rook->getTimesMoved() == 0 && rook->getColor() == p->getColor() && ((lastMove != nullptr && !lastMove->isCheck()) || moves.size() == 0) && board[pos - 1] == nullptr)
                     {
                         it++;
-                        if (p->getColor())
-                        {
-                            whiteCanLongCastling = true;
-                        }
-                        else
-                        {
-                            blackCanLongCastling = true;
-                        }
+                        // p->getColor() ? whiteCanLongCastling = true : blackCanLongCastling = true;
                     }
                     else
                     {
-                        if (p->getColor())
-                        {
-                            whiteCanLongCastling = false;
-                        }
-                        else
-                        {
-                            blackCanLongCastling = false;
-                        }
+                        // p->getColor() ? whiteCanLongCastling = false : blackCanLongCastling = false;
                         movements.erase(it);
                     }
                 }
@@ -424,14 +434,6 @@ std::vector<int> ChessGame::filterValidMoves(Piece *p)
             }
         }
     }
-
-    // std::cout << "new movements << (" << p->getNameFEN() << "): ";
-    // for (auto m : movements)
-    // {
-    //     std::cout << toChessPosition(m) << " ";
-    // }
-    // std::cout << std::endl;
-
     return movements;
 }
 
@@ -440,30 +442,14 @@ Return true if there is any check in the actual position.
 */
 bool ChessGame::checkIfChecks(bool color)
 {
-    // if white pieces
-    if (color)
+
+    std::vector<Piece *> *piecesList = color ? &blackPieces : &whitePieces;
+
+    for (auto const &i : *piecesList)
     {
-        // we iterate black pieces to see if they are checking white king
-        for (auto const &i : blackPieces)
+        if (isChecking(i))
         {
-            if (isChecking(i))
-            {
-                // j->setJaque(true);
-                // j->checkingPieces.push_back(i);
-                return true;
-            }
-        }
-    }
-    else
-    {
-        for (auto const &i : whitePieces)
-        {
-            if (isChecking(i))
-            {
-                // j->setJaque(true);
-                // j->checkingPieces.push_back(i);
-                return true;
-            }
+            return true;
         }
     }
     return false;
@@ -482,29 +468,14 @@ Check if 'color' side is being checkmated
 */
 bool ChessGame::checkIfCheckmate(bool color)
 {
+    std::vector<Piece *> *piecesList = color ? &blackPieces : &whitePieces;
 
-    if (color)
+    for (auto const &i : *piecesList)
     {
-        for (auto const &i : blackPieces)
+        bool canMove = canPieceMove(i);
+        if (canMove)
         {
-            bool canMove = canPieceMove(i);
-            if (canMove)
-            {
-                // std::cout << "Turn " << turn << " Piece " << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") can move!" << std::endl;
-                return false;
-            }
-        }
-    }
-    else
-    {
-        for (auto const &i : whitePieces)
-        {
-            bool canMove = canPieceMove(i);
-            if (canMove)
-            {
-                // std::cout << "Turn " << turn << " Piece " << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") can move!" << std::endl;
-                return false;
-            }
+            return false;
         }
     }
     return true;
@@ -521,10 +492,7 @@ bool ChessGame::isChecking(Piece *p)
     for (auto it = begin(movements); it != end(movements); *it++)
     {
         Piece *checkedPiece = board[*it];
-        // if (checkedPiece != nullptr && instanceof <King>(checkedPiece))
-        // {
-        //     std::cout << p->getNameFEN() << "(" << p->getPos() << ") is checking " << checkedPiece->getNameFEN() << "(" << checkedPiece->getPos() << ")" << std::endl;
-        // }
+
         if (checkedPiece != nullptr && checkedPiece->getColor() != p->getColor() && instanceof <King>(checkedPiece))
         {
             check = true;
@@ -542,7 +510,10 @@ void ChessGame::undoMove(int nPlay)
     {
         j = moves.back();
         moves.pop_back();
-        turn = !turn;
+        if (fiftyMoveRuleNumber > 0 || !j->getPiece()->getColor())
+        {
+            fiftyMoveRuleNumber--;
+        }
     }
     else // go back
     {
@@ -587,6 +558,7 @@ void ChessGame::undoMove(int nPlay)
         piece = pawn;
     }
 
+    board[j->getNewPos()] = nullptr;
     // se ha comido una pieza
     if (eatenPiece != nullptr)
     {
@@ -604,28 +576,11 @@ void ChessGame::undoMove(int nPlay)
 
         piecesList->push_back(eatenPiece);
 
-        int newPos;
-        // if (j->isEnPassant())
-        // {
-        //     newPos = eatenPiece->getColor() ? j->getNewPos() + 8 : j->getNewPos() - 8;
-        // }
-        // else
-        // {
-        //     newPos = j->getNewPos();
-        // }
-        newPos = eatenPiece->getPos();
-        eatenPiece->move(newPos, false); // not really move, is undo/takeback
-        board[newPos] = eatenPiece;
+        board[eatenPiece->getPos()] = eatenPiece;
+    }
 
-        piece->move(j->getPrevPos(), false); // not really move, is undo
-        board[j->getPrevPos()] = piece;
-    }
-    else
-    { // no se come pieza, solo se mueve
-        board[j->getNewPos()] = nullptr;
-        piece->move(j->getPrevPos(), false); // not really move, is undo/takeback
-        board[j->getPrevPos()] = piece;
-    }
+    piece->move(j->getPrevPos(), false); // not really move, is undo
+    board[j->getPrevPos()] = piece;
 
     if (j->isShortCastling())
     {
@@ -646,6 +601,11 @@ void ChessGame::undoMove(int nPlay)
             rook->move(piece->getPos() - 4, false);
             board[piece->getPos() - 4] = rook;
         }
+    }
+
+    if (nPlay == -1)
+    {
+        turn = !turn;
     }
 }
 
@@ -705,7 +665,7 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
 
         if (instanceof <King>(pieza))
         {
-            if (newpos - pieza->getPos() == 2) // enroque corto
+            if (newpos - pieza->getPos() == 2) // short castle
             {
                 if (pieza->getColor() && whiteCanShortCastling)
                 {
@@ -716,7 +676,7 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
                     possibleShortCastling = true;
                 }
             }
-            else if (newpos - pieza->getPos() == -2) // enroque largo
+            else if (newpos - pieza->getPos() == -2) // long castle
             {
                 if (pieza->getColor() && whiteCanLongCastling)
                 {
@@ -737,54 +697,46 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
         board[pieza->getPos()] = nullptr;
 
         // si ya habia una pieza, se come y se elimina
-        int enemyPos;
+        int enemyPos = newpos;
         if (j->isEnPassant())
         {
             enemyPos = pieza->getColor() ? newpos - 8 : newpos + 8;
             std::cout << "pos en passant: " << toChessPosition(enemyPos) << std::endl;
         }
-        else
-        {
-            enemyPos = newpos;
-        }
+
         Piece *pieza_enemiga = board[enemyPos];
-        // comer
+
+        // fifty rule move number
+        if (instanceof <Pawn>(pieza) || (pieza_enemiga != nullptr && pieza_enemiga->getColor() != pieza->getColor()))
+        {
+            fiftyMoveRuleNumber = 0;
+        }
+        else if (pieza->getColor())
+        {
+            fiftyMoveRuleNumber++;
+        }
+
+        // take piece
         if (pieza_enemiga != nullptr && pieza_enemiga->getColor() != pieza->getColor())
         {
-            if (!turn) // blanca
+            std::vector<Piece *> *pieceList = !turn ? &whitePieces : &blackPieces;
+
+            for (auto it = begin(*pieceList); it != end(*pieceList);)
             {
-                for (auto it = begin(whitePieces); it != end(whitePieces);)
+                if ((*it)->getPos() == enemyPos)
                 {
-                    if ((*it)->getPos() == enemyPos)
-                    {
-                        whitePieces.erase(it);
-                        break;
-                    }
-                    else
-                    {
-                        it++;
-                    }
+                    pieceList->erase(it);
+                    break;
                 }
-            }
-            else
-            {
-                for (auto it = begin(blackPieces); it != end(blackPieces);)
+                else
                 {
-                    if ((*it)->getPos() == enemyPos)
-                    {
-                        blackPieces.erase(it);
-                        break;
-                    }
-                    else
-                    {
-                        it++;
-                    }
+                    it++;
                 }
             }
 
             // not deleted, it goest to whitePieceKilled!
             // delete board[enemyPos];
-            
+
             (pieza_enemiga->getColor() ? whitePiecesKilled : blackPiecesKilled).push_back(pieza_enemiga);
             j->eat(pieza_enemiga);
         }
@@ -813,6 +765,7 @@ bool ChessGame::applyMove(Move *j, std::vector<int> movements)
 
         // movemos la pieza
         pieza->move(newpos);
+
         // ponemos el nuevo
         board[newpos] = pieza;
     }
@@ -830,26 +783,14 @@ std::vector<int> ChessGame::selectPiece(int pos)
     // std::vector<int> validMovements;
     selectedPiece = nullptr;
 
-    if (turn)
+    std::vector<Piece *> *piecesList = turn ? &whitePieces : &blackPieces;
+
+    for (auto const &i : *piecesList)
     {
-        for (auto const &i : whitePieces)
+        if (i->getPos() == pos)
         {
-            if (i->getPos() == pos)
-            {
-                selectedPiece = i;
-                break;
-            }
-        }
-    }
-    else
-    {
-        for (auto const &i : blackPieces)
-        {
-            if (i->getPos() == pos)
-            {
-                selectedPiece = i;
-                break;
-            }
+            selectedPiece = i;
+            break;
         }
     }
 
@@ -869,10 +810,8 @@ std::vector<int> ChessGame::selectPiece(int pos)
             Move *previousMove = moves.back();
             Piece *previousPiece = previousMove->getPiece();
 
-            if (instanceof <Pawn>(previousPiece) && previousPiece->getColor() != selectedPiece->getColor() && previousMove->isFirstPieceMove())
+            if (instanceof <Pawn>(previousPiece) && previousPiece->getColor() != selectedPiece->getColor() /*&& previousMove->isFirstPieceMove()*/)
             {
-                // std::cout << "pawn: " << toChessPosition(selectedPiece->getPos()) << std::endl;
-                // std::cout << "pawn 2: " << toChessPosition(previousPiece->getPos()) << std::endl;
                 if (abs(previousPiece->getPos() - selectedPiece->getPos()) == 1) // -1 or 1
                 {
                     potentiallyPieceEnPassant = previousPiece;
@@ -891,7 +830,6 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
 {
     // check if after all, there is a check
     // aux piece for checking!
-    // std::cout << "FEN ANTES: " << saveFen() << std::endl;
 
     // check king castle!
     std::vector<int> erasedMovs;
@@ -924,8 +862,7 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
 
         std::vector<Piece *> *piecesList = color ? &whitePieces : &blackPieces;
         std::vector<Piece *> *piecesList2 = color ? &blackPieces : &whitePieces;
-        // if (color)
-        // {
+
         // we delete Piece p and introduce the new one
         for (auto i = begin(*piecesList); i != end(*piecesList);)
         {
@@ -953,50 +890,13 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
                 i++;
             }
         }
-        // }
-        // else
-        // {
-        //     for (auto i = begin(blackPieces); i != end(blackPieces);)
-        //     {
-        //         if (*i == p)
-        //         {
-        //             itPos = blackPieces.erase(i);
-        //             blackPieces.insert(itPos, aux);
-        //             break;
-        //         }
-        //         else
-        //         {
-        //             i++;
-        //         }
-        //     }
-        //     for (auto i = begin(whitePieces); i != end(whitePieces);)
-        //     {
-        //         if ((*i)->getPos() == (*mov))
-        //         {
-        //             itPos2 = whitePieces.erase(i);
-        //             // aux2 = *i;
-        //             break;
-        //         }
-        //         else
-        //         {
-        //             i++;
-        //         }
-        //     }
-        // }
 
-        // cambiamos el board momentaneamente
+        // changing board status (aux)
         int currentSquare = *mov;
-        // std::cout << "piezas negras: ";
-        // for (auto const &i : blackPieces){
-        //     std::cout << i->getNameFEN() << "(" << toChessPosition(i->getPos()) << ") ";
-        // }
-        // std::cout << std::endl;
-        // std::cout << "Ponemos la casilla " << toChessPosition(p->getPos()) << " a null" << std::endl;
+
         board[p->getPos()] = nullptr;
         board[currentSquare] = aux;
-        // std::cout << "Ponemos en la casilla " << toChessPosition(*it) << " la pieza aux" << std::endl;
 
-        // std::cout << "CHECKING CHECKS PER ENEMY PIECE! (FOR MOVE " << toChessPosition(*it) << ")" << std::endl;
         // if check , cannot move (erase movement) :)
         if (checkIfChecks(color))
         {
@@ -1026,31 +926,14 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
             }
         }
 
-        if (color) // blancas
+        piecesList->erase(itPos);
+        piecesList->insert(itPos, p);
+        if (enemyPiece != nullptr)
         {
-            whitePieces.erase(itPos);
-            whitePieces.insert(itPos, p);
-            // whitePieces.pop_back();
-            // whitePieces.push_back(p);
-            if (enemyPiece != nullptr)
-            {
-                blackPieces.insert(itPos2, enemyPiece);
-            }
-        }
-        else
-        {
-            blackPieces.erase(itPos);
-            blackPieces.insert(itPos, p);
-            // blackPieces.pop_back();
-            // blackPieces.push_back(p);
-            if (enemyPiece != nullptr)
-            {
-                whitePieces.insert(itPos2, enemyPiece);
-            }
+            piecesList2->insert(itPos2, enemyPiece);
         }
 
-        // ponemos el board como antes
-        // std::cout << "Ponemos la casilla " << toChessPosition(p->getPos()) << " a null" << std::endl;n
+        // restoring board
         if (enemyPiece != nullptr && enemyPiece->getColor() != p->getColor())
         {
             board[currentSquare] = enemyPiece;
@@ -1063,16 +946,7 @@ std::vector<int> ChessGame::filterIllegalMoves(Piece *p, std::vector<int> filter
 
         // delete aux piece
         delete aux;
-
-        // std::cout << "piezas blancas: ";
-        // for (auto const &i : whitePieces)
-        // {
-        //     std::cout << i->getNameFEN() << "(" << toChessPosition(i->getPos()) << ") ";
-        // }
-        // std::cout << std::endl;
-        // std::cout << "FEN: " << saveFen() << std::endl;
     }
-    // std::cout << "STOPPING ALL VERIFICATIONS" << std::endl;
 
     return filteredMovements;
 }
@@ -1164,6 +1038,7 @@ Move *ChessGame::moveSelected(int pos, bool createPromotionComponent)
     // if everything ok, new play is created
     Move *j = new Move(selectedPiece, pos);
 
+    // for enPassant!
     bool pieceHasMoved = (selectedPiece->getTimesMoved() > 0);
 
     bool valid = applyMove(j, validMovements);
@@ -1177,10 +1052,10 @@ Move *ChessGame::moveSelected(int pos, bool createPromotionComponent)
         {
             j->setFirstPieceMoved(true); // ponemos que ha sido el primer movimiento de la pieza
         }
-        // ha movido
-        else
-        {
-        }
+        // // ha movido
+        // else
+        // {
+        // }
 
         if (instanceof <Pawn>(selectedPiece))
         {
@@ -1199,7 +1074,7 @@ Move *ChessGame::moveSelected(int pos, bool createPromotionComponent)
         }
 
         // finish, check, checkmate, draws...
-        return checkStatusAfterMoving(j);
+        return updateStatusAfterMoving(j);
     }
     else
     {
@@ -1207,9 +1082,10 @@ Move *ChessGame::moveSelected(int pos, bool createPromotionComponent)
     }
 }
 
-Move *ChessGame::checkStatusAfterMoving(Move *m)
+Move *ChessGame::updateStatusAfterMoving(Move *m)
 {
-    bool isDraws = checkIfDrawsByMaterial();
+    // 50*2
+    bool isDraws = checkIfDrawsByMaterial() || fiftyMoveRuleNumber >= 50;
     if (isDraws)
     {
         finished = true;
@@ -1226,14 +1102,8 @@ Move *ChessGame::checkStatusAfterMoving(Move *m)
         if (isCheckmate)
         {
             finished = true;
-            if (turn)
-            {
-                setResult(Result::WHITE);
-            }
-            else
-            {
-                setResult(Result::BLACK);
-            }
+            turn ? setResult(Result::WHITE) : setResult(Result::BLACK);
+
         }
     }
     else
@@ -1285,14 +1155,7 @@ Piece *ChessGame::promote(Move *m, char pieceNameNotation)
     }
 
     // it should not be deleted, must be stored at whiteKilledPieces...
-    if (p->getColor())
-    {
-        whitePiecesKilled.push_back(p);
-    }
-    else
-    {
-        blackPiecesKilled.push_back(p);
-    }
+    p->getColor() ? whitePiecesKilled.push_back(p) : blackPiecesKilled.push_back(p);
 
     // delete p;
 
@@ -1301,7 +1164,7 @@ Piece *ChessGame::promote(Move *m, char pieceNameNotation)
     m->setPromoted(true);
     m->setPawnBeforePromoting(p);
 
-    checkStatusAfterMoving(m);
+    updateStatusAfterMoving(m);
 
     selectingPromoted = false;
     if (promotionComponent != nullptr)
@@ -1316,30 +1179,18 @@ Piece *ChessGame::promote(Move *m, char pieceNameNotation)
 bool ChessGame::checkIfDrawsByPosition(bool color)
 {
     bool draws = true;
-    if (color)
+    std::vector<Piece *> *piecesList = color ? &blackPieces : &whitePieces;
+
+    for (auto const &p : *piecesList)
     {
-        for (auto const &p : blackPieces)
+        bool canMove = canPieceMove(p);
+        if (canMove)
         {
-            bool canMove = canPieceMove(p);
-            if (canMove)
-            {
-                draws = false;
-                break;
-            }
+            draws = false;
+            break;
         }
     }
-    else
-    {
-        for (auto const &p : whitePieces)
-        {
-            bool canMove = canPieceMove(p);
-            if (canMove)
-            {
-                draws = false;
-                break;
-            }
-        }
-    }
+
     return draws;
 }
 
@@ -1515,6 +1366,16 @@ std::vector<Piece *> *ChessGame::getWhitePieces()
 std::vector<Piece *> *ChessGame::getBlackPieces()
 {
     return &blackPieces;
+}
+
+std::vector<Piece *> *ChessGame::getWhitePiecesKilled()
+{
+    return &whitePiecesKilled;
+}
+
+std::vector<Piece *> *ChessGame::getBlackPiecesKilled()
+{
+    return &blackPiecesKilled;
 }
 
 void ChessGame::passTurn()

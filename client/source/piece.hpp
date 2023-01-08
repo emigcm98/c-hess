@@ -52,7 +52,7 @@ public:
     // methods
     virtual std::vector<int> calcularMovimiento() = 0; // calcula los movimientos posibles de la Piece (abstracto)
     void move(int pos, bool moved = true);
-    void move(std::string pos);
+    //void move(std::string pos);
     void rotate(bool orientation);
 };
 

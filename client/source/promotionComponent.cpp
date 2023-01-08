@@ -32,19 +32,19 @@ PromotionComponent::PromotionComponent(int pos, bool color)
     {
         sf::Color blackColor = sf::Color(0xffd70070);
 
-        blackPromotionChoices[0].setPosition(sf::Vector2f(posX * OBJECT_SIZE_F, 0 * OBJECT_SIZE_F));
+        blackPromotionChoices[0].setPosition(sf::Vector2f(posX * OBJECT_SIZE_F, 7 * OBJECT_SIZE_F));
         blackPromotionChoices[0].setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
         blackPromotionChoices[0].setFillColor(blackColor);
         blackPromotionChoices[0].setTexture(&PieceTextures::blackQueen);
-        blackPromotionChoices[1].setPosition(sf::Vector2f(posX * OBJECT_SIZE_F, 1 * OBJECT_SIZE_F));
+        blackPromotionChoices[1].setPosition(sf::Vector2f(posX * OBJECT_SIZE_F, 6 * OBJECT_SIZE_F));
         blackPromotionChoices[1].setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
         blackPromotionChoices[1].setFillColor(blackColor);
         blackPromotionChoices[1].setTexture(&PieceTextures::blackKnight);
-        blackPromotionChoices[2].setPosition(sf::Vector2f(posX * OBJECT_SIZE_F, 2 * OBJECT_SIZE_F));
+        blackPromotionChoices[2].setPosition(sf::Vector2f(posX * OBJECT_SIZE_F, 5 * OBJECT_SIZE_F));
         blackPromotionChoices[2].setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
         blackPromotionChoices[2].setFillColor(blackColor);
         blackPromotionChoices[2].setTexture(&PieceTextures::blackRook);
-        blackPromotionChoices[3].setPosition(sf::Vector2f(posX * OBJECT_SIZE_F, 3 * OBJECT_SIZE_F));
+        blackPromotionChoices[3].setPosition(sf::Vector2f(posX * OBJECT_SIZE_F, 4 * OBJECT_SIZE_F));
         blackPromotionChoices[3].setSize(sf::Vector2f(OBJECT_SIZE_F, OBJECT_SIZE_F));
         blackPromotionChoices[3].setFillColor(blackColor);
         blackPromotionChoices[3].setTexture(&PieceTextures::blackBishop);

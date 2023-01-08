@@ -26,6 +26,7 @@ ChessGameHandler::ChessGameHandler(User *player, User *player2, bool humanColor)
 
         this->chessgame = new ChessGame(this->player, this->player2, &font);
         this->ca = new RandomChessAlgorithm(chessgame, !humanColor);
+        // this->ca = new BasicChessAlgorithm(chessgame, !humanColor);
     }
     else
     {
@@ -64,7 +65,7 @@ int ChessGameHandler::start()
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
         Move *lastMove = nullptr;
-        //bool* turn = chessgame->getTurn();
+        // bool* turn = chessgame->getTurn();
         bool selectingPromoted = chessgame->getIfSelectingPromoted();
         bool promoting = false;
         char pieceNameNotation = '\0';
@@ -105,12 +106,26 @@ int ChessGameHandler::start()
                             if (selectingPromoted)
                             {
                                 lastMove = gameMoves->back();
-                                if (buttonPos == lastMove->getNewPos() || buttonPos == lastMove->getNewPos() - 8 ||
-                                    buttonPos == lastMove->getNewPos() - 16 || buttonPos == lastMove->getNewPos() - 24)
+                                if (*turn)
                                 {
-                                    pieceNameNotation = chessgame->getPieceType(7 - buttonPos / 8);
-                                    promoting = true;
+                                    if (buttonPos == lastMove->getNewPos() || buttonPos == lastMove->getNewPos() - 8 ||
+                                        buttonPos == lastMove->getNewPos() - 16 || buttonPos == lastMove->getNewPos() - 24)
+                                    {
+                                        pieceNameNotation = chessgame->getPieceType(7 - buttonPos / 8);
+                                        promoting = true;
+                                    }
                                 }
+                                else {
+                                    std::cout << "buttonPos: " << buttonPos << std::endl;
+                                    std::cout << "lastMoveNewPos: " << lastMove->getNewPos() << std::endl;
+                                    if (buttonPos == lastMove->getNewPos() || buttonPos == lastMove->getNewPos() + 8 ||
+                                        buttonPos == lastMove->getNewPos() + 16 || buttonPos == lastMove->getNewPos() + 24)
+                                    {
+                                        pieceNameNotation = chessgame->getPieceType(buttonPos / 8);
+                                        promoting = true;
+                                    }
+                                }
+
                                 break;
                             }
 
@@ -187,6 +202,39 @@ int ChessGameHandler::start()
                         chessgame->undoMove();
                     }
                 }
+                else if (event.key.code == sf::Keyboard::F10)
+                {
+                    window.close();
+                    return 1;
+                }
+                else if (event.key.code == sf::Keyboard::W)
+                {
+                    std::cout << "White Pieces: " << std::endl;
+                    for (auto const &i : *chessgame->getWhitePieces())
+                    {
+                        std::cout << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") [times=" << i->getTimesMoved() << "]" << std::endl;
+                    }
+                    std::cout << "White Pieces Killed: " << std::endl;
+                    for (auto const &i : *chessgame->getWhitePiecesKilled())
+                    {
+                        std::cout << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") [times=" << i->getTimesMoved() << "]" << std::endl;
+                    }
+                    std::cout << std::endl;
+                }
+                else if (event.key.code == sf::Keyboard::B)
+                {
+                    std::cout << "Black Pieces: " << std::endl;
+                    for (auto const &i : *chessgame->getBlackPieces())
+                    {
+                        std::cout << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") [times=" << i->getTimesMoved() << "]" << std::endl;
+                    }
+                    std::cout << "Black Pieces Killed: " << std::endl;
+                    for (auto const &i : *chessgame->getBlackPiecesKilled())
+                    {
+                        std::cout << i->getNameFEN() << " (" << toChessPosition(i->getPos()) << ") [times=" << i->getTimesMoved() << "]" << std::endl;
+                    }
+                    std::cout << std::endl;
+                }
                 // else if (event.key.code == sf::Keyboard::J)
                 // {
                 //     std::cout << gameMoves->size() << std::endl;
@@ -218,7 +266,7 @@ int ChessGameHandler::start()
             }
         }
 
-        if (*turn == humanColor && promoting)
+        if ((*turn == humanColor || ca == nullptr) && promoting)
         {
 
             // while(window.pollEvent()){

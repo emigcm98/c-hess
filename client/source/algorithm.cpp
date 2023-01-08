@@ -88,7 +88,8 @@ BasicChessAlgorithm::BasicChessAlgorithm(ChessGame *p, bool color) : ChessAlgori
 
 BasicChessAlgorithm::~BasicChessAlgorithm()
 {
-    //std::cout << "deleting BasicChessAlgorithm" << std::endl;
+    struct tm birthdate;
+    this->computer = new User("basicAlg", "", birthdate, 700);
 }
 
 float BasicChessAlgorithm::evaluatePosition()

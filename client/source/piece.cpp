@@ -122,10 +122,10 @@ void Piece::move(int pos, bool moved)
     }
 }
 
-void Piece::move(std::string pos)
-{
-    move(fromChessPosition(pos));
-}
+// void Piece::move(std::string pos)
+// {
+//     move(fromChessPosition(pos));
+// }
 
 void Piece::setTexture()
 {
