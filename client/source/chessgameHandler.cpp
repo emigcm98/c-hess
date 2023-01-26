@@ -187,17 +187,16 @@ int ChessGameHandler::start()
                 {
                     if (nMove < int(gameMoves->size()))
                     {
-                        chessgame->applyPlay(nMove);
+                        chessgame->restoreMove(nMove);
                         nMove++;
                     }
                 }
-                else if (event.key.code == sf::Keyboard::Escape)
+                else if (!chessgame->isFinished() && event.key.code == sf::Keyboard::Escape)
                 {
+                    nMove--;
+                    chessgame->undoMove();
                     if (nMove > 1)
                     {
-                        nMove--;
-                        // chessgame->takeback();
-                        chessgame->undoMove();
                         nMove--;
                         chessgame->undoMove();
                     }
@@ -250,7 +249,7 @@ int ChessGameHandler::start()
             // wait a little time
             sf::sleep(sf::milliseconds(500));
 
-            Move *lastMove2 = chessgame->moveSelected(mov, false);
+            Move *lastMove2 = chessgame->moveSelected(mov, false, false);
             if (lastMove2 != nullptr)
             {
                 nMove++;

@@ -87,10 +87,10 @@ public:
     void passTurn();
     bool applyMove(Move* j, std::vector<int> movements); // aplica los cambios al tablero
     void undoMove(int nPlay = -1);
-    bool applyPlay(int nPlay);
+    bool restoreMove(int nPlay);
     void deselectPiece();
     std::vector<int> selectPiece(int pos);
-    Move* moveSelected(int pos, bool createPromotionComponent = true);
+    Move* moveSelected(int pos, bool createPromotionComponent = true, bool fake = false);
     //bool fakeMove(int pos, std::vector<int> validMovements);
     bool rotateBoard();
     bool isChecking(Piece *p);

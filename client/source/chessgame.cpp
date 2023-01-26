@@ -609,15 +609,14 @@ void ChessGame::undoMove(int nPlay)
     }
 }
 
-bool ChessGame::applyPlay(int nPlay)
+bool ChessGame::restoreMove(int nPlay)
 {
     Move *j = moves.at(nPlay);
     Piece *piece = j->getPiece();
 
     std::cout << "pieza: " << piece->getNameFEN() << " -> (" << toChessPosition(j->getPrevPos()) << ", " << toChessPosition(j->getNewPos()) << ") [" << piece->getTimesMoved() << "]" << std::endl;
-
-    std::vector<int> validMovements = filterValidMoves(piece);
-
+    std::cout << "pieza pos: " << toChessPosition(piece->getPos()) << std::endl;
+    selectPiece(piece->getPos());
     std::cout << "movements: ";
     for (auto m : validMovements)
     {
@@ -625,7 +624,7 @@ bool ChessGame::applyPlay(int nPlay)
     }
     std::cout << std::endl;
 
-    return applyMove(j, validMovements);
+    return moveSelected(j->getNewPos(), false, true);
 }
 
 bool ChessGame::applyMove(Move *j, std::vector<int> movements)
@@ -1009,7 +1008,7 @@ std::vector<int> ChessGame::createMovesSquares()
     return validMovements;
 }
 
-Move *ChessGame::moveSelected(int pos, bool createPromotionComponent)
+Move *ChessGame::moveSelected(int pos, bool createPromotionComponent, bool fake)
 {
 
     // no piece or not selected or piece but same square as before
@@ -1042,6 +1041,17 @@ Move *ChessGame::moveSelected(int pos, bool createPromotionComponent)
     bool pieceHasMoved = (selectedPiece->getTimesMoved() > 0);
 
     bool valid = applyMove(j, validMovements);
+
+    if (fake)
+    {
+        delete j;
+        selectedPiece = nullptr;
+        // if (moves.size() > 1)
+        // {
+            turn = !turn;
+        // }
+        return nullptr;
+    }
 
     if (valid)
     {
